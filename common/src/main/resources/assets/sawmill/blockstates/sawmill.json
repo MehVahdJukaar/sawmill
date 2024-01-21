@@ -1,19 +1,39 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "sawmill:block/sawmill",
-      "y": 90
-    },
-    "facing=east": {
+    "facing=north,bottom=true": {
       "model": "sawmill:block/sawmill",
       "y": 180
     },
-    "facing=south": {
+    "facing=east,bottom=true": {
       "model": "sawmill:block/sawmill",
       "y": 270
     },
-    "facing=west": {
+    "facing=south,bottom=true": {
       "model": "sawmill:block/sawmill"
+    },
+    "facing=west,bottom=true": {
+      "model": "sawmill:block/sawmill",
+      "y": 90
+    },
+
+    "facing=north,bottom=false": {
+      "model": "sawmill:block/sawmill",
+      "x": 180
+    },
+    "facing=east,bottom=false": {
+      "model": "sawmill:block/sawmill",
+      "x": 180,
+      "y": 90
+    },
+    "facing=south,bottom=false": {
+      "model": "sawmill:block/sawmill",
+      "x": 180,
+      "y": 180
+    },
+    "facing=west,bottom=false": {
+      "model": "sawmill:block/sawmill",
+      "x": 180,
+      "y": 270
     }
   }
 }

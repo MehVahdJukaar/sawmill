@@ -1,1 +1,1 @@
-first release!
+more usable version. still very wip

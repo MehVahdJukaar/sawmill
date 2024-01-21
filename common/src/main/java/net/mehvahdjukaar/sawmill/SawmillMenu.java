@@ -43,7 +43,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     }
 
     public SawmillMenu(int i, Inventory inventory, final ContainerLevelAccess containerLevelAccess) {
-        super(MenuType.STONECUTTER, i);
+        super(Sawmill.SAWMILL_MENU.get(), i);
         this.selectedRecipeIndex = DataSlot.standalone();
         this.recipes = Lists.newArrayList();
         this.input = ItemStack.EMPTY;
@@ -71,7 +71,7 @@ public class SawmillMenu extends AbstractContainerMenu {
             public void onTake(Player player, ItemStack stack) {
                 stack.onCraftedBy(player.level(), player, stack.getCount());
                 resultContainer.awardUsedRecipes(player, this.getRelevantItems());
-                ItemStack itemStack = inputSlot.remove(1);
+                ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get()).getInputCount());
                 if (!itemStack.isEmpty()) {
                     setupResultSlot();
                 }
@@ -144,7 +144,9 @@ public class SawmillMenu extends AbstractContainerMenu {
     @Override
     public void slotsChanged(Container container) {
         ItemStack itemStack = this.inputSlot.getItem();
-        if (!itemStack.is(this.input.getItem()) || itemStack.getCount() < maxRecipeRequestInput) {
+        boolean diffStack = itemStack.is(this.input.getItem());
+        //TODO: fix
+        if (!diffStack || itemStack.getCount() < maxRecipeRequestInput) {
             this.input = itemStack.copy();
             this.setupRecipeList(container, itemStack);
         }
@@ -213,7 +215,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemStack2, 2, 38, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (this.level.getRecipeManager().getRecipeFor(RecipeType.STONECUTTING, new SimpleContainer(itemStack2), this.level).isPresent()) {
+            } else if (this.level.getRecipeManager().getRecipeFor(Sawmill.SAWMILL_RECIPE.get(), new SimpleContainer(itemStack2), this.level).isPresent()) {
                 if (!this.moveItemStackTo(itemStack2, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }

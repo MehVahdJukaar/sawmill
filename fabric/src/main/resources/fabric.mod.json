@@ -15,7 +15,7 @@
   "icon": "icon.png",
   "environment": "client",
   "entrypoints": {
-    "client": [
+    "main": [
       "net.mehvahdjukaar.sawmill.fabric.SawmillFabric"
     ]
   },
@@ -26,8 +26,5 @@
   "depends": {
     "fabric": "*",
     "minecraft": ">=${minecraft_min_version} <${minecraft_max_version}"
-  },
-  "breaks": {
-    "slotify": "*"
   }
 }

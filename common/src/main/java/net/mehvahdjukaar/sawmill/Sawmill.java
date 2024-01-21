@@ -44,11 +44,11 @@ public class Sawmill {
     public static final Supplier<RecipeType<SawmillRecipe>> SAWMILL_RECIPE = RegHelper.registerRecipeType(
             res("woodcutting"));
     public static final ResourceKey<PoiType> LUMBERJACK_POI_KEY = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE,
-            res("lumberjack"));
-    public static final Supplier<PoiType> LUMBERJACK_POI = RegHelper.registerPOI(res("lumberjack"),
+            res("carpenter"));
+    public static final Supplier<PoiType> LUMBERJACK_POI = RegHelper.registerPOI(res("carpenter"),
             () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
     public static final Supplier<VillagerProfession> LUMBERJACK = registerVillager(
-            "lumberjack", LUMBERJACK_POI_KEY, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
+            "carpenter", LUMBERJACK_POI_KEY, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
 
     private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, @Nullable SoundEvent workSound) {
         return RegHelper.register(res(name), () -> new VillagerProfession(name,

@@ -30,12 +30,6 @@ issueTrackerURL = "${mod_github}/issues"
     ordering = "NONE"
     side = "CLIENT"
 
-[[dependencies.sawmill]]
-    modId = "zeta"
-    mandatory = true
-    versionRange = "*"
-    ordering = "NONE"
-    side = "BOTH"
 
 [[dependencies.sawmill]]
     modId = "moonlight"

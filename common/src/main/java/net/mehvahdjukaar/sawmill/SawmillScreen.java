@@ -3,12 +3,15 @@ package net.mehvahdjukaar.sawmill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.StonecutterMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 
 import java.util.HashSet;
@@ -120,7 +123,9 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             int k = x + j % 4 * 16;
             int l = j / 4;
             int m = y + l * 18 + 2;
-            guiGraphics.renderItem((list.get(i)).getResultItem(this.minecraft.level.registryAccess()), k, m);
+            ItemStack item = list.get(i).getResultItem(this.minecraft.level.registryAccess());
+            guiGraphics.renderFakeItem(item, k, m);
+            guiGraphics.renderItemDecorations(font, item, k, m);
         }
     }
 
@@ -132,10 +137,10 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             int j = this.topPos + 14;
             int k = this.startIndex + 12;
 
-            for (int l = this.startIndex; l < k; ++l) {
+            for(int l = this.startIndex; l < k; ++l) {
                 int m = l - this.startIndex;
                 double d = mouseX - (i + m % 4 * 16);
-                double e = mouseY - (j + m / 4d * 18);
+                double e = mouseY - (j + (m / 4) * 18);
                 if (d >= 0.0 && e >= 0.0 && d < 16.0 && e < 18.0 && (this.menu).clickMenuButton(this.minecraft.player, l)) {
                     Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1.0F));
                     this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, l);

@@ -9,10 +9,8 @@ import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,18 +44,24 @@ public class SawmillRecipeGenerator {
             int counter = 0;
             for (var m : entry.getValue().values()) {
                 int inputCount = 1;
-                int outputCount = (int) ((1 / m.cost) + 0.01);
+                double value = (1 / m.cost) - 0.0001;
+                int outputCount;
+                if (value > 0.5)
+                    outputCount = Mth.ceil(value);
+                else outputCount = Mth.floor(value);
                 if (outputCount < 1) {
                     outputCount = 1;
                     //discount!
                     inputCount = (int) (double) m.cost;
                 }
-                WoodType woodType = m.type;
-                Ingredient input = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
-                ResourceLocation res = Sawmill.res(itemId + "_" + counter++);
+                if (outputCount <= result.getMaxStackSize()) {
+                    WoodType woodType = m.type;
+                    Ingredient input = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
+                    ResourceLocation res = Sawmill.res(itemId + "_" + counter++);
 
-                SawmillRecipe recipe = new SawmillRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
-                sawmillRecipes.add(recipe);
+                    SawmillRecipe recipe = new SawmillRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
+                    sawmillRecipes.add(recipe);
+                }
 
             }
         }
@@ -173,7 +177,6 @@ public class SawmillRecipeGenerator {
         if (!isTag) return ing.getItems();
         return stacks.toArray(ItemStack[]::new);
     }
-
 
 
     private static List<Item> getAllChildren(WoodType type, String... keys) {
