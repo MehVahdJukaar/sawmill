@@ -11,10 +11,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class SawmillMenu extends AbstractContainerMenu {
@@ -35,8 +33,6 @@ public class SawmillMenu extends AbstractContainerMenu {
     Runnable slotUpdateListener;
     public final Container container;
     final ResultContainer resultContainer;
-
-    private int maxRecipeRequestInput = 1;
 
     public SawmillMenu(int i, Inventory inventory, FriendlyByteBuf buf) {
         this(i, inventory, ContainerLevelAccess.NULL);
@@ -144,9 +140,10 @@ public class SawmillMenu extends AbstractContainerMenu {
     @Override
     public void slotsChanged(Container container) {
         ItemStack itemStack = this.inputSlot.getItem();
-        boolean diffStack = itemStack.is(this.input.getItem());
-        //TODO: fix
-        if (!diffStack || itemStack.getCount() < maxRecipeRequestInput) {
+        ItemStack old = this.input;
+        boolean sameStack = itemStack.is(old.getItem());
+        int maxItemsThatCanBeConsumed = 4; //I made it the f up
+        if (!sameStack || itemStack.getCount() < maxItemsThatCanBeConsumed ^ old.getCount() < maxItemsThatCanBeConsumed) {
             this.input = itemStack.copy();
             this.setupRecipeList(container, itemStack);
         }
@@ -159,8 +156,6 @@ public class SawmillMenu extends AbstractContainerMenu {
         this.resultSlot.set(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager().getRecipesFor(Sawmill.SAWMILL_RECIPE.get(), container, this.level);
-            this.maxRecipeRequestInput = this.recipes.stream().max(Comparator.comparingInt(SawmillRecipe::getInputCount))
-                    .get().getInputCount();
         }
 
     }

@@ -37,32 +37,19 @@ public class SawmillRecipeGenerator {
 
         List<SawmillRecipe> sawmillRecipes = new ArrayList<>();
         Map<WoodType, Ingredient> logIngredients = new HashMap<>();
-        String group = "dummy";
+        Map<WoodType, Ingredient> plankIngredients = new HashMap<>();
+        String group = "logs";
+        String group2 = "planks";
         for (var entry : costs.entrySet()) {
             Item result = entry.getKey();
             String itemId = Utils.getID(result).toDebugFileName();
             int counter = 0;
             for (var m : entry.getValue().values()) {
-                int inputCount = 1;
-                double value = (1 / m.cost) - 0.0001;
-                int outputCount;
-                if (value > 0.5)
-                    outputCount = Mth.ceil(value);
-                else outputCount = Mth.floor(value);
-                if (outputCount < 1) {
-                    outputCount = 1;
-                    //discount!
-                    inputCount = (int) (double) m.cost;
-                }
-                if (outputCount <= result.getMaxStackSize()) {
-                    WoodType woodType = m.type;
-                    Ingredient input = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
-                    ResourceLocation res = Sawmill.res(itemId + "_" + counter++);
-
-                    SawmillRecipe recipe = new SawmillRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
-                    sawmillRecipes.add(recipe);
-                }
-
+                WoodType woodType = m.type;
+                Ingredient logInput = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
+                addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
+                Ingredient plankInput = plankIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makePlankIngredient);
+                addNewRecipe(sawmillRecipes, plankInput, group, result, itemId, counter++, m.cost*4, true);
             }
         }
 
@@ -79,6 +66,36 @@ public class SawmillRecipeGenerator {
 
         Sawmill.clearCacheHacks();
 
+    }
+
+    private static void addNewRecipe(List<SawmillRecipe> sawmillRecipes, Ingredient input, String group,
+                                     Item result, String itemId, int counter, double cost, boolean only1on1) {
+        int inputCount = 1;
+        double value = (1 / cost) - 0.0001;
+        int outputCount;
+        if (value > 0.5)
+            outputCount = Mth.ceil(value);
+        else outputCount = Mth.floor(value);
+        if (outputCount < 1) {
+            outputCount = 1;
+            //discount!
+            inputCount = (int) cost;
+        }
+        if (only1on1 && inputCount != 1) return;
+        if (outputCount <= result.getMaxStackSize()) {
+
+            ResourceLocation res = Sawmill.res(itemId + "_" + counter);
+
+            SawmillRecipe recipe = new SawmillRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
+            sawmillRecipes.add(recipe);
+
+            //planks recipe
+        }
+    }
+
+    private static Ingredient makePlankIngredient(WoodType type) {
+        var children = getAllChildren(type, "planks", "quark:vertical_planks");
+        return Ingredient.of(children.toArray(Item[]::new));
     }
 
     private static Ingredient makeLogIngredient(WoodType type) {

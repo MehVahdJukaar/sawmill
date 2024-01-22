@@ -1,9 +1,12 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.ImmutableSet;
+import net.mehvahdjukaar.moonlight.api.platform.ClientHelper;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +24,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StructureBlock;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +51,7 @@ public class Sawmill {
             res("carpenter"));
     public static final Supplier<PoiType> LUMBERJACK_POI = RegHelper.registerPOI(res("carpenter"),
             () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
-    public static final Supplier<VillagerProfession> LUMBERJACK = registerVillager(
+    public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
             "carpenter", LUMBERJACK_POI_KEY, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
 
     private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, @Nullable SoundEvent workSound) {
@@ -64,7 +68,10 @@ public class Sawmill {
         }
         RegHelper.addItemsToTabsRegistration(event ->
                 event.addAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS,
-                        stack -> stack.is(Items.STONECUTTER), SAWMILL_BLOCK.get().asItem()));
+                        stack -> stack.is(Items.STONECUTTER),
+                        SAWMILL_BLOCK.get().asItem()));
+
+        PlatHelper.addServerReloadListener(CarpenterTrades.INSTANCE, res("carpenter_trades"));
     }
 
     public static ResourceLocation res(String name) {
@@ -91,12 +98,18 @@ public class Sawmill {
                 }
             }
         }
-        if (tag == null) {
+
+        if (tags == null) {
             return List.of();
         }
-        return cachedTags.computeIfAbsent(tag, t ->
-                tags.get().get(t.location()).stream().map(h -> ((Item) h.value()).getDefaultInstance())
-                        .toList());
+        return cachedTags.computeIfAbsent(tag, t -> {
+            var tagList = tags.get().get(t.location());
+            if (tagList == null) {
+                return List.of();
+            }
+            return tagList.stream().map(h -> ((Item) h.value()).getDefaultInstance())
+                    .toList();
+        });
     }
 
     public static void clearCacheHacks() {

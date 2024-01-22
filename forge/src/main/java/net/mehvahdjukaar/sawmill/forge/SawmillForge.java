@@ -5,7 +5,9 @@ import net.mehvahdjukaar.moonlight.api.platform.forge.RegHelperImpl;
 import net.mehvahdjukaar.sawmill.Sawmill;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -17,11 +19,11 @@ public class SawmillForge {
 
     public SawmillForge() {
         Sawmill.init();
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent
-    public void registerCustomResolver(RegisterColorHandlersEvent.ColorResolvers event) {
-    }
+
+
 
 
 }

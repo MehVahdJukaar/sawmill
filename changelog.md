@@ -1,1 +1,2 @@
-more usable version. still very wip
+fixed crash with sawmill
+added planks recipes
