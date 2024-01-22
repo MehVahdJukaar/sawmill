@@ -7,15 +7,17 @@ import com.google.common.collect.Multimap;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
-import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +51,7 @@ public class SawmillRecipeGenerator {
                 Ingredient logInput = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
                 addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
                 Ingredient plankInput = plankIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makePlankIngredient);
-                addNewRecipe(sawmillRecipes, plankInput, group, result, itemId, counter++, m.cost*4, true);
+                addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, m.cost * 4, true);
             }
         }
 
@@ -114,20 +116,21 @@ public class SawmillRecipeGenerator {
         // remove stuff that has non-whitelisted primitives
         Set<Recipe<?>> validRecipes = new HashSet<>();
         Set<Item> craftableItems = new HashSet<>();
+        boolean allowNonBlocks = CommonConfigs.NON_BLOCKS.get();
         for (var recipe : recipes) {
-            if (recipe instanceof AbstractCookingRecipe ||
-                    recipe instanceof SmithingRecipe ||
-                    recipe instanceof StonecutterScreen) continue;
-            try {
-                Item i = recipe.getResultItem(RegistryAccess.EMPTY).getItem();
-                if (!recipe.getIngredients().isEmpty()) {
-                    craftableItems.add(i);
-                    validRecipes.add(recipe);
-                } else {
-                    //oh oh
-                    int aa = 1;
+            if (Sawmill.isWhitelisted(recipe.getType())) {
+                try {
+                    Item i = recipe.getResultItem(RegistryAccess.EMPTY).getItem();
+                    if (allowNonBlocks && !(i instanceof BlockItem)) continue;
+                    if (!recipe.getIngredients().isEmpty()) {
+                        craftableItems.add(i);
+                        validRecipes.add(recipe);
+                    } else {
+                        //oh oh
+                        int aa = 1;
+                    }
+                } catch (Exception ignored) {
                 }
-            } catch (Exception ignored) {
             }
         }
 

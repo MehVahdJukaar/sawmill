@@ -1,12 +1,9 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.ImmutableSet;
-import net.mehvahdjukaar.moonlight.api.platform.ClientHelper;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -24,8 +21,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.StructureBlock;
-import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +61,7 @@ public class Sawmill {
         if (PlatHelper.getPhysicalSide().isClient()) {
             SawmillClient.init();
         }
+        CommonConfigs.init();
         RegHelper.addItemsToTabsRegistration(event ->
                 event.addAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS,
                         stack -> stack.is(Items.STONECUTTER),
@@ -82,6 +78,7 @@ public class Sawmill {
     private static WeakReference<TagManager> tagManager = null;
     private static WeakReference<Map<ResourceLocation, Collection<Holder>>> tags = null;
     private static Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
+    private static List<RecipeType<?>> whitelist = new ArrayList<>();
 
     public static void setTagManager(TagManager t) {
         tagManager = new WeakReference<>(t);
@@ -94,6 +91,7 @@ public class Sawmill {
                 for (var r : manager.getResult()) {
                     if (r.key() == Registries.ITEM) {
                         tags = new WeakReference<>((Map<ResourceLocation, Collection<Holder>>) (Object) r.tags());
+                        break;
                     }
                 }
             }
@@ -115,6 +113,24 @@ public class Sawmill {
     public static void clearCacheHacks() {
         tagManager = null;
         tags = null;
+        whitelist.clear();
         cachedTags.clear();
+    }
+
+    public static boolean isWhitelisted(RecipeType<?> type) {
+        if (whitelist.isEmpty()) {
+            TagManager manager = Sawmill.tagManager.get();
+            if (manager != null) {
+                for (var r : manager.getResult()) {
+                    if (r.key() == Registries.RECIPE_TYPE) {
+                        whitelist.addAll(r.tags().get(res("whitelist"))
+                                .stream().map(holder -> (RecipeType<?>) holder.value()).toList());
+                        break;
+                    }
+                }
+            }
+        }
+        return whitelist.contains(type);
+
     }
 }

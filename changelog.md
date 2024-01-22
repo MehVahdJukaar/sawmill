@@ -1,2 +1,1 @@
-fixed crash with sawmill
-added planks recipes
+added whitelist recipe tye tag to only allow certain recipes to be scanned
