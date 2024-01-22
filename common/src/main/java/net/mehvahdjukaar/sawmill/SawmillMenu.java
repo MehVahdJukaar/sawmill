@@ -28,7 +28,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final DataSlot selectedRecipeIndex;
     private final Level level;
-    private List<SawmillRecipe> recipes;
+    private List<WoodcuttingRecipe> recipes;
     private ItemStack input;
     long lastSoundTime;
     final Slot inputSlot;
@@ -109,7 +109,7 @@ public class SawmillMenu extends AbstractContainerMenu {
         return this.selectedRecipeIndex.get();
     }
 
-    public List<SawmillRecipe> getRecipes() {
+    public List<WoodcuttingRecipe> getRecipes() {
         return this.recipes;
     }
 
@@ -159,8 +159,8 @@ public class SawmillMenu extends AbstractContainerMenu {
         this.resultSlot.set(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager()
-                    .getRecipesFor(SawmillMod.SAWMILL_RECIPE.get(), container, this.level);
-            Comparator<SawmillRecipe> comp = Comparator.comparingInt(r->r.getResultItem(RegistryAccess.EMPTY).getCount());
+                    .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
+            Comparator<WoodcuttingRecipe> comp = Comparator.comparingInt(r->r.getResultItem(RegistryAccess.EMPTY).getCount());
             comp = comp.thenComparing(sawmillRecipe ->
                     Utils.getID(sawmillRecipe.getResultItem(RegistryAccess.EMPTY).getItem()));
 
@@ -171,7 +171,7 @@ public class SawmillMenu extends AbstractContainerMenu {
 
     void setupResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
-            SawmillRecipe recipe = this.recipes.get(this.selectedRecipeIndex.get());
+            WoodcuttingRecipe recipe = this.recipes.get(this.selectedRecipeIndex.get());
             ItemStack itemStack = recipe.assemble(this.container, this.level.registryAccess());
             if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
                 this.resultContainer.setRecipeUsed(recipe);
@@ -219,7 +219,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemStack2, 2, 38, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (this.level.getRecipeManager().getRecipeFor(SawmillMod.SAWMILL_RECIPE.get(), new SimpleContainer(itemStack2), this.level).isPresent()) {
+            } else if (this.level.getRecipeManager().getRecipeFor(SawmillMod.WOODCUTTING_RECIPE.get(), new SimpleContainer(itemStack2), this.level).isPresent()) {
                 if (!this.moveItemStackTo(itemStack2, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }

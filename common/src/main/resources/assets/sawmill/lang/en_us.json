@@ -1,5 +1,6 @@
 {
   "container.sawmill.sawmill": "Sawmill",
   "block.sawmill.sawmill": "Sawmill",
-  "jei.sawmill.category.sawmill": "Woodcutting"
+  "jei.sawmill.category.woodcutting": "Woodcutting",
+  "entity.minecraft.villager.sawmill.carpenter": "Carpenter"
 }

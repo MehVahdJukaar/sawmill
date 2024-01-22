@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "net.mehvahdjukaar.sawmill.fabric.SawmillFabric"
+    ],
+    "jei_mod_plugin": [
+      "net.mehvahdjukaar.sawmill.integration.JEIPlugin"
     ]
   },
   "mixins": [

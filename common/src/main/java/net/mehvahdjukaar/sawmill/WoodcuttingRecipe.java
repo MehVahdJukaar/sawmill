@@ -12,11 +12,11 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SingleItemRecipe;
 import net.minecraft.world.level.Level;
 
-public class SawmillRecipe extends SingleItemRecipe {
+public class WoodcuttingRecipe extends SingleItemRecipe {
     private final int inputCount;
-    public SawmillRecipe(ResourceLocation resourceLocation, String string,
-                         Ingredient ingredient, ItemStack itemStack, int inputCount) {
-        super(SawmillMod.SAWMILL_RECIPE.get(), SawmillMod.SAWMILL_RECIPE_SERIALIZER.get(), resourceLocation, string, ingredient, itemStack);
+    public WoodcuttingRecipe(ResourceLocation resourceLocation, String string,
+                             Ingredient ingredient, ItemStack itemStack, int inputCount) {
+        super(SawmillMod.WOODCUTTING_RECIPE.get(), SawmillMod.WOODCUTTING_RECIPE_SERIALIZER.get(), resourceLocation, string, ingredient, itemStack);
         this.inputCount = inputCount;
     }
 
@@ -40,10 +40,10 @@ public class SawmillRecipe extends SingleItemRecipe {
         return true; //for recipe book
     }
 
-    public static class Serializer implements RecipeSerializer<SawmillRecipe> {
+    public static class Serializer implements RecipeSerializer<WoodcuttingRecipe> {
 
         @Override
-        public SawmillRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+        public WoodcuttingRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             String string = GsonHelper.getAsString(json, "group", "");
             Ingredient ingredient;
             if (GsonHelper.isArrayNode(json, "ingredient")) {
@@ -55,20 +55,20 @@ public class SawmillRecipe extends SingleItemRecipe {
             String string2 = GsonHelper.getAsString(json, "result");
             int i = GsonHelper.getAsInt(json, "count");
             ItemStack itemStack = new ItemStack( BuiltInRegistries.ITEM.get(new ResourceLocation(string2)), i);
-            return new SawmillRecipe(recipeId, string, ingredient, itemStack, inCount);
+            return new WoodcuttingRecipe(recipeId, string, ingredient, itemStack, inCount);
         }
 
         @Override
-        public SawmillRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+        public WoodcuttingRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
             String string = buffer.readUtf();
             Ingredient ingredient = Ingredient.fromNetwork(buffer);
             ItemStack itemStack = buffer.readItem();
             int intCount = buffer.readVarInt();
-            return new SawmillRecipe(recipeId, string, ingredient, itemStack, intCount);
+            return new WoodcuttingRecipe(recipeId, string, ingredient, itemStack, intCount);
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buffer, SawmillRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buffer, WoodcuttingRecipe recipe) {
             buffer.writeUtf(recipe.group);
             recipe.ingredient.toNetwork(buffer);
             buffer.writeItem(recipe.result);

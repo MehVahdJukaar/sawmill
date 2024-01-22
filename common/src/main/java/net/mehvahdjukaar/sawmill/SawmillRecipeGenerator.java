@@ -37,7 +37,7 @@ public class SawmillRecipeGenerator {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
 
-        List<SawmillRecipe> sawmillRecipes = new ArrayList<>();
+        List<WoodcuttingRecipe> sawmillRecipes = new ArrayList<>();
         Map<WoodType, Ingredient> logIngredients = new HashMap<>();
         Map<WoodType, Ingredient> plankIngredients = new HashMap<>();
         String group = "logs";
@@ -85,7 +85,7 @@ public class SawmillRecipeGenerator {
 
     }
 
-    private static void addLogRecipe(List<SawmillRecipe> sawmillRecipes, WoodType type, int counter,
+    private static void addLogRecipe(List<WoodcuttingRecipe> sawmillRecipes, WoodType type, int counter,
                                      String from, String to) {
         var fromLog = type.getItemOfThis(from);
         var toLog = type.getItemOfThis(to);
@@ -95,7 +95,7 @@ public class SawmillRecipeGenerator {
         }
     }
 
-    private static void addNewRecipe(List<SawmillRecipe> sawmillRecipes, Ingredient input, String group,
+    private static void addNewRecipe(List<WoodcuttingRecipe> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
         int inputCount = 1;
         double value = (1 / cost) - 0.0001;
@@ -113,7 +113,7 @@ public class SawmillRecipeGenerator {
 
             ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
 
-            SawmillRecipe recipe = new SawmillRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
+            WoodcuttingRecipe recipe = new WoodcuttingRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
             sawmillRecipes.add(recipe);
 
             //planks recipe

@@ -38,16 +38,16 @@ public class SawmillMod {
             res("sawmill"), SawmillBlock::new);
     public static final Supplier<MenuType<SawmillMenu>> SAWMILL_MENU = RegHelper.registerMenuType(
             res("sawmill"), SawmillMenu::new);
-    public static final Supplier<RecipeSerializer<SawmillRecipe>> SAWMILL_RECIPE_SERIALIZER = RegHelper.registerRecipeSerializer(
-            res("woodcutting"), SawmillRecipe.Serializer::new);
-    public static final Supplier<RecipeType<SawmillRecipe>> SAWMILL_RECIPE = RegHelper.registerRecipeType(
+    public static final Supplier<RecipeSerializer<WoodcuttingRecipe>> WOODCUTTING_RECIPE_SERIALIZER = RegHelper.registerRecipeSerializer(
+            res("woodcutting"), WoodcuttingRecipe.Serializer::new);
+    public static final Supplier<RecipeType<WoodcuttingRecipe>> WOODCUTTING_RECIPE = RegHelper.registerRecipeType(
             res("woodcutting"));
-    public static final ResourceKey<PoiType> LUMBERJACK_POI_KEY = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE,
+    public static final ResourceKey<PoiType> CARPENTER_POI_KEY = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE,
             res("carpenter"));
-    public static final Supplier<PoiType> LUMBERJACK_POI = RegHelper.registerPOI(res("carpenter"),
+    public static final Supplier<PoiType> CARPENTER_POI = RegHelper.registerPOI(res("carpenter"),
             () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
     public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
-            "carpenter", LUMBERJACK_POI_KEY, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
+            "carpenter", CARPENTER_POI_KEY, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
 
     private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, @Nullable SoundEvent workSound) {
         return RegHelper.register(res(name), () -> new VillagerProfession(name,
@@ -74,11 +74,13 @@ public class SawmillMod {
         return new ResourceLocation(MOD_ID, name);
     }
 
+    //Hacky tag stuff below here
+
     @Nullable
     private static WeakReference<TagManager> tagManager = null;
     private static WeakReference<Map<ResourceLocation, Collection<Holder>>> tags = null;
-    private static Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
-    private static List<RecipeType<?>> whitelist = new ArrayList<>();
+    private static final Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
+    private static final List<RecipeType<?>> whitelist = new ArrayList<>();
 
     public static void setTagManager(TagManager t) {
         tagManager = new WeakReference<>(t);

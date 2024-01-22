@@ -6,7 +6,7 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.*;
 import net.mehvahdjukaar.sawmill.SawmillMod;
-import net.mehvahdjukaar.sawmill.SawmillRecipe;
+import net.mehvahdjukaar.sawmill.WoodcuttingRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
 
-    public static final RecipeType<SawmillRecipe> SAWMILL_RECIPE_TYPE = RecipeType.create(SawmillMod.MOD_ID, "sawmill", SawmillRecipe.class);
+    public static final RecipeType<WoodcuttingRecipe> WOODCUTTING_RECIPE_TYPE = RecipeType.create(SawmillMod.MOD_ID, "woodcutting", WoodcuttingRecipe.class);
 
     private static final ResourceLocation ID = SawmillMod.res("jei_plugin");
 
@@ -26,13 +26,13 @@ public class JEIPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         var recipeManager = Minecraft.getInstance().level.getRecipeManager();
-        var list = recipeManager.getAllRecipesFor(SawmillMod.SAWMILL_RECIPE.get()).stream().toList();
-        registration.addRecipes(SAWMILL_RECIPE_TYPE, list);
+        var list = recipeManager.getAllRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get()).stream().toList();
+        registration.addRecipes(WOODCUTTING_RECIPE_TYPE, list);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(SawmillMod.SAWMILL_BLOCK.get()), SAWMILL_RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(SawmillMod.SAWMILL_BLOCK.get()), WOODCUTTING_RECIPE_TYPE);
     }
 
     @Override

@@ -1,0 +1,12 @@
+{
+  "max_trades": 16,
+  "xp": 1,
+  "price": {
+    "id": "minecraft:oak_log",
+    "Count": 8
+  },
+  "offer": {
+    "id": "minecraft:emerald",
+    "Count": 1
+  }
+}

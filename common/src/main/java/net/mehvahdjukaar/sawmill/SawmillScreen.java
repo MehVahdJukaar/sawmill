@@ -62,7 +62,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         super.renderLabels(guiGraphics, mouseX, mouseY);
 
         int selectedRecipeIndex = menu.getSelectedRecipeIndex();
-        List<SawmillRecipe> recipes = this.menu.getRecipes();
+        List<WoodcuttingRecipe> recipes = this.menu.getRecipes();
         if (selectedRecipeIndex >= 0 && selectedRecipeIndex < recipes.size()) {
             int input = recipes.get(selectedRecipeIndex).getInputCount();
             if (input != 1) {
@@ -81,7 +81,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             int i = this.leftPos + 52;
             int j = this.topPos + 14;
             int k = this.startIndex + 12;
-            List<SawmillRecipe> list = this.menu.getRecipes();
+            List<WoodcuttingRecipe> list = this.menu.getRecipes();
 
             for (int l = this.startIndex; l < k && l < this.menu.getNumRecipes(); ++l) {
                 int m = l - this.startIndex;
@@ -114,7 +114,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     private void renderRecipes(GuiGraphics guiGraphics, int x, int y, int startIndex) {
-        List<SawmillRecipe> list = this.menu.getRecipes();
+        List<WoodcuttingRecipe> list = this.menu.getRecipes();
 
         for (int i = this.startIndex; i < startIndex && i < (this.menu).getNumRecipes(); ++i) {
             int j = i - this.startIndex;
