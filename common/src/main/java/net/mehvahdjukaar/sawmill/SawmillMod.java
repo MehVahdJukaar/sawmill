@@ -29,7 +29,7 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class Sawmill {
+public class SawmillMod {
     public static final String MOD_ID = "sawmill";
 
     public static final Logger LOGGER = LogManager.getLogger("Sawmill");
@@ -86,7 +86,7 @@ public class Sawmill {
 
     public static Collection<ItemStack> getTagElements(TagKey<Item> tag) {
         if (tags == null) {
-            TagManager manager = Sawmill.tagManager.get();
+            TagManager manager = SawmillMod.tagManager.get();
             if (manager != null) {
                 for (var r : manager.getResult()) {
                     if (r.key() == Registries.ITEM) {
@@ -119,7 +119,7 @@ public class Sawmill {
 
     public static boolean isWhitelisted(RecipeType<?> type) {
         if (whitelist.isEmpty()) {
-            TagManager manager = Sawmill.tagManager.get();
+            TagManager manager = SawmillMod.tagManager.get();
             if (manager != null) {
                 for (var r : manager.getResult()) {
                     if (r.key() == Registries.RECIPE_TYPE) {

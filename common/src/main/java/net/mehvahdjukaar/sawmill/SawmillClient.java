@@ -2,7 +2,6 @@ package net.mehvahdjukaar.sawmill;
 
 import net.mehvahdjukaar.moonlight.api.platform.ClientHelper;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.inventory.ShulkerBoxScreen;
 import net.minecraft.client.renderer.RenderType;
 
 public class SawmillClient {
@@ -12,7 +11,7 @@ public class SawmillClient {
     }
 
     private static void setup() {
-        ClientHelper.registerRenderType(Sawmill.SAWMILL_BLOCK.get(), RenderType.cutout());
-        MenuScreens.register(Sawmill.SAWMILL_MENU.get(), SawmillScreen::new);
+        ClientHelper.registerRenderType(SawmillMod.SAWMILL_BLOCK.get(), RenderType.cutout());
+        MenuScreens.register(SawmillMod.SAWMILL_MENU.get(), SawmillScreen::new);
     }
 }

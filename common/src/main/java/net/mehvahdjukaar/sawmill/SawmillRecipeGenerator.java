@@ -49,10 +49,25 @@ public class SawmillRecipeGenerator {
             for (var m : entry.getValue().values()) {
                 WoodType woodType = m.type;
                 Ingredient logInput = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
-                addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
+                if (!logInput.test(result.getDefaultInstance())) {
+                    //dont add logs to logs
+                    addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
+                }
                 Ingredient plankInput = plankIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makePlankIngredient);
                 addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, m.cost * 4, true);
             }
+        }
+        for (WoodType type : WoodTypeRegistry.getTypes()) {
+            int counter = 0;
+            //adds logs recipes
+            addLogRecipe(sawmillRecipes, type, counter++, "log", "stripped_log");
+            addLogRecipe(sawmillRecipes, type, counter++, "log", "stripped_wood");
+            addLogRecipe(sawmillRecipes, type, counter++, "log", "wood");
+            addLogRecipe(sawmillRecipes, type, counter++, "wood", "log");
+            addLogRecipe(sawmillRecipes, type, counter++, "wood", "stripped_wood");
+            addLogRecipe(sawmillRecipes, type, counter++, "wood", "stripped_log");
+            addLogRecipe(sawmillRecipes, type, counter++, "stripped_wood", "stripped_log");
+            addLogRecipe(sawmillRecipes, type, counter++, "stripped_log", "stripped_wood");
         }
 
         for (var r : sawmillRecipes) {
@@ -64,10 +79,20 @@ public class SawmillRecipeGenerator {
         long millis = stopwatch.elapsed().toMillis();
         profiler.pop();
 
-        Sawmill.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
+        SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
 
-        Sawmill.clearCacheHacks();
+        SawmillMod.clearCacheHacks();
 
+    }
+
+    private static void addLogRecipe(List<SawmillRecipe> sawmillRecipes, WoodType type, int counter,
+                                     String from, String to) {
+        var fromLog = type.getItemOfThis(from);
+        var toLog = type.getItemOfThis(to);
+        if (fromLog != null && toLog != null) {
+            addNewRecipe(sawmillRecipes, Ingredient.of(fromLog),
+                    "log", toLog,type.getAppendableId()+ "_log", counter, 1, true);
+        }
     }
 
     private static void addNewRecipe(List<SawmillRecipe> sawmillRecipes, Ingredient input, String group,
@@ -86,7 +111,7 @@ public class SawmillRecipeGenerator {
         if (only1on1 && inputCount != 1) return;
         if (outputCount <= result.getMaxStackSize()) {
 
-            ResourceLocation res = Sawmill.res(itemId + "_" + counter);
+            ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
 
             SawmillRecipe recipe = new SawmillRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
             sawmillRecipes.add(recipe);
@@ -118,7 +143,7 @@ public class SawmillRecipeGenerator {
         Set<Item> craftableItems = new HashSet<>();
         boolean allowNonBlocks = CommonConfigs.NON_BLOCKS.get();
         for (var recipe : recipes) {
-            if (Sawmill.isWhitelisted(recipe.getType())) {
+            if (SawmillMod.isWhitelisted(recipe.getType())) {
                 try {
                     Item i = recipe.getResultItem(RegistryAccess.EMPTY).getItem();
                     if (allowNonBlocks && !(i instanceof BlockItem)) continue;
@@ -191,7 +216,7 @@ public class SawmillRecipeGenerator {
             if (v instanceof Ingredient.TagValue tv) {
                 isTag = true;
                 var tag = tv.tag;
-                stacks.addAll(Sawmill.getTagElements(tag));
+                stacks.addAll(SawmillMod.getTagElements(tag));
             }
         }
         if (!isTag) return ing.getItems();

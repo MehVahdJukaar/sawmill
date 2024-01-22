@@ -1,6 +1,8 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.Lists;
+import net.mehvahdjukaar.moonlight.api.util.Utils;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -13,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class SawmillMenu extends AbstractContainerMenu {
@@ -39,7 +42,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     }
 
     public SawmillMenu(int i, Inventory inventory, final ContainerLevelAccess containerLevelAccess) {
-        super(Sawmill.SAWMILL_MENU.get(), i);
+        super(SawmillMod.SAWMILL_MENU.get(), i);
         this.selectedRecipeIndex = DataSlot.standalone();
         this.recipes = Lists.newArrayList();
         this.input = ItemStack.EMPTY;
@@ -120,7 +123,7 @@ public class SawmillMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, Sawmill.SAWMILL_BLOCK.get());
+        return stillValid(this.access, player, SawmillMod.SAWMILL_BLOCK.get());
     }
 
     @Override
@@ -155,7 +158,13 @@ public class SawmillMenu extends AbstractContainerMenu {
         this.selectedRecipeIndex.set(-1);
         this.resultSlot.set(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
-            this.recipes = this.level.getRecipeManager().getRecipesFor(Sawmill.SAWMILL_RECIPE.get(), container, this.level);
+            this.recipes = this.level.getRecipeManager()
+                    .getRecipesFor(SawmillMod.SAWMILL_RECIPE.get(), container, this.level);
+            Comparator<SawmillRecipe> comp = Comparator.comparingInt(r->r.getResultItem(RegistryAccess.EMPTY).getCount());
+            comp = comp.thenComparing(sawmillRecipe ->
+                    Utils.getID(sawmillRecipe.getResultItem(RegistryAccess.EMPTY).getItem()));
+
+            this.recipes.sort(comp);
         }
 
     }
@@ -179,7 +188,7 @@ public class SawmillMenu extends AbstractContainerMenu {
 
     @Override
     public MenuType<?> getType() {
-        return Sawmill.SAWMILL_MENU.get();
+        return SawmillMod.SAWMILL_MENU.get();
     }
 
     public void registerUpdateListener(Runnable listener) {
@@ -210,7 +219,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemStack2, 2, 38, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (this.level.getRecipeManager().getRecipeFor(Sawmill.SAWMILL_RECIPE.get(), new SimpleContainer(itemStack2), this.level).isPresent()) {
+            } else if (this.level.getRecipeManager().getRecipeFor(SawmillMod.SAWMILL_RECIPE.get(), new SimpleContainer(itemStack2), this.level).isPresent()) {
                 if (!this.moveItemStackTo(itemStack2, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }

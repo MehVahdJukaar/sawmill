@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    {"id":"minecraft:campfires","required":false},
+    {"id":"chipped:carpenters_table","required":false},
     "minecraft:crafting",
     "minecraft:stonecutting"
   ]

@@ -31,7 +31,7 @@ public class CarpenterTrades extends SimpleJsonResourceReloadListener {
             var j = e.getValue();
             var id = e.getKey();
             VillagerTrades.ItemListing trade = ModItemListing.CODEC.decode(JsonOps.INSTANCE, j)
-                    .getOrThrow(false, errorMsg -> Sawmill.LOGGER.warn("Failed to parse red merchant trade with id {} - error: {}",
+                    .getOrThrow(false, errorMsg -> SawmillMod.LOGGER.warn("Failed to parse red merchant trade with id {} - error: {}",
                             id, errorMsg)).getFirst();
 
             trades.add(trade);
@@ -41,6 +41,6 @@ public class CarpenterTrades extends SimpleJsonResourceReloadListener {
 
         var map = new Int2ObjectArrayMap<VillagerTrades.ItemListing[]>();
         map.put(1, trades.toArray(VillagerTrades.ItemListing[]::new));
-        VillagerTrades.TRADES.put(Sawmill.CARPENTER.get(), map);
+        VillagerTrades.TRADES.put(SawmillMod.CARPENTER.get(), map);
     }
 }

@@ -1,7 +1,6 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.gson.JsonObject;
-import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -11,14 +10,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SingleItemRecipe;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
 public class SawmillRecipe extends SingleItemRecipe {
     private final int inputCount;
     public SawmillRecipe(ResourceLocation resourceLocation, String string,
                          Ingredient ingredient, ItemStack itemStack, int inputCount) {
-        super(Sawmill.SAWMILL_RECIPE.get(), Sawmill.SAWMILL_RECIPE_SERIALIZER.get(), resourceLocation, string, ingredient, itemStack);
+        super(SawmillMod.SAWMILL_RECIPE.get(), SawmillMod.SAWMILL_RECIPE_SERIALIZER.get(), resourceLocation, string, ingredient, itemStack);
         this.inputCount = inputCount;
     }
 
@@ -34,7 +32,7 @@ public class SawmillRecipe extends SingleItemRecipe {
 
     @Override
     public ItemStack getToastSymbol() {
-        return new ItemStack(Sawmill.SAWMILL_BLOCK.get());
+        return new ItemStack(SawmillMod.SAWMILL_BLOCK.get());
     }
 
     @Override

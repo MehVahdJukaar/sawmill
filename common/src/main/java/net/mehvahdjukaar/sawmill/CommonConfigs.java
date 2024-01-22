@@ -11,7 +11,7 @@ public class CommonConfigs {
 
     static {
 
-        ConfigBuilder builder = ConfigBuilder.create(Sawmill.MOD_ID, ConfigType.COMMON);
+        ConfigBuilder builder = ConfigBuilder.create(SawmillMod.MOD_ID, ConfigType.COMMON);
 
         builder.push("general");
         NON_BLOCKS = builder.comment("Allow crafting non-block items")
