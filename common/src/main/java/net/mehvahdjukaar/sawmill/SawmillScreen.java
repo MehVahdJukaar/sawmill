@@ -1,10 +1,12 @@
 package net.mehvahdjukaar.sawmill;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -15,10 +17,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 
+import java.awt.*;
 import java.util.List;
 
 public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
-    private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/stonecutter.png");
+    private static final ResourceLocation BG_LOCATION = SawmillMod.res("textures/gui/container/sawmill.png");
     private float scrollOffs;
     private boolean scrolling;
     private int startIndex;
@@ -61,9 +64,9 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         if (selectedRecipeIndex >= 0 && selectedRecipeIndex < recipes.size()) {
             int input = recipes.get(selectedRecipeIndex).getInputCount();
             if (input != 1) {
-                String multiplier = input + "x";
+                String multiplier = input+"x" ;
 
-                guiGraphics.drawString(this.font, multiplier, this.titleLabelX, this.titleLabelY + 40, 4210752, false);
+                guiGraphics.drawString(this.font, multiplier, this.titleLabelX, this.titleLabelY + 37, 4210752, false);
             }
         }
 

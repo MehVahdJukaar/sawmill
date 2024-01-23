@@ -1,6 +1,6 @@
 {
   "type": "sawmill:wood_item_to_emerald",
-  "buys": false,
+  "buys": true,
   "max_trades": 16,
   "wood_block": "sapling",
   "wood_block_amount": 8,

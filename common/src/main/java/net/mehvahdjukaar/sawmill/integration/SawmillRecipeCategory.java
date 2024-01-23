@@ -30,7 +30,7 @@ public class SawmillRecipeCategory implements IRecipeCategory<WoodcuttingRecipe>
         ResourceLocation location = Constants.RECIPE_GUI_VANILLA;
         this.background = guiHelper.createDrawable(location, 0, 220, 82, 34);
         this.icon = guiHelper.createDrawableItemStack(SawmillMod.SAWMILL_BLOCK.get().asItem().getDefaultInstance());
-        this.localizedName = Component.translatable("jei.sawmill.category.sawmill");
+        this.localizedName = Component.translatable("jei.sawmill.category.woodcutting");
     }
 
     @Override
