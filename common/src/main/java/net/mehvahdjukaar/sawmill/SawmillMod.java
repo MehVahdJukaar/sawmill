@@ -61,13 +61,12 @@ public class SawmillMod {
         if (PlatHelper.getPhysicalSide().isClient()) {
             SawmillClient.init();
         }
+        CarpenterTrades.init();
         CommonConfigs.init();
         RegHelper.addItemsToTabsRegistration(event ->
                 event.addAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS,
                         stack -> stack.is(Items.STONECUTTER),
                         SAWMILL_BLOCK.get().asItem()));
-
-        PlatHelper.addServerReloadListener(CarpenterTrades.INSTANCE, res("carpenter_trades"));
     }
 
     public static ResourceLocation res(String name) {

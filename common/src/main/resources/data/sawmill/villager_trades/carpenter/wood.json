@@ -1,0 +1,8 @@
+{
+  "type": "sawmill:wood_item_to_emerald",
+  "max_trades": 16,
+  "wood_block": "wood",
+  "wood_block_amount": 4,
+  "emeralds": 1,
+  "level": 2
+}

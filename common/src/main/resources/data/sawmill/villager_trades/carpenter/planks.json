@@ -1,0 +1,10 @@
+{
+  "type": "sawmill:wood_item_to_emerald",
+  "buys": false,
+  "max_trades": 16,
+  "wood_block": "planks",
+  "wood_block_amount": 12,
+  "emeralds": 1,
+  "level": 3,
+  "type_dependant": true
+}

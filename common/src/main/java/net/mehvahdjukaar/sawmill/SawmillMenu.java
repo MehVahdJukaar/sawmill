@@ -19,12 +19,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class SawmillMenu extends AbstractContainerMenu {
-    public static final int INPUT_SLOT = 0;
-    public static final int RESULT_SLOT = 1;
-    private static final int INV_SLOT_START = 2;
-    private static final int INV_SLOT_END = 29;
-    private static final int USE_ROW_SLOT_START = 29;
-    private static final int USE_ROW_SLOT_END = 38;
     private final ContainerLevelAccess access;
     private final DataSlot selectedRecipeIndex;
     private final Level level;

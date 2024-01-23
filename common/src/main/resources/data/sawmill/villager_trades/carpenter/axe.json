@@ -1,0 +1,14 @@
+{
+  "type": "simple",
+  "max_trades": 12,
+  "price_multiplier": 0.2,
+  "price": {
+    "id": "minecraft:iron_axe",
+    "Count": 1
+  },
+  "offer": {
+    "id": "minecraft:emerald",
+    "Count": 2
+  },
+  "level": 3
+}
