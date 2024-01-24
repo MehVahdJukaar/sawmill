@@ -1,1 +1,1 @@
-added villager trades
+added kubejs integration

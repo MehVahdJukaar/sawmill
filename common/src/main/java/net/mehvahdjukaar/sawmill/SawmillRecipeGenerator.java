@@ -55,9 +55,21 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                                @Nullable Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
                                @Nullable ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
                                @Nullable ProfilerFiller profiler) {
-        SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         if (profiler != null) profiler.push("swamill_recipes");
 
+        List<WoodcuttingRecipe> sawmillRecipes = process(recipes);
+
+        profiler.pop();
+        for (var r : sawmillRecipes) {
+            builder.put(r.getId(), r);
+            map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
+                    .put(r.getId(), r);
+        }
+
+    }
+
+    public static List<WoodcuttingRecipe> process(Collection<Recipe<?>> recipes) {
+        SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
 
@@ -94,21 +106,11 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             addLogRecipe(sawmillRecipes, type, counter++, "stripped_log", "stripped_wood");
         }
 
-        if (map != null && builder != null) {
-            for (var r : sawmillRecipes) {
-                builder.put(r.getId(), r);
-                map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
-                        .put(r.getId(), r);
-            }
-        }
 
         long millis = stopwatch.elapsed().toMillis();
-        if (profiler != null) profiler.pop();
-
         SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
-
         SawmillMod.clearCacheHacks();
-
+        return sawmillRecipes;
     }
 
     private static void addLogRecipe(List<WoodcuttingRecipe> sawmillRecipes, WoodType type, int counter,

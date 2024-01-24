@@ -3,7 +3,6 @@ package net.mehvahdjukaar.sawmill.integration;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.item.InputItem;
 import dev.latvian.mods.kubejs.item.OutputItem;
-import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.RecipesEventJS;
 import dev.latvian.mods.kubejs.recipe.component.ItemComponents;
@@ -23,7 +22,7 @@ public class KubeJsPlugin extends KubeJSPlugin {
     RecipeKey<InputItem> INGREDIENT = ItemComponents.INPUT.key("ingredient");
 
 
-    RecipeSchema WOODCUTTING_SCHEMA = new RecipeSchema(RESULT, INGREDIENT){
+    RecipeSchema WOODCUTTING_SCHEMA = new RecipeSchema(RESULT, INGREDIENT) {
 
         @Override
         public int inputCount() {
@@ -38,7 +37,8 @@ public class KubeJsPlugin extends KubeJSPlugin {
 
     @Override
     public void injectRuntimeRecipes(RecipesEventJS event, RecipeManager manager, Map<ResourceLocation, Recipe<?>> recipesByName) {
-        SawmillRecipeGenerator.process(recipesByName.values(), null, null, null);
+        var newRecipes = SawmillRecipeGenerator.process(recipesByName.values());
+        newRecipes.forEach(r -> recipesByName.put(r.getId(), r));
     }
 
 }
