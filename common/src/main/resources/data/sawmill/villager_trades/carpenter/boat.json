@@ -4,7 +4,10 @@
   "max_trades": 16,
   "wood_block": "chest_boat",
   "wood_block_amount": 1,
-  "emeralds": 1,
+  "emeralds": {
+    "id": "minecraft:emerald",
+    "Count": 1
+  },
   "level": 4,
   "type_dependant": true
 }

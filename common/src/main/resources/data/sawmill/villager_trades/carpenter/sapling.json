@@ -4,6 +4,9 @@
   "max_trades": 16,
   "wood_block": "sapling",
   "wood_block_amount": 8,
-  "emeralds": 1,
+  "emeralds": {
+    "id": "minecraft:emerald",
+    "Count": 1
+  },
   "level": 3
 }

@@ -3,6 +3,9 @@
   "max_trades": 16,
   "wood_block": "wood",
   "wood_block_amount": 4,
-  "emeralds": 1,
+  "emeralds": {
+    "id": "minecraft:emerald",
+    "Count": 1
+  },
   "level": 2
 }

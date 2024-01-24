@@ -21,14 +21,14 @@ issueTrackerURL = "${mod_github}/issues"
     mandatory = true
     versionRange = "${neo_version_range}"
     ordering = "NONE"
-    side = "CLIENT"
+    side = "BOTH"
 
 [[dependencies.sawmill]]
     modId = "minecraft"
     mandatory = true
     versionRange = "[${minecraft_min_version},${minecraft_max_version})"
     ordering = "NONE"
-    side = "CLIENT"
+    side = "BOTH"
 
 
 [[dependencies.sawmill]]

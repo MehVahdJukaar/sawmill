@@ -13,6 +13,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
@@ -52,26 +53,28 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     }
 
     public static void process(Collection<Recipe<?>> recipes,
-                               @Nullable Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
-                               @Nullable ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
-                               @Nullable ProfilerFiller profiler) {
-        if (profiler != null) profiler.push("swamill_recipes");
+                               Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
+                               ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
+                               ProfilerFiller profiler) {
+        profiler.push("swamill_recipes");
 
         List<WoodcuttingRecipe> sawmillRecipes = process(recipes);
 
-        profiler.pop();
         for (var r : sawmillRecipes) {
             builder.put(r.getId(), r);
             map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
                     .put(r.getId(), r);
         }
-
+        profiler.pop();
     }
 
     public static List<WoodcuttingRecipe> process(Collection<Recipe<?>> recipes) {
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
+        int maxWoods = WoodTypeRegistry.getTypes().size();
+        Ingredient anyPlanks = Ingredient.of(ItemTags.PLANKS);
+        Ingredient anyWood = Ingredient.of(ItemTags.LOGS);
 
         List<WoodcuttingRecipe> sawmillRecipes = new ArrayList<>();
         Map<WoodType, Ingredient> logIngredients = new HashMap<>();
@@ -82,15 +85,26 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             Item result = entry.getKey();
             String itemId = Utils.getID(result).toDebugFileName();
             int counter = 0;
-            for (var m : entry.getValue().values()) {
-                WoodType woodType = m.type;
-                Ingredient logInput = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
-                if (!logInput.test(result.getDefaultInstance())) {
-                    //dont add logs to logs
-                    addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
+            Map<WoodType, LogCost> logCosts = entry.getValue();
+            if (CommonConfigs.ONLY_VARIANTS.get() && logCosts.size() != 1) continue;
+            //if we can use any wood, we assume that log cost is the same for each and add recipe using tags
+            if (logCosts.size() == maxWoods) {
+                var m = logCosts.get(WoodTypeRegistry.OAK_TYPE);
+                addNewRecipe(sawmillRecipes, anyWood, group, result, itemId, counter++, m.cost, false);
+                addNewRecipe(sawmillRecipes, anyPlanks, group2, result, itemId, counter++, m.cost * 4, true);
+            } else {
+                //If not we create a new recipe for each cost as single costs might be different.
+                // IDK if grouping here would be worth it
+                for (var m : logCosts.values()) {
+                    WoodType woodType = m.type;
+                    Ingredient logInput = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
+                    if (!logInput.test(result.getDefaultInstance())) {
+                        //dont add logs to logs
+                        addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
+                    }
+                    Ingredient plankInput = plankIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makePlankIngredient);
+                    addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, m.cost * 4, true);
                 }
-                Ingredient plankInput = plankIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makePlankIngredient);
-                addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, m.cost * 4, true);
             }
         }
         for (WoodType type : WoodTypeRegistry.getTypes()) {
@@ -174,7 +188,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             if (SawmillMod.isWhitelisted(recipe.getType())) {
                 try {
                     Item i = recipe.getResultItem(RegistryAccess.EMPTY).getItem();
-                    if (allowNonBlocks && !(i instanceof BlockItem)) continue;
+                    if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
                     if (!recipe.getIngredients().isEmpty()) {
                         craftableItems.add(i);
                         validRecipes.add(recipe);

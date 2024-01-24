@@ -1,0 +1,10 @@
+{
+  "type": "sawmill:log_stripping",
+  "max_trades": 16,
+  "amount": 4,
+  "price": {
+    "id": "minecraft:emerald",
+    "Count": 1
+  },
+  "level": 3
+}

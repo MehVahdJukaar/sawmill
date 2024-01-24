@@ -94,7 +94,7 @@ public class SawmillBlock extends WaterBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isSecondaryUseActive()) {
-            // return debugSpawnAllVillages(level, pos);
+             return debugSpawnAllVillages(level, pos);
         }
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
@@ -111,10 +111,10 @@ public class SawmillBlock extends WaterBlock {
             int off = 0;
             int zOff = 0;
             StructureTemplateManager structureTemplateManager = serverLevel.getStructureManager();
-            int max = 800;
+            int max = 50;
             for (var t : structureTemplateManager.listTemplates().toList()) {
                 String string = t.toString();
-                if (string.contains("village") && string.contains("house") && !string.contains("zombie")) {
+                if (string.contains("sawmill")) {
                     var template = structureTemplateManager.get(t).get();
                     BlockPos offset = pos.offset(off, 0, zOff);
                     level.setBlock(offset, Blocks.STRUCTURE_BLOCK.defaultBlockState(), 3);
@@ -126,7 +126,7 @@ public class SawmillBlock extends WaterBlock {
                     off += template.getSize().get(Direction.Axis.X) + 3;
 
                     if (max-- < 0) break;
-                    if (off > 200) {
+                    if (off > 40) {
                         zOff += 18;
                         off = 0;
                     }
