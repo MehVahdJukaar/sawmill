@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.SawmillRecipeGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -34,7 +35,7 @@ public class RecipeManagerMixin {
                                       @Local ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
                                       @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
 
-        SawmillRecipeGenerator.process(parsed.get(), map, builder, profiler);
+        if (!SawmillMod.KUBEJS) SawmillRecipeGenerator.process(parsed.get(), map, builder, profiler);
     }
 
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",

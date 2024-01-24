@@ -1,7 +1,7 @@
 {
   "variants": {
     "facing=north,bottom=true": {
-      "model": "sawmill:block/sawmill",
+      "model": "sawmill:block/saw",
       "y": 180
     },
     "facing=east,bottom=true": {

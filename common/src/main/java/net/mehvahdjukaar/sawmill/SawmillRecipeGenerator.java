@@ -4,11 +4,15 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
+import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
+import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
@@ -19,20 +23,40 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class SawmillRecipeGenerator {
+public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
+    protected SawmillRecipeGenerator(DynamicDataPack pack) {
+        super(new DynamicDataPack(SawmillMod.res("sawmill_recipes"),
+                Pack.Position.TOP, false, false));
+    }
 
+    @Override
+    public Logger getLogger() {
+        return SawmillMod.LOGGER;
+    }
 
-    public static void process(List<Recipe<?>> recipes, Map<RecipeType<?>,
-            ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
-                               ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
-                               ProfilerFiller profiler) {
+    @Override
+    public boolean dependsOnLoadedPacks() {
+        return true;
+    }
 
-        profiler.push("swamill_recipes");
+    //UNUSED. implement if mixin in recipe manager causes issues
+    @Override
+    public void regenerateDynamicAssets(ResourceManager resourceManager) {
+        //gather and parse all recipes. then call process
+    }
+
+    public static void process(Collection<Recipe<?>> recipes,
+                               @Nullable Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
+                               @Nullable ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
+                               @Nullable ProfilerFiller profiler) {
+        SawmillMod.LOGGER.info("Generating Sawmill Recipes");
+        if (profiler != null) profiler.push("swamill_recipes");
 
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
@@ -70,14 +94,16 @@ public class SawmillRecipeGenerator {
             addLogRecipe(sawmillRecipes, type, counter++, "stripped_log", "stripped_wood");
         }
 
-        for (var r : sawmillRecipes) {
-            builder.put(r.getId(), r);
-            map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
-                    .put(r.getId(), r);
+        if (map != null && builder != null) {
+            for (var r : sawmillRecipes) {
+                builder.put(r.getId(), r);
+                map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
+                        .put(r.getId(), r);
+            }
         }
 
         long millis = stopwatch.elapsed().toMillis();
-        profiler.pop();
+        if (profiler != null) profiler.pop();
 
         SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
 
@@ -91,7 +117,7 @@ public class SawmillRecipeGenerator {
         var toLog = type.getItemOfThis(to);
         if (fromLog != null && toLog != null) {
             addNewRecipe(sawmillRecipes, Ingredient.of(fromLog),
-                    "log", toLog,type.getAppendableId()+ "_log", counter, 1, true);
+                    "log", toLog, type.getAppendableId() + "_log", counter, 1, true);
         }
     }
 
@@ -130,7 +156,7 @@ public class SawmillRecipeGenerator {
         return Ingredient.of(children.toArray(Item[]::new));
     }
 
-    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(List<Recipe<?>> recipes, boolean optim) {
+    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<Recipe<?>> recipes, boolean optim) {
         Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost = new HashMap<>();
         for (var type : WoodTypeRegistry.getTypes()) {
             Map<WoodType, LogCost> cost = Map.of(type, LogCost.of(type, 1d));
@@ -318,6 +344,7 @@ public class SawmillRecipeGenerator {
         }
         return result;
     }
+
 
     private record LogCost(WoodType type, Double cost) {
         static LogCost of(WoodType type, Double amount) {

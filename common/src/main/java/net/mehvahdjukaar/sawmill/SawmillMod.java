@@ -1,6 +1,7 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.ImmutableSet;
+import dev.latvian.mods.kubejs.KubeJS;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.minecraft.core.Holder;
@@ -33,6 +34,8 @@ public class SawmillMod {
     public static final String MOD_ID = "sawmill";
 
     public static final Logger LOGGER = LogManager.getLogger("Sawmill");
+
+    public static final boolean KUBEJS = PlatHelper.isModLoaded("kubejs");
 
     public static final Supplier<Block> SAWMILL_BLOCK = RegHelper.registerBlockWithItem(
             res("sawmill"), SawmillBlock::new);

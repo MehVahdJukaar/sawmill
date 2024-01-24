@@ -1,1 +1,1 @@
-fixes some issues, improved recipes
+added villager trades
