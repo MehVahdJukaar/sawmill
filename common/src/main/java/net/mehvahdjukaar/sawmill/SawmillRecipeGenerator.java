@@ -10,10 +10,12 @@ import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
@@ -97,12 +99,12 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                 // IDK if grouping here would be worth it
                 for (var m : logCosts.values()) {
                     WoodType woodType = m.type;
-                    Ingredient logInput = logIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makeLogIngredient);
+                    Ingredient logInput = getOrCreateLogIngredient(logIngredients, woodType);
                     if (!logInput.test(result.getDefaultInstance())) {
                         //dont add logs to logs
                         addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
                     }
-                    Ingredient plankInput = plankIngredients.computeIfAbsent(woodType, SawmillRecipeGenerator::makePlankIngredient);
+                    Ingredient plankInput = getOrCreatePlankIngredient(plankIngredients, woodType);
                     addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, m.cost * 4, true);
                 }
             }
@@ -162,14 +164,22 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         }
     }
 
-    private static Ingredient makePlankIngredient(WoodType type) {
-        var children = getAllChildren(type, "planks", "quark:vertical_planks");
-        return Ingredient.of(children.toArray(Item[]::new));
+    private static Ingredient getOrCreatePlankIngredient(Map<WoodType, Ingredient> cache, WoodType type) {
+        return cache.computeIfAbsent(type, t -> {
+            var children = getAllChildren(type, "planks", "quark:vertical_planks");
+            return Ingredient.of(children.toArray(Item[]::new));
+        });
     }
 
-    private static Ingredient makeLogIngredient(WoodType type) {
-        var children = getAllChildren(type, "log", "wood", "stripped_log", "stripped_wood");
-        return Ingredient.of(children.toArray(Item[]::new));
+    private static Ingredient getOrCreateLogIngredient(Map<WoodType, Ingredient> cache, WoodType type) {
+        return cache.computeIfAbsent(type, t -> {
+            // I hate this wood type very much
+            if (t.getTypeName().equals("archwood")) {
+                return Ingredient.of(TagKey.create(Registries.ITEM, new ResourceLocation("forge:logs/archwood")));
+            }
+            var children = getAllChildren(type, "log", "wood", "stripped_log", "stripped_wood");
+            return Ingredient.of(children.toArray(Item[]::new));
+        });
     }
 
     private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<Recipe<?>> recipes, boolean optim) {

@@ -5,7 +5,7 @@
 		"0": "sawmill:block/sawmill_front",
 		"2": "sawmill:block/sawmill_side",
 		"3": "sawmill:block/sawmill_top",
-		"4": "sawmill:block/sawmill_blade",
+		"4": "sawmill:block/saw_blade",
 		"5": "sawmill:block/sawmill_bottom",
 		"6": "sawmill:block/sawmill_middle",
 		"particle": "sawmill:block/sawmill_front"
