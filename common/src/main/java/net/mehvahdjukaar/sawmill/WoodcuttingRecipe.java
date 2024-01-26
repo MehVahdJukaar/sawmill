@@ -3,8 +3,6 @@ package net.mehvahdjukaar.sawmill;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.mehvahdjukaar.moonlight.api.misc.StrOpt;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
@@ -29,7 +27,8 @@ public class WoodcuttingRecipe extends SingleItemRecipe {
     @Override
     public boolean matches(Container container, Level level) {
         ItemStack item = container.getItem(0);
-        return this.ingredient.test(item) && item.getCount() >= inputCount;
+        return this.ingredient.test(item) &&
+                item.getCount() >= inputCount;
     }
 
     @Override

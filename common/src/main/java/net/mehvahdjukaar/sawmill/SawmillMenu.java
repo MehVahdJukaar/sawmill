@@ -13,7 +13,6 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.Level;
 
 import java.util.Comparator;
@@ -140,8 +139,8 @@ public class SawmillMenu extends AbstractContainerMenu {
         ItemStack itemStack = this.inputSlot.getItem();
         ItemStack old = this.input;
         boolean sameStack = itemStack.is(old.getItem());
-        int maxItemsThatCanBeConsumed = 4; //I made it the f up
-        if (!sameStack || itemStack.getCount() < maxItemsThatCanBeConsumed ^ old.getCount() < maxItemsThatCanBeConsumed) {
+        int maxConsumable = 5;
+        if (!sameStack || itemStack.getCount() < maxConsumable || old.getCount() < maxConsumable) {
             this.input = itemStack.copy();
             this.setupRecipeList(container, itemStack);
         }
@@ -155,7 +154,7 @@ public class SawmillMenu extends AbstractContainerMenu {
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager()
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
-            Comparator<RecipeHolder<WoodcuttingRecipe>> comp = Comparator.comparingInt(r->r.value().getResultItem(RegistryAccess.EMPTY).getCount());
+            Comparator<RecipeHolder<WoodcuttingRecipe>> comp = Comparator.comparingInt(r -> r.value().getResultItem(RegistryAccess.EMPTY).getCount());
             comp = comp.thenComparing(sawmillRecipe ->
                     Utils.getID(sawmillRecipe.value().getResultItem(RegistryAccess.EMPTY).getItem()));
 
