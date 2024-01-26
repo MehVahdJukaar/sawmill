@@ -38,7 +38,7 @@ subprojects {
 
     if (env.MODRINTH_TOKEN) {
         modrinth {
-            projectId = rootProject.mod_id
+            projectId = "universal-sawmill"
             uploadFile = tasks.remapJar
             gameVersions = [rootProject.minecraft_version]
             loaders = [modLoader]
