@@ -117,7 +117,7 @@ public class CarpenterTrades {
             }
             var types = new ArrayList<>(WoodTypeRegistry.getTypes());
             int tries = 0;
-            while (tries < 100) {
+            while (tries < 50 && !types.isEmpty()) {
                 tries++;
                 if (type == null) {
                     type = types.get(random.nextInt(types.size()));
