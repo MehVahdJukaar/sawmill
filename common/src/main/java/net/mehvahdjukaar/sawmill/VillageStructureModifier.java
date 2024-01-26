@@ -1,7 +1,6 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.mojang.datafixers.util.Pair;
-import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -24,23 +23,17 @@ public class VillageStructureModifier {
             Registries.PROCESSOR_LIST, new ResourceLocation("empty"));
 
     private static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry,
-                                          Registry<StructureProcessorList> processorListRegistry,
                                           ResourceLocation poolRL,
                                           String nbtPieceRL,
-                                          boolean mossy,
+                                          Holder<StructureProcessorList> processors,
                                           int weight) {
 
-        Holder<StructureProcessorList> emptyProcessorList =
-                mossy ?
-                        processorListRegistry.getHolderOrThrow(MOSSY_PROCESSOR_LIST_KEY) :
-                        processorListRegistry.getHolderOrThrow(EMPTY_PROCESSOR_LIST_KEY);
-
         StructureTemplatePool pool = templatePoolRegistry.get(poolRL);
-        if (pool == null){
+        if (pool == null) {
             return;
         }
 
-        SinglePoolElement piece = SinglePoolElement.legacy(nbtPieceRL, emptyProcessorList).apply(StructureTemplatePool.Projection.RIGID);
+        SinglePoolElement piece = SinglePoolElement.legacy(nbtPieceRL, processors).apply(StructureTemplatePool.Projection.RIGID);
 
         for (int i = 0; i < weight; i++) {
             pool.templates.add(piece);
@@ -57,40 +50,53 @@ public class VillageStructureModifier {
         Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registries.TEMPLATE_POOL).orElseThrow();
         Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/plains/houses"),
-                "sawmill:plains_small", true, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "plains", "sawmill:plains_small", true, 2);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/plains/houses"),
-                "sawmill:plains_medium", true, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "plains", "sawmill:plains_medium", true, 2);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/snowy/houses"),
-                "sawmill:snowy_small", false, 3);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "snowy", "sawmill:snowy_small", false, 3);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/savanna/houses"),
-                "sawmill:savanna_small", false, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "savanna", "sawmill:savanna_small", false, 2);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/savanna/houses"),
-                "sawmill:savanna_big", false, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "savanna", "sawmill:savanna_big", false, 2);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/taiga/houses"),
-                "sawmill:taiga_big", true, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "taiga", "sawmill:taiga_big", true, 2);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/taiga/houses"),
-                "sawmill:taiga_medium", true, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "taiga", "sawmill:taiga_medium", true, 2);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/desert/houses"),
-                "sawmill:desert_big", false, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "desert", "sawmill:desert_big", false, 2);
 
-        addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                new ResourceLocation("minecraft:village/desert/houses"),
-                "sawmill:desert_small", false, 2);
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "desert", "sawmill:desert_small", false, 2);
     }
+
+    private static void addVillageHouse(Registry<StructureTemplatePool> templatePoolRegistry,
+                                        Registry<StructureProcessorList> processorListRegistry,
+                                        String villageName, String pieceName,
+                                        boolean mossy, int weight) {
+
+        Holder<StructureProcessorList> normalProcessor =
+                mossy ? processorListRegistry.getHolderOrThrow(MOSSY_PROCESSOR_LIST_KEY) :
+                        processorListRegistry.getHolderOrThrow(EMPTY_PROCESSOR_LIST_KEY);
+
+        Holder<StructureProcessorList> zombieProcessor = processorListRegistry.getHolderOrThrow(ResourceKey.create(
+                Registries.PROCESSOR_LIST, new ResourceLocation("zombie_" + villageName)
+        ));
+
+        addBuildingToPool(templatePoolRegistry, new ResourceLocation("village/" + villageName + "/houses"),
+                pieceName, normalProcessor, weight);
+
+        addBuildingToPool(templatePoolRegistry, new ResourceLocation("village/" + villageName + "/zombie/houses"),
+                pieceName, zombieProcessor, weight);
+    }
+
+
 }

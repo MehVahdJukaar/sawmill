@@ -114,7 +114,7 @@ public class SawmillBlock extends WaterBlock {
             int max = 1000;
             for (var t : structureTemplateManager.listTemplates().toList()) {
                 String string = t.toString();
-                if (string.contains("sawmill")) {
+                if (string.contains("zombie")) {
                     var template = structureTemplateManager.get(t).get();
                     BlockPos offset = pos.offset(off, 0, zOff);
                     level.setBlock(offset, Blocks.STRUCTURE_BLOCK.defaultBlockState(), 3);

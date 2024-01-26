@@ -1,1 +1,1 @@
-wky kubejs nukes recipe manager in most mod incompatible way ever whyy
+Everything is done. First official release!
