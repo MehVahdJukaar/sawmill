@@ -4,13 +4,12 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
-import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
+import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesProvider;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -32,8 +31,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
-    protected SawmillRecipeGenerator(DynamicDataPack pack) {
+public class SawmillRecipeGenerator extends DynServerResourcesProvider {
+    protected SawmillRecipeGenerator( ) {
         super(new DynamicDataPack(SawmillMod.res("sawmill_recipes"),
                 Pack.Position.TOP, false, false));
     }
@@ -180,7 +179,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         return cache.computeIfAbsent(type, t -> {
             // I hate this wood type very much
             if (t.getTypeName().equals("archwood")) {
-                return Ingredient.of(TagKey.create(Registries.ITEM, new ResourceLocation("forge:logs/archwood")));
+                return Ingredient.of(TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge:logs/archwood")));
             }
             var children = getAllChildren(type, "log", "wood", "stripped_log", "stripped_wood");
             return Ingredient.of(children.toArray(Item[]::new));
@@ -202,7 +201,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         for (var recipe : recipes) {
             if (SawmillMod.isWhitelisted(recipe.getType())) {
                 try {
-                    Item i = recipe.getResultItem(RegistryAccess.EMPTY).getItem();
+                    Item i = recipe.getResultItem().getItem();
                     if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
                     if (!recipe.getIngredients().isEmpty()) {
                         craftableItems.add(i);
@@ -222,7 +221,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         craftableItems.clear();
         Multimap<Item, Recipe<?>> itemsToRecipe = HashMultimap.create();
         for (var r : validRecipes) {
-            Item res = r.getResultItem(RegistryAccess.EMPTY).getItem();
+            Item res = r.getResultItem().getItem();
             itemsToRecipe.put(res, r);
             craftableItems.add(res);
         }
@@ -347,7 +346,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                 }
             }
 
-            int outputCount = recipe.getResultItem(RegistryAccess.EMPTY).getCount();
+            int outputCount = recipe.getResultItem().getCount();
             recipeCostPerWood.replaceAll((woodType, logCost) -> logCost.divide(outputCount));
             possibleCosts.add(recipeCostPerWood);
         }

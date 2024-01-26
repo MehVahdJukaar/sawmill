@@ -1,7 +1,7 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.gson.JsonObject;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 
 public class WoodcuttingRecipe extends SingleItemRecipe {
     private final int inputCount;
+
     public WoodcuttingRecipe(ResourceLocation resourceLocation, String string,
                              Ingredient ingredient, ItemStack itemStack, int inputCount) {
         super(SawmillMod.WOODCUTTING_RECIPE.get(), SawmillMod.WOODCUTTING_RECIPE_SERIALIZER.get(), resourceLocation, string, ingredient, itemStack);
@@ -47,14 +48,14 @@ public class WoodcuttingRecipe extends SingleItemRecipe {
             String string = GsonHelper.getAsString(json, "group", "");
             Ingredient ingredient;
             if (GsonHelper.isArrayNode(json, "ingredient")) {
-                ingredient = Ingredient.fromJson(GsonHelper.getAsJsonArray(json, "ingredient"), false);
+                ingredient = Ingredient.fromJson(GsonHelper.getAsJsonArray(json, "ingredient"));
             } else {
-                ingredient = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "ingredient"), false);
+                ingredient = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "ingredient"));
             }
             int inCount = GsonHelper.getAsInt(json, "ingredient_count", 1);
             String string2 = GsonHelper.getAsString(json, "result");
             int i = GsonHelper.getAsInt(json, "count");
-            ItemStack itemStack = new ItemStack( BuiltInRegistries.ITEM.get(new ResourceLocation(string2)), i);
+            ItemStack itemStack = new ItemStack(Registry.ITEM.get(new ResourceLocation(string2)), i);
             return new WoodcuttingRecipe(recipeId, string, ingredient, itemStack, inCount);
         }
 

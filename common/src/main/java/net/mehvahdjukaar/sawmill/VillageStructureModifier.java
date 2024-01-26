@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
@@ -18,9 +17,9 @@ import java.util.List;
 // Thanks to TelepathicGrunt
 public class VillageStructureModifier {
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(
-            Registries.PROCESSOR_LIST, new ResourceLocation("empty"));
+            Registry.PROCESSOR_LIST_REGISTRY, new ResourceLocation("empty"));
     private static final ResourceKey<StructureProcessorList> MOSSY_PROCESSOR_LIST_KEY = ResourceKey.create(
-            Registries.PROCESSOR_LIST, new ResourceLocation("empty"));
+            Registry.PROCESSOR_LIST_REGISTRY, new ResourceLocation("empty"));
 
     private static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry,
                                           ResourceLocation poolRL,
@@ -47,8 +46,8 @@ public class VillageStructureModifier {
     public static void setup(RegistryAccess registryAccess) {
         SawmillMod.LOGGER.info("Injecting Carpenter Village Houses");
 
-        Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registries.TEMPLATE_POOL).orElseThrow();
-        Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();
+        Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registry.TEMPLATE_POOL_REGISTRY).orElseThrow();
+        Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registry.PROCESSOR_LIST_REGISTRY).orElseThrow();
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
                 "plains", "sawmill:plains_small", true, 2);
@@ -88,7 +87,7 @@ public class VillageStructureModifier {
                         processorListRegistry.getHolderOrThrow(EMPTY_PROCESSOR_LIST_KEY);
 
         Holder<StructureProcessorList> zombieProcessor = processorListRegistry.getHolderOrThrow(ResourceKey.create(
-                Registries.PROCESSOR_LIST, new ResourceLocation("zombie_" + villageName)
+                Registry.PROCESSOR_LIST_REGISTRY, new ResourceLocation("zombie_" + villageName)
         ));
 
         addBuildingToPool(templatePoolRegistry, new ResourceLocation("village/" + villageName + "/houses"),

@@ -1,24 +1,22 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.ImmutableSet;
-import dev.latvian.mods.kubejs.KubeJS;
-import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
+import net.mehvahdjukaar.moonlight.api.platform.PlatformHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
+import net.mehvahdjukaar.sawmill.trades.ItemListingRegistry;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -35,10 +33,8 @@ public class SawmillMod {
 
     public static final Logger LOGGER = LogManager.getLogger("Sawmill");
 
-    public static final boolean KUBEJS = PlatHelper.isModLoaded("kubejs");
-
     public static final Supplier<Block> SAWMILL_BLOCK = RegHelper.registerBlockWithItem(
-            res("sawmill"), SawmillBlock::new);
+            res("sawmill"), SawmillBlock::new, CreativeModeTab.TAB_DECORATIONS);
     public static final Supplier<MenuType<SawmillMenu>> SAWMILL_MENU = RegHelper.registerMenuType(
             res("sawmill"), SawmillMenu::new);
     public static final Supplier<SoundEvent> SAWMILL_TAKE = RegHelper.registerSound(res("ui.sawmill.take_result"));
@@ -48,10 +44,11 @@ public class SawmillMod {
             res("woodcutting"), WoodcuttingRecipe.Serializer::new);
     public static final Supplier<RecipeType<WoodcuttingRecipe>> WOODCUTTING_RECIPE = RegHelper.registerRecipeType(
             res("woodcutting"));
-    public static final ResourceKey<PoiType> CARPENTER_POI_KEY = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE,
+    public static final ResourceKey<PoiType> CARPENTER_POI_KEY = ResourceKey.create(Registry.POINT_OF_INTEREST_TYPE_REGISTRY,
             res("carpenter"));
-    public static final Supplier<PoiType> CARPENTER_POI = RegHelper.registerPOI(res("carpenter"),
-            () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
+    public static final Supplier<PoiType> CARPENTER_POI = RegHelper.register(res("carpenter"),
+            () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1),
+            Registry.POINT_OF_INTEREST_TYPE);
     public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
             "carpenter", CARPENTER_POI_KEY, CARPENTER_WORK);
 
@@ -60,19 +57,16 @@ public class SawmillMod {
                         (holder) -> holder.is(jobSite),
                         (holder) -> holder.is(jobSite),
                         ImmutableSet.of(), ImmutableSet.of(), workSound.get()),
-                Registries.VILLAGER_PROFESSION);
+                Registry.VILLAGER_PROFESSION);
     }
 
     public static void init() {
-        if (PlatHelper.getPhysicalSide().isClient()) {
+        if (PlatformHelper.getEnv().isClient()) {
             SawmillClient.init();
         }
         CarpenterTrades.init();
         CommonConfigs.init();
-        RegHelper.addItemsToTabsRegistration(event ->
-                event.addAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS,
-                        stack -> stack.is(Items.STONECUTTER),
-                        SAWMILL_BLOCK.get().asItem()));
+        PlatformHelper.addServerReloadListener(ItemListingRegistry.INSTANCE, res("carpenter_trades"));
     }
 
     public static ResourceLocation res(String name) {
@@ -96,7 +90,7 @@ public class SawmillMod {
             TagManager manager = SawmillMod.tagManager.get();
             if (manager != null) {
                 for (var r : manager.getResult()) {
-                    if (r.key() == Registries.ITEM) {
+                    if (r.key() == Registry.ITEM_REGISTRY) {
                         tags = new WeakReference<>((Map<ResourceLocation, Collection<Holder>>) (Object) r.tags());
                         break;
                     }
@@ -129,7 +123,7 @@ public class SawmillMod {
             TagManager manager = SawmillMod.tagManager.get();
             if (manager != null) {
                 for (var r : manager.getResult()) {
-                    if (r.key() == Registries.RECIPE_TYPE) {
+                    if (r.key() == Registry.RECIPE_TYPE_REGISTRY) {
                         whitelist.addAll(r.tags().get(res("whitelist"))
                                 .stream().map(holder -> (RecipeType<?>) holder.value()).toList());
                         break;

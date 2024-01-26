@@ -1,9 +1,13 @@
 package net.mehvahdjukaar.sawmill;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
@@ -12,8 +16,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.StonecutterMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 
@@ -34,30 +40,32 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(PoseStack guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        this.renderBackground(guiGraphics);
-        int i = this.leftPos;
-        int j = this.topPos;
-        guiGraphics.blit(BG_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        int k = (int) (41.0F * this.scrollOffs);
-        guiGraphics.blit(BG_LOCATION, i + 119, j + 15 + k, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, 15);
-        int l = this.leftPos + 52;
-        int m = this.topPos + 14;
-        int n = this.startIndex + 12;
-        this.renderButtons(guiGraphics, mouseX, mouseY, l, m, n);
-        this.renderRecipes(guiGraphics, l, m, n);
-
+    protected void renderBg(PoseStack poseStack, float f, int i, int j) {
+        this.renderBackground(poseStack);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BG_LOCATION);
+        int k = this.leftPos;
+        int l = this.topPos;
+        this.blit(poseStack, k, l, 0, 0, this.imageWidth, this.imageHeight);
+        int m = (int)(41.0F * this.scrollOffs);
+        this.blit(poseStack, k + 119, l + 15 + m, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, 15);
+        int n = this.leftPos + 52;
+        int o = this.topPos + 14;
+        int p = this.startIndex + 12;
+        this.renderButtons(poseStack, i, j, n, o, p);
+        this.renderRecipes(n, o, p);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        super.renderLabels(guiGraphics, mouseX, mouseY);
+    protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+        super.renderLabels(pose, mouseX, mouseY);
 
         int selectedRecipeIndex = menu.getSelectedRecipeIndex();
         List<WoodcuttingRecipe> recipes = this.menu.getRecipes();
@@ -66,64 +74,66 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             if (input != 1) {
                 String multiplier = input+"x" ;
 
-                guiGraphics.drawString(this.font, multiplier, this.titleLabelX, this.titleLabelY + 37, 4210752, false);
+                Gui.drawString(pose, this.font, multiplier, this.titleLabelX, this.titleLabelY + 37, 4210752);
             }
         }
 
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
+    protected void renderTooltip(PoseStack poseStack, int i, int j) {
+        super.renderTooltip(poseStack, i, j);
         if (this.displayRecipes) {
-            int i = this.leftPos + 52;
-            int j = this.topPos + 14;
-            int k = this.startIndex + 12;
-            List<WoodcuttingRecipe> list = this.menu.getRecipes();
+            int k = this.leftPos + 52;
+            int l = this.topPos + 14;
+            int m = this.startIndex + 12;
+            List<WoodcuttingRecipe> list = (this.menu).getRecipes();
 
-            for (int l = this.startIndex; l < k && l < this.menu.getNumRecipes(); ++l) {
-                int m = l - this.startIndex;
-                int n = i + m % 4 * 16;
-                int o = j + m / 4 * 18 + 2;
-                if (x >= n && x < n + 16 && y >= o && y < o + 18) {
-                    guiGraphics.renderTooltip(this.font, (list.get(l)).getResultItem(this.minecraft.level.registryAccess()), x, y);
+            for(int n = this.startIndex; n < m && n < (this.menu).getNumRecipes(); ++n) {
+                int o = n - this.startIndex;
+                int p = k + o % 4 * 16;
+                int q = l + o / 4 * 18 + 2;
+                if (i >= p && i < p + 16 && j >= q && j < q + 18) {
+                    this.renderTooltip(poseStack, (list.get(n)).getResultItem(), i, j);
                 }
             }
         }
 
     }
 
-    private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, int lastVisibleElementIndex) {
-        for (int i = this.startIndex; i < lastVisibleElementIndex && i < this.menu.getNumRecipes(); ++i) {
-            int j = i - this.startIndex;
-            int k = x + j % 4 * 16;
-            int l = j / 4;
-            int m = y + l * 18 + 2;
-            int n = this.imageHeight;
-            if (i == (this.menu).getSelectedRecipeIndex()) {
-                n += 18;
-            } else if (mouseX >= k && mouseY >= m && mouseX < k + 16 && mouseY < m + 18) {
-                n += 36;
+
+    private void renderButtons(PoseStack poseStack, int i, int j, int k, int l, int m) {
+        for(int n = this.startIndex; n < m && n < (this.menu).getNumRecipes(); ++n) {
+            int o = n - this.startIndex;
+            int p = k + o % 4 * 16;
+            int q = o / 4;
+            int r = l + q * 18 + 2;
+            int s = this.imageHeight;
+            if (n == (this.menu).getSelectedRecipeIndex()) {
+                s += 18;
+            } else if (i >= p && j >= r && i < p + 16 && j < r + 18) {
+                s += 36;
             }
 
-            guiGraphics.blit(BG_LOCATION, k, m - 1, 0, n, 16, 18);
+            this.blit(poseStack, p, r - 1, 0, s, 16, 18);
         }
 
     }
 
-    private void renderRecipes(GuiGraphics guiGraphics, int x, int y, int startIndex) {
-        List<WoodcuttingRecipe> list = this.menu.getRecipes();
 
-        for (int i = this.startIndex; i < startIndex && i < (this.menu).getNumRecipes(); ++i) {
-            int j = i - this.startIndex;
-            int k = x + j % 4 * 16;
-            int l = j / 4;
-            int m = y + l * 18 + 2;
-            ItemStack item = list.get(i).getResultItem(this.minecraft.level.registryAccess());
-            guiGraphics.renderFakeItem(item, k, m);
-            guiGraphics.renderItemDecorations(font, item, k, m);
+    private void renderRecipes(int i, int j, int k) {
+        List<WoodcuttingRecipe> list = (this.menu).getRecipes();
+
+        for(int l = this.startIndex; l < k && l < (this.menu).getNumRecipes(); ++l) {
+            int m = l - this.startIndex;
+            int n = i + m % 4 * 16;
+            int o = m / 4;
+            int p = j + o * 18 + 2;
+            this.minecraft.getItemRenderer().renderAndDecorateItem((list.get(l)).getResultItem(), n, p);
         }
+
     }
+
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {

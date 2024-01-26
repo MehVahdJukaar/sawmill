@@ -16,7 +16,7 @@ dependencies {
     annotationProcessor 'net.fabricmc:sponge-mixin:0.12.5+mixin.0.8.5'
 
 
-    modImplementation("curse.maven:jei-238222:4712868")
+    modImplementation("curse.maven:jei-238222:4712866")
     modImplementation("curse.maven:kubejs-238086:5034251")
     modImplementation("curse.maven:rhino-416294:4944325")
 

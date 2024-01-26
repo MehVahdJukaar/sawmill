@@ -2,7 +2,6 @@ package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.Lists;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -51,7 +50,7 @@ public class SawmillMenu extends AbstractContainerMenu {
         };
         this.resultContainer = new ResultContainer();
         this.access = containerLevelAccess;
-        this.level = inventory.player.level();
+        this.level = inventory.player.level;
         this.inputSlot = this.addSlot(new Slot(this.container, 0, 21, 33));
         this.resultSlot = this.addSlot(new Slot(this.resultContainer, 1, 143, 33) {
             @Override
@@ -61,8 +60,8 @@ public class SawmillMenu extends AbstractContainerMenu {
 
             @Override
             public void onTake(Player player, ItemStack stack) {
-                stack.onCraftedBy(player.level(), player, stack.getCount());
-                resultContainer.awardUsedRecipes(player, this.getRelevantItems());
+                stack.onCraftedBy(player.level, player, stack.getCount());
+                resultContainer.awardUsedRecipes(player);
                 ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get()).getInputCount());
                 if (!itemStack.isEmpty()) {
                     setupResultSlot();
@@ -79,9 +78,6 @@ public class SawmillMenu extends AbstractContainerMenu {
                 super.onTake(player, stack);
             }
 
-            private List<ItemStack> getRelevantItems() {
-                return List.of(inputSlot.getItem());
-            }
         });
 
         int j;
@@ -153,9 +149,9 @@ public class SawmillMenu extends AbstractContainerMenu {
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager()
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
-            Comparator<WoodcuttingRecipe> comp = Comparator.comparingInt(r->r.getResultItem(RegistryAccess.EMPTY).getCount());
+            Comparator<WoodcuttingRecipe> comp = Comparator.comparingInt(r -> r.getResultItem().getCount());
             comp = comp.thenComparing(sawmillRecipe ->
-                    Utils.getID(sawmillRecipe.getResultItem(RegistryAccess.EMPTY).getItem()));
+                    Utils.getID(sawmillRecipe.getResultItem().getItem()));
 
             this.recipes.sort(comp);
         }
@@ -165,13 +161,11 @@ public class SawmillMenu extends AbstractContainerMenu {
     void setupResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
             WoodcuttingRecipe recipe = this.recipes.get(this.selectedRecipeIndex.get());
-            ItemStack itemStack = recipe.assemble(this.container, this.level.registryAccess());
-            if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
-                this.resultContainer.setRecipeUsed(recipe);
-                this.resultSlot.set(itemStack);
-            } else {
-                this.resultSlot.set(ItemStack.EMPTY);
-            }
+            ItemStack itemStack = recipe.assemble(this.container);
+
+            this.resultContainer.setRecipeUsed(recipe);
+            this.resultSlot.set(itemStack);
+
         } else {
             this.resultSlot.set(ItemStack.EMPTY);
         }
@@ -202,7 +196,7 @@ public class SawmillMenu extends AbstractContainerMenu {
             Item item = itemStack2.getItem();
             itemStack = itemStack2.copy();
             if (index == 1) {
-                item.onCraftedBy(itemStack2, player.level(), player);
+                item.onCraftedBy(itemStack2, player.level, player);
                 if (!this.moveItemStackTo(itemStack2, 2, 38, true)) {
                     return ItemStack.EMPTY;
                 }
@@ -225,7 +219,7 @@ public class SawmillMenu extends AbstractContainerMenu {
             }
 
             if (itemStack2.isEmpty()) {
-                slot.setByPlayer(ItemStack.EMPTY);
+                slot.set(ItemStack.EMPTY);
             }
 
             slot.setChanged();
