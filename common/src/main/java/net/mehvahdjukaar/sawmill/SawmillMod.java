@@ -41,6 +41,9 @@ public class SawmillMod {
             res("sawmill"), SawmillBlock::new);
     public static final Supplier<MenuType<SawmillMenu>> SAWMILL_MENU = RegHelper.registerMenuType(
             res("sawmill"), SawmillMenu::new);
+    public static final Supplier<SoundEvent> SAWMILL_TAKE = RegHelper.registerSound(res("ui.sawmill.take_result"));
+    public static final Supplier<SoundEvent> SAWMILL_SELECT = RegHelper.registerSound(res("ui.sawmill.select_result"));
+    public static final Supplier<SoundEvent> CARPENTER_WORK = RegHelper.registerSound(res("entity.villager.work_carpenter"));
     public static final Supplier<RecipeSerializer<WoodcuttingRecipe>> WOODCUTTING_RECIPE_SERIALIZER = RegHelper.registerRecipeSerializer(
             res("woodcutting"), WoodcuttingRecipe.Serializer::new);
     public static final Supplier<RecipeType<WoodcuttingRecipe>> WOODCUTTING_RECIPE = RegHelper.registerRecipeType(
@@ -50,13 +53,13 @@ public class SawmillMod {
     public static final Supplier<PoiType> CARPENTER_POI = RegHelper.registerPOI(res("carpenter"),
             () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
     public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
-            "carpenter", CARPENTER_POI_KEY, SoundEvents.VILLAGER_WORK_WEAPONSMITH);
+            "carpenter", CARPENTER_POI_KEY, CARPENTER_WORK);
 
-    private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, @Nullable SoundEvent workSound) {
+    private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, Supplier<SoundEvent> workSound) {
         return RegHelper.register(res(name), () -> new VillagerProfession(name,
                         (holder) -> holder.is(jobSite),
                         (holder) -> holder.is(jobSite),
-                        ImmutableSet.of(), ImmutableSet.of(), workSound),
+                        ImmutableSet.of(), ImmutableSet.of(), workSound.get()),
                 Registries.VILLAGER_PROFESSION);
     }
 

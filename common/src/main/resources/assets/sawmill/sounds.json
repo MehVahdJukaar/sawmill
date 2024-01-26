@@ -1,0 +1,47 @@
+{
+  "entity.villager.work_carpenter": {
+    "sounds": [
+      "sawmill:sawing1",
+      {
+        "name": "sawmill:sawing1",
+        "pitch": 0.92
+      },
+      "sawmill:sawing2",
+      {
+        "name": "sawmill:sawing2",
+        "pitch": 0.92
+      },
+      "sawmill:sawing3",
+      {
+        "name": "sawmill:sawing3",
+        "pitch": 0.92
+      }
+    ],
+    "subtitle": "subtitles.sawmill.entity.villager.work_carpenter"
+  },
+  "ui.sawmill.select_recipe": {
+    "sounds": [
+      "random/click"
+    ]
+  },
+  "ui.sawmill.take_result": {
+    "sounds": [
+      "sawmill:sawingshort1",
+      {
+        "name": "sawmill:sawingshort1",
+        "pitch": 0.92
+      },
+      "sawmill:sawingshort2",
+      {
+        "name": "sawmill:sawingshort2",
+        "pitch": 0.92
+      },
+      "sawmill:sawingshort3",
+      {
+        "name": "sawmill:sawingshort3",
+        "pitch": 0.92
+      }
+    ],
+    "subtitle": "subtitles.sawmill.ui.sawmill.take_result"
+  }
+}

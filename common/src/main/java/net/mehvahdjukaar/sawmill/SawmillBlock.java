@@ -111,7 +111,7 @@ public class SawmillBlock extends WaterBlock {
             int off = 0;
             int zOff = 0;
             StructureTemplateManager structureTemplateManager = serverLevel.getStructureManager();
-            int max = 50;
+            int max = 1000;
             for (var t : structureTemplateManager.listTemplates().toList()) {
                 String string = t.toString();
                 if (string.contains("sawmill")) {
@@ -126,7 +126,7 @@ public class SawmillBlock extends WaterBlock {
                     off += template.getSize().get(Direction.Axis.X) + 3;
 
                     if (max-- < 0) break;
-                    if (off > 40) {
+                    if (off > 400) {
                         zOff += 18;
                         off = 0;
                     }

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -72,7 +71,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                 containerLevelAccess.execute((level, blockPos) -> {
                     long l = level.getGameTime();
                     if (lastSoundTime != l) {
-                        level.playSound(null, blockPos, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        level.playSound(null, blockPos, SawmillMod.SAWMILL_TAKE.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
                         lastSoundTime = l;
                     }
 

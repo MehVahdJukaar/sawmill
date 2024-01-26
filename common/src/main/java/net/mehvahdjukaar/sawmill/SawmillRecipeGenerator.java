@@ -88,7 +88,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             String itemId = Utils.getID(result).toDebugFileName();
             int counter = 0;
             Map<WoodType, LogCost> logCosts = entry.getValue();
-            if (CommonConfigs.ONLY_VARIANTS.get() && logCosts.size() != 1) continue;
+            if (!CommonConfigs.ALLOW_NON_VARIANTS.get() && logCosts.size() != 1) continue;
             //if we can use any wood, we assume that log cost is the same for each and add recipe using tags
             if (logCosts.size() == maxWoods) {
                 var m = logCosts.get(WoodTypeRegistry.OAK_TYPE);
@@ -193,7 +193,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         // remove stuff that has non-whitelisted primitives
         Set<Recipe<?>> validRecipes = new HashSet<>();
         Set<Item> craftableItems = new HashSet<>();
-        boolean allowNonBlocks = CommonConfigs.NON_BLOCKS.get();
+        boolean allowNonBlocks = CommonConfigs.ALLOW_NON_BLOCKS.get();
         for (var recipe : recipes) {
             if (SawmillMod.isWhitelisted(recipe.getType())) {
                 try {
