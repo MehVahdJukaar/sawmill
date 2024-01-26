@@ -1,10 +1,12 @@
 package net.mehvahdjukaar.sawmill;
 
-import com.google.gson.JsonObject;
-import net.minecraft.core.registries.BuiltInRegistries;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.mehvahdjukaar.moonlight.api.misc.StrOpt;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -14,9 +16,9 @@ import net.minecraft.world.level.Level;
 
 public class WoodcuttingRecipe extends SingleItemRecipe {
     private final int inputCount;
-    public WoodcuttingRecipe(ResourceLocation resourceLocation, String string,
-                             Ingredient ingredient, ItemStack itemStack, int inputCount) {
-        super(SawmillMod.WOODCUTTING_RECIPE.get(), SawmillMod.WOODCUTTING_RECIPE_SERIALIZER.get(), resourceLocation, string, ingredient, itemStack);
+
+    public WoodcuttingRecipe(String group, Ingredient ingredient, ItemStack result, int inputCount) {
+        super(SawmillMod.WOODCUTTING_RECIPE.get(), SawmillMod.WOODCUTTING_RECIPE_SERIALIZER.get(), group, ingredient, result);
         this.inputCount = inputCount;
     }
 
@@ -41,30 +43,30 @@ public class WoodcuttingRecipe extends SingleItemRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<WoodcuttingRecipe> {
+        private final Codec<WoodcuttingRecipe> codec;
 
-        @Override
-        public WoodcuttingRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-            String string = GsonHelper.getAsString(json, "group", "");
-            Ingredient ingredient;
-            if (GsonHelper.isArrayNode(json, "ingredient")) {
-                ingredient = Ingredient.fromJson(GsonHelper.getAsJsonArray(json, "ingredient"), false);
-            } else {
-                ingredient = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "ingredient"), false);
-            }
-            int inCount = GsonHelper.getAsInt(json, "ingredient_count", 1);
-            String string2 = GsonHelper.getAsString(json, "result");
-            int i = GsonHelper.getAsInt(json, "count");
-            ItemStack itemStack = new ItemStack( BuiltInRegistries.ITEM.get(new ResourceLocation(string2)), i);
-            return new WoodcuttingRecipe(recipeId, string, ingredient, itemStack, inCount);
+        protected Serializer() {
+            this.codec = RecordCodecBuilder.create((instance) -> instance.group(
+                            ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter((singleItemRecipe) -> singleItemRecipe.group),
+                            Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter((singleItemRecipe) -> singleItemRecipe.ingredient),
+                            ItemStack.RESULT_CODEC.forGetter((singleItemRecipe) -> singleItemRecipe.result),
+                            StrOpt.of(ExtraCodecs.POSITIVE_INT, "ingredient_count", 1).forGetter(r -> r.inputCount)
+                    )
+                    .apply(instance, WoodcuttingRecipe::new));
         }
 
         @Override
-        public WoodcuttingRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+        public Codec<WoodcuttingRecipe> codec() {
+            return this.codec;
+        }
+
+        @Override
+        public WoodcuttingRecipe fromNetwork(FriendlyByteBuf buffer) {
             String string = buffer.readUtf();
             Ingredient ingredient = Ingredient.fromNetwork(buffer);
             ItemStack itemStack = buffer.readItem();
             int intCount = buffer.readVarInt();
-            return new WoodcuttingRecipe(recipeId, string, ingredient, itemStack, intCount);
+            return new WoodcuttingRecipe(string, ingredient, itemStack, intCount);
         }
 
         @Override

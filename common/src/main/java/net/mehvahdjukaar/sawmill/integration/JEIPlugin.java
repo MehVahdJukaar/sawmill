@@ -10,6 +10,7 @@ import net.mehvahdjukaar.sawmill.WoodcuttingRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
@@ -27,7 +28,7 @@ public class JEIPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         var recipeManager = Minecraft.getInstance().level.getRecipeManager();
         var list = recipeManager.getAllRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get()).stream().toList();
-        registration.addRecipes(WOODCUTTING_RECIPE_TYPE, list);
+        registration.addRecipes(WOODCUTTING_RECIPE_TYPE, list.stream().map(RecipeHolder::value).toList());
     }
 
     @Override

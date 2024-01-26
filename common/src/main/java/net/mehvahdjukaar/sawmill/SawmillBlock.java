@@ -102,39 +102,6 @@ public class SawmillBlock extends WaterBlock {
         }
     }
 
-    @NotNull
-    private static InteractionResult debugSpawnAllVillages(Level level, BlockPos pos) {
-        if (level instanceof ServerLevel serverLevel) {
-            int off = 0;
-            int zOff = 0;
-            StructureTemplateManager structureTemplateManager = serverLevel.getStructureManager();
-            int max = 1000;
-            for (var t : structureTemplateManager.listTemplates().toList()) {
-                String string = t.toString();
-                if (string.contains("zombie")) {
-                    var template = structureTemplateManager.get(t).get();
-                    BlockPos offset = pos.offset(off, 0, zOff);
-                    level.setBlock(offset, Blocks.STRUCTURE_BLOCK.defaultBlockState(), 3);
-                    var te = BlockEntityType.STRUCTURE_BLOCK.getBlockEntity(level, offset);
-                    CompoundTag compoundTag = te.saveWithoutMetadata();
-                    compoundTag.putString("name", string);
-                    te.load(compoundTag);
-                    te.loadStructure(serverLevel, false, template);
-                    off += template.getSize().get(Direction.Axis.X) + 3;
-
-                    if (max-- < 0) break;
-                    if (off > 400) {
-                        zOff += 18;
-                        off = 0;
-                    }
-                }
-            }
-
-
-        }
-        return InteractionResult.SUCCESS;
-    }
-
     @Nullable
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider((i, inventory, player) ->

@@ -6,9 +6,9 @@ license = "${mod_license}"
 issueTrackerURL = "${mod_github}/issues"
 
 [[mixins]]
-    config = "moonlight.mixins.json"
+    config = "${mod_name}.mixins.json"
 [[mixins]]
-    config = "moonlight.mixins-common.json"
+    config = "${mod_name}.mixins-common.json"
 
 [[mods]]
     modId = "sawmill"
@@ -23,14 +23,14 @@ issueTrackerURL = "${mod_github}/issues"
 
 [[dependencies.sawmill]]
     modId = "forge"
-    mandatory = true
+    type = "REQUIRED"
     versionRange = "${neo_version_range}"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.sawmill]]
     modId = "minecraft"
-    mandatory = true
+    type = "REQUIRED"
     versionRange = "[${minecraft_min_version},${minecraft_max_version})"
     ordering = "NONE"
     side = "BOTH"
@@ -38,7 +38,7 @@ issueTrackerURL = "${mod_github}/issues"
 
 [[dependencies.sawmill]]
     modId = "moonlight"
-    mandatory = true
+    type = "REQUIRED"
     versionRange = "*"
     ordering = "NONE"
     side = "BOTH"

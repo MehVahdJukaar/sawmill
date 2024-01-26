@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import org.apache.logging.log4j.Logger;
@@ -55,22 +56,22 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     }
 
     public static void process(Collection<Recipe<?>> recipes,
-                               Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
-                               ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
+                               Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map,
+                               ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder,
                                ProfilerFiller profiler) {
-        profiler.push("swamill_recipes");
+        profiler.push("sawmill_recipes");
 
-        List<WoodcuttingRecipe> sawmillRecipes = process(recipes);
+        List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = process(recipes);
 
         for (var r : sawmillRecipes) {
-            builder.put(r.getId(), r);
-            map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
-                    .put(r.getId(), r);
+            builder.put(r.id(), r);
+            map.computeIfAbsent(r.value().getType(), (recipeType) -> ImmutableMap.builder())
+                    .put(r.id(), r);
         }
         profiler.pop();
     }
 
-    public static List<WoodcuttingRecipe> process(Collection<Recipe<?>> recipes) {
+    public static List<RecipeHolder<WoodcuttingRecipe>> process(Collection<Recipe<?>> recipes) {
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
@@ -78,7 +79,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         Ingredient anyPlanks = Ingredient.of(ItemTags.PLANKS);
         Ingredient anyWood = Ingredient.of(ItemTags.LOGS);
 
-        List<WoodcuttingRecipe> sawmillRecipes = new ArrayList<>();
+        List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = new ArrayList<>();
         Map<WoodType, Ingredient> logIngredients = new HashMap<>();
         Map<WoodType, Ingredient> plankIngredients = new HashMap<>();
         String group = "logs";
@@ -134,7 +135,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         return m.cost * 4;
     }
 
-    private static void addLogRecipe(List<WoodcuttingRecipe> sawmillRecipes, WoodType type, int counter,
+    private static void addLogRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, WoodType type, int counter,
                                      String from, String to) {
         var fromLog = type.getItemOfThis(from);
         var toLog = type.getItemOfThis(to);
@@ -144,7 +145,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         }
     }
 
-    private static void addNewRecipe(List<WoodcuttingRecipe> sawmillRecipes, Ingredient input, String group,
+    private static void addNewRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
         int inputCount = 1;
         double value = (1 / cost) - 0.0001;
@@ -162,8 +163,8 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
             ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
 
-            WoodcuttingRecipe recipe = new WoodcuttingRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
-            sawmillRecipes.add(recipe);
+            WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
+            sawmillRecipes.add(new RecipeHolder<>(res, recipe));
 
             //planks recipe
         }

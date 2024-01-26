@@ -38,7 +38,7 @@ public class KubeJsPlugin extends KubeJSPlugin {
     @Override
     public void injectRuntimeRecipes(RecipesEventJS event, RecipeManager manager, Map<ResourceLocation, Recipe<?>> recipesByName) {
         var newRecipes = SawmillRecipeGenerator.process(recipesByName.values());
-        newRecipes.forEach(r -> recipesByName.put(r.getId(), r));
+        newRecipes.forEach(r -> recipesByName.put(r.id(), r.value()));
     }
 
 }

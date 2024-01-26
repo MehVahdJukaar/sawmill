@@ -12,6 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.Level;
 
 import java.util.Comparator;
@@ -21,7 +23,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final DataSlot selectedRecipeIndex;
     private final Level level;
-    private List<WoodcuttingRecipe> recipes;
+    private List<RecipeHolder<WoodcuttingRecipe>> recipes;
     private ItemStack input;
     long lastSoundTime;
     final Slot inputSlot;
@@ -63,7 +65,7 @@ public class SawmillMenu extends AbstractContainerMenu {
             public void onTake(Player player, ItemStack stack) {
                 stack.onCraftedBy(player.level(), player, stack.getCount());
                 resultContainer.awardUsedRecipes(player, this.getRelevantItems());
-                ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get()).getInputCount());
+                ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get()).value().getInputCount());
                 if (!itemStack.isEmpty()) {
                     setupResultSlot();
                 }
@@ -102,7 +104,7 @@ public class SawmillMenu extends AbstractContainerMenu {
         return this.selectedRecipeIndex.get();
     }
 
-    public List<WoodcuttingRecipe> getRecipes() {
+    public List<RecipeHolder<WoodcuttingRecipe>> getRecipes() {
         return this.recipes;
     }
 
@@ -153,9 +155,9 @@ public class SawmillMenu extends AbstractContainerMenu {
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager()
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
-            Comparator<WoodcuttingRecipe> comp = Comparator.comparingInt(r->r.getResultItem(RegistryAccess.EMPTY).getCount());
+            Comparator<RecipeHolder<WoodcuttingRecipe>> comp = Comparator.comparingInt(r->r.value().getResultItem(RegistryAccess.EMPTY).getCount());
             comp = comp.thenComparing(sawmillRecipe ->
-                    Utils.getID(sawmillRecipe.getResultItem(RegistryAccess.EMPTY).getItem()));
+                    Utils.getID(sawmillRecipe.value().getResultItem(RegistryAccess.EMPTY).getItem()));
 
             this.recipes.sort(comp);
         }
@@ -164,8 +166,8 @@ public class SawmillMenu extends AbstractContainerMenu {
 
     void setupResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
-            WoodcuttingRecipe recipe = this.recipes.get(this.selectedRecipeIndex.get());
-            ItemStack itemStack = recipe.assemble(this.container, this.level.registryAccess());
+            var recipe = this.recipes.get(this.selectedRecipeIndex.get());
+            ItemStack itemStack = recipe.value().assemble(this.container, this.level.registryAccess());
             if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
                 this.resultContainer.setRecipeUsed(recipe);
                 this.resultSlot.set(itemStack);
