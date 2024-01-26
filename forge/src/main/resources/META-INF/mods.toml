@@ -5,6 +5,11 @@ loaderVersion = "${loader_version_range}"
 license = "${mod_license}"
 issueTrackerURL = "${mod_github}/issues"
 
+[[mixins]]
+    config = "moonlight.mixins.json"
+[[mixins]]
+    config = "moonlight.mixins-common.json"
+
 [[mods]]
     modId = "sawmill"
     version = "${mod_version}"
