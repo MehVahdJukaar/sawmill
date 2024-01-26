@@ -16,6 +16,7 @@ import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -116,15 +117,15 @@ public class CarpenterTrades {
             }
             var types = new ArrayList<>(WoodTypeRegistry.getTypes());
             int tries = 0;
-            while (tries < 100) {
+            while (tries < 100 && types.size() > 0) {
                 tries++;
                 if (type == null) {
                     type = types.get(random.nextInt(types.size()));
                 }
                 types.remove(type);
-                Item w = type.getItemOfThis(childKey);
-                if (w != null) {
-                    ItemStack wood = new ItemStack(w, woodPrice);
+                var w = type.getChild(childKey);
+                if (w instanceof ItemLike il) {
+                    ItemStack wood = new ItemStack(il.asItem(), woodPrice);
                     ItemStack emerald = emeralds;
                     if (buys) {
                         return new MerchantOffer(wood, ItemStack.EMPTY, emerald, maxTrades, xp, priceMult);

@@ -74,7 +74,8 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             if (input != 1) {
                 String multiplier = input+"x" ;
 
-                Gui.drawString(pose, this.font, multiplier, this.titleLabelX, this.titleLabelY + 37, 4210752);
+                this.font.draw(pose, multiplier, this.titleLabelX,
+                        this.titleLabelY + 37, 4210752);
             }
         }
 

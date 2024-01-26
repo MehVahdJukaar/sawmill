@@ -1,8 +1,12 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.ImmutableSet;
+import net.mehvahdjukaar.moonlight.api.misc.Registrator;
 import net.mehvahdjukaar.moonlight.api.platform.PlatformHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
+import net.mehvahdjukaar.moonlight.api.set.BlockSetAPI;
+import net.mehvahdjukaar.moonlight.api.set.BlockType;
+import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.sawmill.trades.ItemListingRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -67,6 +71,10 @@ public class SawmillMod {
         CarpenterTrades.init();
         CommonConfigs.init();
         PlatformHelper.addServerReloadListener(ItemListingRegistry.INSTANCE, res("carpenter_trades"));
+        BlockSetAPI.addDynamicRegistration(SawmillMod::forceLoadWoodTypes, WoodType.class, Registry.BLOCK);
+    }
+
+    private static <E, T extends BlockType> void forceLoadWoodTypes(Registrator<E> eRegistrator, Collection<T> ts) {
     }
 
     public static ResourceLocation res(String name) {

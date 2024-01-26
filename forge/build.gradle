@@ -132,7 +132,7 @@ dependencies {
 
    // modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
    // modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")
-    modImplementation("curse.maven:jei-238222:4712868")
+    modCompileOnly("curse.maven:jei-238222:4712868")
     modCompileOnly("curse.maven:repurposed-structures-368293:4823487")
     modImplementation("net.mehvahdjukaar:moonlight-forge:${moonlight_version}")
 
