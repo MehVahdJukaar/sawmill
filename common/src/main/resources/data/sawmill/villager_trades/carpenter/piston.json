@@ -1,13 +1,13 @@
 {
-  "type": "sawmill:wood_item_to_emerald",
-  "buys": false,
-  "max_trades": 3,
-  "wood_block": "piston",
-  "wood_block_amount": 1,
-  "emeralds": {
+  "type": "simple",
+  "max_trades": 6,
+  "price": {
     "id": "minecraft:emerald",
     "Count": 1
   },
-  "level": 5,
-  "type_dependant": true
+  "offer": {
+    "id": "minecraft:piston",
+    "Count": 1
+  },
+  "level": 5
 }

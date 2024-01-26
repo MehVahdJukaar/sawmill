@@ -93,7 +93,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             if (logCosts.size() == maxWoods) {
                 var m = logCosts.get(WoodTypeRegistry.OAK_TYPE);
                 addNewRecipe(sawmillRecipes, anyWood, group, result, itemId, counter++, m.cost, false);
-                addNewRecipe(sawmillRecipes, anyPlanks, group2, result, itemId, counter++, m.cost * 4, true);
+                addNewRecipe(sawmillRecipes, anyPlanks, group2, result, itemId, counter++, getPlanksCost(WoodTypeRegistry.OAK_TYPE, m), true);
             } else {
                 //If not we create a new recipe for each cost as single costs might be different.
                 // IDK if grouping here would be worth it
@@ -105,7 +105,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                         addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
                     }
                     Ingredient plankInput = getOrCreatePlankIngredient(plankIngredients, woodType);
-                    addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, m.cost * 4, true);
+                    addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, getPlanksCost(woodType, m), true);
                 }
             }
         }
@@ -127,6 +127,11 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
         SawmillMod.clearCacheHacks();
         return sawmillRecipes;
+    }
+
+    private static double getPlanksCost(WoodType type, LogCost m) {
+        if (type.getTypeName().equals("bamboo")) return m.cost * 2;
+        return m.cost * 4;
     }
 
     private static void addLogRecipe(List<WoodcuttingRecipe> sawmillRecipes, WoodType type, int counter,
