@@ -134,8 +134,8 @@ public class SawmillMenu extends AbstractContainerMenu {
         ItemStack itemStack = this.inputSlot.getItem();
         ItemStack old = this.input;
         boolean sameStack = itemStack.is(old.getItem());
-        int maxItemsThatCanBeConsumed = 4; //I made it the f up
-        if (!sameStack || itemStack.getCount() < maxItemsThatCanBeConsumed ^ old.getCount() < maxItemsThatCanBeConsumed) {
+        int maxItemsThatCanBeConsumed = 5; //I made it the f up
+        if (!sameStack || itemStack.getCount() < maxItemsThatCanBeConsumed || old.getCount() < maxItemsThatCanBeConsumed) {
             this.input = itemStack.copy();
             this.setupRecipeList(container, itemStack);
         }
