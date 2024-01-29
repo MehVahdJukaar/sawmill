@@ -106,7 +106,9 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                         addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
                     }
                     Ingredient plankInput = getOrCreatePlankIngredient(plankIngredients, woodType);
-                    addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, getPlanksCost(woodType, m), true);
+                    if (!plankInput.test(result.getDefaultInstance())) {
+                        addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, getPlanksCost(woodType, m), true);
+                    }
                 }
             }
         }
