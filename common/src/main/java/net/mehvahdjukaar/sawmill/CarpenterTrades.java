@@ -117,7 +117,7 @@ public class CarpenterTrades {
             }
             var types = new ArrayList<>(WoodTypeRegistry.getTypes());
             int tries = 0;
-            while (tries < 100 && types.size() > 0) {
+            while (tries < 100 && !types.isEmpty()) {
                 tries++;
                 if (type == null) {
                     type = types.get(random.nextInt(types.size()));
@@ -147,7 +147,7 @@ public class CarpenterTrades {
     private static final Supplier<Map<VillagerType, List<WoodType>>> TYPE_MAP = Suppliers.memoize(() -> {
         Map<VillagerType, List<WoodType>> map = new HashMap<>();
         map.put(VillagerType.PLAINS, List.of(wood("birch"), wood("oak")));
-        map.put(VillagerType.JUNGLE, List.of(wood("jungle"), wood("bamboo")));
+        map.put(VillagerType.JUNGLE, List.of(wood("jungle")));
         map.put(VillagerType.SNOW, List.of(wood("spruce")));
         map.put(VillagerType.TAIGA, List.of(wood("spruce")));
         map.put(VillagerType.SAVANNA, List.of(wood("acacia")));
