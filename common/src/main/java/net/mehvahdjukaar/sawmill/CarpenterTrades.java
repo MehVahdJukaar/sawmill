@@ -180,7 +180,8 @@ public class CarpenterTrades {
     @Nullable
     private static WoodType getTypeSpecificWoodType(Entity trader, RandomSource random) {
         if (trader instanceof VillagerDataHolder d) {
-            List<WoodType> list = TYPE_MAP.get().getOrDefault(d.getVillagerData().getType(), List.of(WoodTypeRegistry.OAK_TYPE));
+            List<WoodType> list = TYPE_MAP.get()
+                    .getOrDefault(d.getVillagerData().getType(), List.of(WoodTypeRegistry.OAK_TYPE));
             return list.get(random.nextInt(list.size()));
         } else return null;
     }
