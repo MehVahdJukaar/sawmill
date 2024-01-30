@@ -1,2 +1,1 @@
-fixed fabric server
-fixed a recipe dupe
+fixed some recipe stuff

@@ -85,7 +85,7 @@ public class SawmillMod {
 
     @Nullable
     private static WeakReference<TagManager> tagManager = null;
-    private static WeakReference<Map<ResourceLocation, Collection<Holder>>> tags = null;
+    private static Map<ResourceLocation, Collection<Holder>> tags = null;
     private static final Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
     private static final List<RecipeType<?>> whitelist = new ArrayList<>();
 
@@ -95,22 +95,26 @@ public class SawmillMod {
 
     public static Collection<ItemStack> getTagElements(TagKey<Item> tag) {
         if (tags == null) {
-            TagManager manager = SawmillMod.tagManager.get();
-            if (manager != null) {
-                for (var r : manager.getResult()) {
-                    if (r.key() == Registry.ITEM_REGISTRY) {
-                        tags = new WeakReference<>((Map<ResourceLocation, Collection<Holder>>) (Object) r.tags());
-                        break;
+            if (SawmillMod.tagManager != null) {
+                TagManager manager = SawmillMod.tagManager.get();
+                if(manager !=null) {
+                    tags = new HashMap<>();
+                    for (var r : manager.getResult()) {
+                        if (r.key() == Registry.ITEM_REGISTRY) {
+                            for (var e : r.tags().entrySet()) {
+                                tags.computeIfAbsent(e.getKey(),
+                                                y -> new ArrayList<>())
+                                        .addAll(e.getValue());
+                            }
+                            break;
+                        }
                     }
                 }
             }
-        }
-
-        if (tags == null) {
             return List.of();
         }
         return cachedTags.computeIfAbsent(tag, t -> {
-            var tagList = tags.get().get(t.location());
+            var tagList = tags.get(t.location());
             if (tagList == null) {
                 return List.of();
             }
