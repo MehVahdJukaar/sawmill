@@ -23,7 +23,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -80,34 +79,12 @@ public class SawmillMod {
 
     //Hacky tag stuff below here
 
-    @Nullable
-    private static WeakReference<TagManager> tagManager = null;
     private static Map<ResourceLocation, List<Holder>> tags = null;
     private static final Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
     private static final List<RecipeType<?>> whitelist = new ArrayList<>();
 
-    public static void setTagManager(TagManager t) {
-        tagManager = new WeakReference<>(t);
-    }
-
     public static Collection<ItemStack> getTagElements(TagKey<Item> tag) {
         if (tags == null) {
-            if (SawmillMod.tagManager != null) {
-                TagManager manager = SawmillMod.tagManager.get();
-                if(manager !=null) {
-                    tags = new HashMap<>();
-                    for (var r : manager.getResult()) {
-                        if (r.key() == Registries.ITEM) {
-                            for (var e : r.tags().entrySet()) {
-                                tags.computeIfAbsent(e.getKey(),
-                                                y -> new ArrayList<>())
-                                        .addAll(e.getValue());
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
             return List.of();
         }
         return cachedTags.computeIfAbsent(tag, t -> {
@@ -121,7 +98,6 @@ public class SawmillMod {
     }
 
     public static void clearTagHacks() {
-        tagManager = null;
         tags.clear();
         whitelist.clear();
         cachedTags.clear();
@@ -151,7 +127,5 @@ public class SawmillMod {
                 break;
             }
         }
-        return whitelist.contains(type);
-
     }
 }
