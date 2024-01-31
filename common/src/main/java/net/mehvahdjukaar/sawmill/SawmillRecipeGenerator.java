@@ -128,7 +128,9 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
         long millis = stopwatch.elapsed().toMillis();
         SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
-        SawmillMod.clearCacheHacks();
+        SawmillMod.clearTagHacks();
+
+        RecipeSorter.accept(sawmillRecipes);
         return sawmillRecipes;
     }
 

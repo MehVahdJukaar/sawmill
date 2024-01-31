@@ -1,8 +1,6 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.Lists;
-import net.mehvahdjukaar.moonlight.api.util.Utils;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -15,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class SawmillMenu extends AbstractContainerMenu {
@@ -154,11 +151,8 @@ public class SawmillMenu extends AbstractContainerMenu {
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager()
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
-            Comparator<RecipeHolder<WoodcuttingRecipe>> comp = Comparator.comparingInt(r -> r.value().getResultItem(RegistryAccess.EMPTY).getCount());
-            comp = comp.thenComparing(sawmillRecipe ->
-                    Utils.getID(sawmillRecipe.value().getResultItem(RegistryAccess.EMPTY).getItem()));
 
-            this.recipes.sort(comp);
+            RecipeSorter.sort(this.recipes, this.level);
         }
 
     }

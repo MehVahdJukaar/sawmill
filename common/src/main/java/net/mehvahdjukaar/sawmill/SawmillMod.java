@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -120,7 +120,7 @@ public class SawmillMod {
         });
     }
 
-    public static void clearCacheHacks() {
+    public static void clearTagHacks() {
         tagManager = null;
         tags.clear();
         whitelist.clear();
@@ -128,16 +128,27 @@ public class SawmillMod {
     }
 
     public static boolean isWhitelisted(RecipeType<?> type) {
-        if (whitelist.isEmpty()) {
-            TagManager manager = SawmillMod.tagManager.get();
-            if (manager != null) {
-                for (var r : manager.getResult()) {
-                    if (r.key() == Registries.RECIPE_TYPE) {
-                        whitelist.addAll(r.tags().get(res("whitelist"))
-                                .stream().map(holder -> (RecipeType<?>) holder.value()).toList());
-                        break;
-                    }
+        return whitelist.contains(type);
+
+    }
+
+    public static void setTagManagerResults(List<TagManager.LoadResult<?>> results) {
+        tags = new HashMap<>();
+        for (var r : results) {
+            if (r.key() == Registries.ITEM) {
+                for (var e : r.tags().entrySet()) {
+                    tags.computeIfAbsent(e.getKey(),
+                                    y -> new ArrayList<>())
+                            .addAll(e.getValue());
                 }
+                break;
+            }
+        }
+        for (var r : results) {
+            if (r.key() == Registries.RECIPE_TYPE) {
+                whitelist.addAll(r.tags().get(res("whitelist"))
+                        .stream().map(holder -> (RecipeType<?>) holder.value()).toList());
+                break;
             }
         }
         return whitelist.contains(type);
