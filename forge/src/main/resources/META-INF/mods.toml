@@ -22,7 +22,7 @@ issueTrackerURL = "${mod_github}/issues"
     itemIcon="minecraft:brush" #catalogue icon
 
 [[dependencies.sawmill]]
-    modId = "forge"
+    modId = "neoforge"
     type = "REQUIRED"
     versionRange = "${neo_version_range}"
     ordering = "NONE"
