@@ -41,18 +41,20 @@ subprojects {
             projectId = "universal-sawmill"
             uploadFile = tasks.remapJar
             gameVersions = [rootProject.minecraft_version]
-            if(modLoader == "forge"){
+            if (modLoader == "forge") {
                 loaders = ["neoforge"]
-            }else loaders = [modLoader]
+            } else loaders = [modLoader]
 
             changelog = changelogText
 
             if (modLoader == "fabric") {
                 dependencies {
                     required.project "fabric-api"
+                    required.project "moonlight"
                 }
             } else {
                 dependencies {
+                    required.project "moonlight"
                 }
             }
         }
@@ -66,18 +68,21 @@ subprojects {
                 changelog = changelogText
                 releaseType = 'release'
                 addGameVersion rootProject.minecraft_version
-                if(modLoader == "forge"){
+                if (modLoader == "forge") {
                     addGameVersion("NeoForge")
-                }
-                else addGameVersion modLoader.capitalize()
+                } else addGameVersion modLoader.capitalize()
 
                 mainArtifact(tasks.remapJar)
 
                 if (modLoader == "fabric") {
                     relations {
                         requiredDependency "fabric-api"
+                        requiredDependency "slene"
                     }
                 } else {
+                    relations {
+                        requiredDependency "selene"
+                    }
                 }
             }
         }
