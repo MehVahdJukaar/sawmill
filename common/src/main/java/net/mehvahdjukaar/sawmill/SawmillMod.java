@@ -24,7 +24,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -81,34 +80,12 @@ public class SawmillMod {
 
     //Hacky tag stuff below here
 
-    @Nullable
-    private static WeakReference<TagManager> tagManager = null;
     private static Map<ResourceLocation, Collection<Holder>> tags = null;
     private static final Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
     private static final List<RecipeType<?>> whitelist = new ArrayList<>();
 
-    public static void setTagManager(TagManager t) {
-        tagManager = new WeakReference<>(t);
-    }
-
     public static Collection<ItemStack> getTagElements(TagKey<Item> tag) {
         if (tags == null) {
-            if (SawmillMod.tagManager != null) {
-                TagManager manager = SawmillMod.tagManager.get();
-                if(manager !=null) {
-                    tags = new HashMap<>();
-                    for (var r : manager.getResult()) {
-                        if (r.key() == Registries.ITEM) {
-                            for (var e : r.tags().entrySet()) {
-                                tags.computeIfAbsent(e.getKey(),
-                                                y -> new ArrayList<>())
-                                        .addAll(e.getValue());
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
             return List.of();
         }
         return cachedTags.computeIfAbsent(tag, t -> {
@@ -122,26 +99,34 @@ public class SawmillMod {
     }
 
     public static void clearCacheHacks() {
-        tagManager = null;
         tags = null;
         whitelist.clear();
         cachedTags.clear();
     }
 
     public static boolean isWhitelisted(RecipeType<?> type) {
-        if (whitelist.isEmpty()) {
-            TagManager manager = SawmillMod.tagManager.get();
-            if (manager != null) {
-                for (var r : manager.getResult()) {
-                    if (r.key() == Registries.RECIPE_TYPE) {
-                        whitelist.addAll(r.tags().get(res("whitelist"))
-                                .stream().map(holder -> (RecipeType<?>) holder.value()).toList());
-                        break;
-                    }
-                }
-            }
-        }
         return whitelist.contains(type);
 
+    }
+
+    public static void setTagManagerResults(List<TagManager.LoadResult<?>> results) {
+        tags = new HashMap<>();
+        for (var r : results) {
+            if (r.key() == Registry.ITEM_REGISTRY) {
+                for (var e : r.tags().entrySet()) {
+                    tags.computeIfAbsent(e.getKey(),
+                                    y -> new ArrayList<>())
+                            .addAll(e.getValue());
+                }
+                break;
+            }
+        }
+        for (var r : results) {
+            if (r.key() == Registries.RECIPE_TYPE) {
+                whitelist.addAll(r.tags().get(res("whitelist"))
+                        .stream().map(holder -> (RecipeType<?>) holder.value()).toList());
+                break;
+            }
+        }
     }
 }
