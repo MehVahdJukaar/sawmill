@@ -1,6 +1,7 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.Lists;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -151,6 +152,9 @@ public class SawmillMenu extends AbstractContainerMenu {
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager()
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
+
+            //remove blacklisted
+            this.recipes.removeIf(r -> r.getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
 
             RecipeSorter.sort(this.recipes, this.level);
         }
