@@ -1,12 +1,12 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.mojang.datafixers.util.Pair;
-import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
 import java.util.*;
@@ -17,11 +17,11 @@ public class RecipeSorter {
     private static final List<Item> UNSORTED = new ArrayList<>();
     private static boolean needsRefresh = true;
 
-    public static void accept(List<WoodcuttingRecipe> sawmillRecipes) {
+    public static void accept(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
         if (needsRefresh) {
             needsRefresh = false;
 
-            sawmillRecipes.forEach(r -> UNSORTED.add(r.getResultItem(RegistryAccess.EMPTY).getItem()));
+            sawmillRecipes.forEach(r -> UNSORTED.add(r.value().getResultItem(RegistryAccess.EMPTY).getItem()));
         }
     }
 
@@ -54,20 +54,12 @@ public class RecipeSorter {
     }
 
 
-    public static void sort(List<WoodcuttingRecipe> recipes, Level level) {
-        if (level.isClientSide) {
-            //just runs once if needed
-            refreshIfNeeded(level);
+    public static void sort(List<RecipeHolder<WoodcuttingRecipe>> recipes, Level level) {
+        //just runs once if needed
+        refreshIfNeeded(level);
 
-            recipes.sort(Comparator.comparingInt(value ->
-                    ITEM_ORDER.indexOf(value.getResultItem(RegistryAccess.EMPTY).getItem())));
+        recipes.sort(Comparator.comparingInt(value ->
+                ITEM_ORDER.indexOf(value.value().getResultItem(RegistryAccess.EMPTY).getItem())));
 
-        } else {
-            Comparator<WoodcuttingRecipe> comp = Comparator.comparingInt(r -> r.getResultItem(RegistryAccess.EMPTY).getCount());
-            comp = comp.thenComparing(sawmillRecipe ->
-                    Utils.getID(sawmillRecipe.getResultItem(RegistryAccess.EMPTY).getItem()));
-
-            recipes.sort(comp);
-        }
     }
 }
