@@ -18,6 +18,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -51,6 +52,8 @@ public class SawmillMod {
             () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
     public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
             "carpenter", CARPENTER_POI_KEY, CARPENTER_WORK);
+
+    public static final TagKey<Item> BLACKLIST = TagKey.create(Registries.ITEM, res("blacklist"));
 
     private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, Supplier<SoundEvent> workSound) {
         return RegHelper.register(res(name), () -> new VillagerProfession(name,
@@ -102,8 +105,9 @@ public class SawmillMod {
         cachedTags.clear();
     }
 
-    public static boolean isWhitelisted(RecipeType<?> type) {
-        return whitelist.contains(type);
+    public static boolean isWhitelisted(Recipe<?> recipe) {
+        return whitelist.contains(recipe.getType())
+                && !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getPath());
 
     }
 
