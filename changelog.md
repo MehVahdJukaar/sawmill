@@ -1,1 +1,1 @@
-recipes are now sorted using their creative tab order
+fixed recipe order

@@ -1,7 +1,6 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.mojang.datafixers.util.Pair;
-import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -55,19 +54,11 @@ public class RecipeSorter {
 
 
     public static void sort(List<WoodcuttingRecipe> recipes, Level level) {
-        if (level.isClientSide) {
-            //just runs once if needed
-            refreshIfNeeded(level);
+        //just runs once if needed
+        refreshIfNeeded(level);
 
-            recipes.sort(Comparator.comparingInt(value ->
-                    ITEM_ORDER.indexOf(value.getResultItem(RegistryAccess.EMPTY).getItem())));
+        recipes.sort(Comparator.comparingInt(value ->
+                ITEM_ORDER.indexOf(value.getResultItem(RegistryAccess.EMPTY).getItem())));
 
-        } else {
-            Comparator<WoodcuttingRecipe> comp = Comparator.comparingInt(r -> r.getResultItem(RegistryAccess.EMPTY).getCount());
-            comp = comp.thenComparing(sawmillRecipe ->
-                    Utils.getID(sawmillRecipe.getResultItem(RegistryAccess.EMPTY).getItem()));
-
-            recipes.sort(comp);
-        }
     }
 }
