@@ -201,7 +201,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         Set<Item> craftableItems = new HashSet<>();
         boolean allowNonBlocks = CommonConfigs.ALLOW_NON_BLOCKS.get();
         for (var recipe : recipes) {
-            if (SawmillMod.isWhitelisted(recipe.getType())) {
+            if (SawmillMod.isWhitelisted(recipe)) {
                 try {
                     Item i = recipe.getResultItem().getItem();
                     if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
