@@ -1,5 +1,6 @@
 package net.mehvahdjukaar.sawmill.forge;
 
+import net.mehvahdjukaar.moonlight.core.mixins.forge.ConditionHackMixin;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.VillageStructureModifier;
 import net.neoforged.bus.api.SubscribeEvent;
