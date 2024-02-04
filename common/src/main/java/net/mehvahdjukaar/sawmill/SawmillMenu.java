@@ -29,6 +29,8 @@ public class SawmillMenu extends AbstractContainerMenu {
     public final Container container;
     final ResultContainer resultContainer;
 
+    private WoodcuttingRecipe lastSelectedRecipe = null;
+
     public SawmillMenu(int i, Inventory inventory, FriendlyByteBuf buf) {
         this(i, inventory, ContainerLevelAccess.NULL);
     }
@@ -148,6 +150,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     private void setupRecipeList(Container container, ItemStack stack) {
         this.recipes.clear();
         this.selectedRecipeIndex.set(-1);
+
         this.resultSlot.set(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
             this.recipes = this.level.getRecipeManager()
@@ -157,13 +160,23 @@ public class SawmillMenu extends AbstractContainerMenu {
             this.recipes.removeIf(r -> r.getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
 
             RecipeSorter.sort(this.recipes, this.level);
+
+            //preserve last clicked recipe on recipe change
+            if (lastSelectedRecipe != null) {
+                int newInd = this.recipes.indexOf(lastSelectedRecipe);
+                if (newInd != -1) {
+                    this.selectedRecipeIndex.set(newInd);
+                }
+            }
         }
 
+        lastSelectedRecipe = null;
     }
 
     void setupResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
             var recipe = this.recipes.get(this.selectedRecipeIndex.get());
+            this.lastSelectedRecipe = recipe;
             ItemStack itemStack = recipe.value().assemble(this.container, this.level.registryAccess());
             if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
                 this.resultContainer.setRecipeUsed(recipe);
