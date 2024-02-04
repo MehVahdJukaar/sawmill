@@ -107,7 +107,7 @@ public class SawmillMod {
 
     public static boolean isWhitelisted(Recipe<?> recipe) {
         return whitelist.contains(recipe.getType())
-                && !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getPath());
+                && !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace());
 
     }
 
@@ -116,8 +116,7 @@ public class SawmillMod {
         for (var r : results) {
             if (r.key() == Registries.ITEM) {
                 for (var e : r.tags().entrySet()) {
-                    tags.computeIfAbsent(e.getKey(),
-                                    y -> new ArrayList<>())
+                    tags.computeIfAbsent(e.getKey(), y -> new ArrayList<>())
                             .addAll(e.getValue());
                 }
                 break;

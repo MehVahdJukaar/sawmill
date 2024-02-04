@@ -26,6 +26,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.biome.Biome;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -117,7 +118,6 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             addLogRecipe(sawmillRecipes, type, counter++, "log", "stripped_log");
             addLogRecipe(sawmillRecipes, type, counter++, "log", "stripped_wood");
             addLogRecipe(sawmillRecipes, type, counter++, "log", "wood");
-            addLogRecipe(sawmillRecipes, type, counter++, "wood", "log");
             addLogRecipe(sawmillRecipes, type, counter++, "wood", "stripped_wood");
             addLogRecipe(sawmillRecipes, type, counter++, "wood", "stripped_log");
             addLogRecipe(sawmillRecipes, type, counter++, "stripped_wood", "stripped_log");
