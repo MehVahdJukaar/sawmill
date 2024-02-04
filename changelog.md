@@ -1,1 +1,1 @@
-added blacklist config and tag
+fixed config
