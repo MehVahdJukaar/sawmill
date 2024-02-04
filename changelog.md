@@ -1,1 +1,1 @@
-fixed some recipe stuff
+added blacklist config and tag

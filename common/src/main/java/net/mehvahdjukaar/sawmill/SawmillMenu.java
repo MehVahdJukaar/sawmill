@@ -1,6 +1,7 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.Lists;
+import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -153,7 +154,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                     Utils.getID(sawmillRecipe.getResultItem().getItem()));
 
             //remove blacklisted
-            this.recipes.removeIf(r -> r.getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
+            this.recipes.removeIf(r -> r.getResultItem().is(SawmillMod.BLACKLIST));
 
             this.recipes.sort(comp);
         }

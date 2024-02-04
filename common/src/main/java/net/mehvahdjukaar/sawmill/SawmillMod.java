@@ -43,7 +43,7 @@ public class SawmillMod {
     public static final Supplier<MenuType<SawmillMenu>> SAWMILL_MENU = RegHelper.registerMenuType(
             res("sawmill"), SawmillMenu::new);
     public static final Supplier<SoundEvent> SAWMILL_TAKE = RegHelper.registerSound(res("ui.sawmill.take_result"));
-    public static final Supplier<SoundEvent> SAWMILL_SELECT = RegHelper.registerSound(res("ui.sawmill.select_result"));
+    public static final Supplier<SoundEvent> SAWMILL_SELECT = RegHelper.registerSound(res("ui.sawmill.select_recipe"));
     public static final Supplier<SoundEvent> CARPENTER_WORK = RegHelper.registerSound(res("entity.villager.work_carpenter"));
     public static final Supplier<RecipeSerializer<WoodcuttingRecipe>> WOODCUTTING_RECIPE_SERIALIZER = RegHelper.registerRecipeSerializer(
             res("woodcutting"), WoodcuttingRecipe.Serializer::new);
@@ -57,7 +57,7 @@ public class SawmillMod {
     public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
             "carpenter", CARPENTER_POI_KEY, CARPENTER_WORK);
 
-    public static final TagKey<Item> BLACKLIST = TagKey.create(Registries.ITEM, res("blacklist"));
+    public static final TagKey<Item> BLACKLIST = TagKey.create(Registry.ITEM_REGISTRY, res("blacklist"));
 
     private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, Supplier<SoundEvent> workSound) {
         return RegHelper.register(res(name), () -> new VillagerProfession(name,
