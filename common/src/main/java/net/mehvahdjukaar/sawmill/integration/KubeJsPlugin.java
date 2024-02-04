@@ -12,8 +12,10 @@ import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.SawmillRecipeGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 
+import java.util.Collection;
 import java.util.Map;
 
 
@@ -37,8 +39,10 @@ public class KubeJsPlugin extends KubeJSPlugin {
 
     @Override
     public void injectRuntimeRecipes(RecipesEventJS event, RecipeManager manager, Map<ResourceLocation, Recipe<?>> recipesByName) {
-        var newRecipes = SawmillRecipeGenerator.process(recipesByName.values());
+        Collection<RecipeHolder<?>> list = (Collection<RecipeHolder<?>>) (Object) recipesByName.entrySet().stream().map(e -> new RecipeHolder<>(e.getKey(), e.getValue())).toList();
+        var newRecipes = SawmillRecipeGenerator.process(list);
         newRecipes.forEach(r -> recipesByName.put(r.id(), r.value()));
     }
+
 
 }

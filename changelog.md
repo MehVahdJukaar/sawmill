@@ -1,1 +1,1 @@
-fixed recipe button click sound. fixed neoforge not working
+improved shift click logic

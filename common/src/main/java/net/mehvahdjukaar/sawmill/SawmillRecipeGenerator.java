@@ -55,7 +55,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         //gather and parse all recipes. then call process
     }
 
-    public static void process(Collection<Recipe<?>> recipes,
+    public static void process(Collection<RecipeHolder<?>> recipes,
                                Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map,
                                ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder,
                                ProfilerFiller profiler) {
@@ -71,7 +71,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         profiler.pop();
     }
 
-    public static List<RecipeHolder<WoodcuttingRecipe>> process(Collection<Recipe<?>> recipes) {
+    public static List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes) {
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
@@ -192,7 +192,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         });
     }
 
-    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<Recipe<?>> recipes, boolean optim) {
+    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<RecipeHolder<?>> recipes, boolean optim) {
         Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost = new HashMap<>();
         for (var type : WoodTypeRegistry.getTypes()) {
             Map<WoodType, LogCost> cost = Map.of(type, LogCost.of(type, 1d));
@@ -207,11 +207,12 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         for (var recipe : recipes) {
             if (SawmillMod.isWhitelisted(recipe)) {
                 try {
-                    Item i = recipe.getResultItem(RegistryAccess.EMPTY).getItem();
+                    Recipe<?> value = recipe.value();
+                    Item i = value.getResultItem(RegistryAccess.EMPTY).getItem();
                     if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
-                    if (!recipe.getIngredients().isEmpty()) {
+                    if (!value.getIngredients().isEmpty()) {
                         craftableItems.add(i);
-                        validRecipes.add(recipe);
+                        validRecipes.add(value);
                     } else {
                         //oh oh
                         int aa = 1;

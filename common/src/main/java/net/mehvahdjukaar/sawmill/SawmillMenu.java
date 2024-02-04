@@ -3,6 +3,7 @@ package net.mehvahdjukaar.sawmill;
 import com.google.common.collect.Lists;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -29,7 +30,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     public final Container container;
     final ResultContainer resultContainer;
 
-    private WoodcuttingRecipe lastSelectedRecipe = null;
+    private ResourceLocation lastSelectedRecipe = null;
 
     public SawmillMenu(int i, Inventory inventory, FriendlyByteBuf buf) {
         this(i, inventory, ContainerLevelAccess.NULL);
@@ -157,16 +158,14 @@ public class SawmillMenu extends AbstractContainerMenu {
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
 
             //remove blacklisted
-            this.recipes.removeIf(r -> r.getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
+            this.recipes.removeIf(r -> r.value().getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
 
             RecipeSorter.sort(this.recipes, this.level);
 
             //preserve last clicked recipe on recipe change
             if (lastSelectedRecipe != null) {
-                int newInd = this.recipes.indexOf(lastSelectedRecipe);
-                if (newInd != -1) {
-                    this.selectedRecipeIndex.set(newInd);
-                }
+                this.recipes.stream().filter(h -> h.id().equals(lastSelectedRecipe)).findAny()
+                        .ifPresent(r -> this.selectedRecipeIndex.set(this.recipes.indexOf(r)));
             }
         }
 
@@ -176,7 +175,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     void setupResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
             var recipe = this.recipes.get(this.selectedRecipeIndex.get());
-            this.lastSelectedRecipe = recipe;
+            this.lastSelectedRecipe = recipe.id();
             ItemStack itemStack = recipe.value().assemble(this.container, this.level.registryAccess());
             if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
                 this.resultContainer.setRecipeUsed(recipe);

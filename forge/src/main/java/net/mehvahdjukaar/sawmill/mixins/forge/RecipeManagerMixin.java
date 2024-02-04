@@ -41,7 +41,7 @@ public abstract class RecipeManagerMixin {
     public void addSawmillRecipesHack(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
                                       @Local(ordinal = 1) Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map,
                                       @Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder,
-                                      @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
+                                      @Share("parsed") LocalRef<List<RecipeHolder<?>>> parsed) {
 
         SawmillRecipeGenerator.process(parsed.get(), map, builder, profiler);
     }
@@ -49,11 +49,11 @@ public abstract class RecipeManagerMixin {
     @ModifyExpressionValue(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/crafting/RecipeManager;fromJson(Lnet/minecraft/resources/ResourceLocation;Lcom/google/gson/JsonObject;Lcom/mojang/serialization/DynamicOps;)Ljava/util/Optional;"))
     private static Optional<RecipeHolder<?>> interceptRecipe(Optional<RecipeHolder<?>> original,
-                                                             @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
+                                                             @Share("parsed") LocalRef<List<RecipeHolder<?>>> parsed) {
         if (parsed.get() == null) {
             parsed.set(new ArrayList<>());
         }
-        original.ifPresent(holder -> parsed.get().add(holder.value()));
+        original.ifPresent(holder -> parsed.get().add(holder));
         return original;
     }
 }

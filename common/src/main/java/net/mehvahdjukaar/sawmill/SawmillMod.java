@@ -19,6 +19,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -106,9 +107,9 @@ public class SawmillMod {
         cachedTags.clear();
     }
 
-    public static boolean isWhitelisted(Recipe<?> recipe) {
-        return whitelist.contains(recipe.getType())
-                && !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getPath());
+    public static boolean isWhitelisted(RecipeHolder<?> recipe) {
+        return whitelist.contains(recipe.value().getType())
+                && !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.id().getPath());
 
     }
 

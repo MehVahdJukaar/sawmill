@@ -33,7 +33,7 @@ public class RecipeManagerMixin {
     public void addSawmillRecipesHack(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
                                       @Local(ordinal = 1) Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map,
                                       @Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder,
-                                      @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
+                                      @Share("parsed") LocalRef<List<RecipeHolder<?>>> parsed) {
 
         SawmillRecipeGenerator.process(parsed.get(), map, builder, profiler);
     }
@@ -44,10 +44,10 @@ public class RecipeManagerMixin {
     public void interceptRecipe(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager,
                                 ProfilerFiller profiler, CallbackInfo ci,
                                 @Local RecipeHolder<?> recipe,
-                                @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
+                                @Share("parsed") LocalRef<List<RecipeHolder<?>>> parsed) {
         if (parsed.get() == null) {
             parsed.set(new ArrayList<>());
         }
-        parsed.get().add(recipe.value());
+        parsed.get().add(recipe);
     }
 }
