@@ -68,6 +68,7 @@ public class SawmillMod {
         //TODO: add searchbar
         if (PlatHelper.getPhysicalSide().isClient()) {
             SawmillClient.init();
+            ClientConfigs.init();
         }
         CarpenterTrades.init();
         CommonConfigs.init();
@@ -133,4 +134,5 @@ public class SawmillMod {
             }
         }
     }
+
 }

@@ -1,9 +1,11 @@
 package net.mehvahdjukaar.sawmill.forge;
 
-import net.mehvahdjukaar.moonlight.core.mixins.forge.ConditionHackMixin;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.VillageStructureModifier;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.TagsUpdatedEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
@@ -25,5 +27,11 @@ public class SawmillForge {
         VillageStructureModifier.setup(event.getServer().registryAccess());
     }
 
+    @SubscribeEvent
+    public void onTagReload(TagsUpdatedEvent event){
+        if(event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.CLIENT_PACKET_RECEIVED){
+            SawmillClient.refreshRecipeSize();
+        }
+    }
 
 }
