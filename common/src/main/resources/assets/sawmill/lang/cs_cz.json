@@ -1,0 +1,9 @@
+{
+  "container.sawmill.sawmill": "Pila",
+  "block.sawmill.sawmill": "Pila",
+  "jei.sawmill.category.woodcutting": "Řezání",
+  "entity.minecraft.villager.sawmill.carpenter": "tesař"
+  "entity.minecraft.villager.carpenter": "tesař",
+  "subtitles.sawmill.entity.villager.work_carpenter": "tesař pracuje",
+  "subtitles.sawmill.ui.sawmill.take_result": "použití pily"
+}
