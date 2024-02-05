@@ -26,20 +26,22 @@ public class SawmillClient {
     private static boolean hasManyRecipes = false;
 
     public static void refreshRecipeSize() {
-        CraftingContainer dummy = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-            public ItemStack quickMoveStack(Player player, int index) {
-                return ItemStack.EMPTY;
-            }
-
-            public boolean stillValid(Player player) {
-                return false;
-            }
-        }, 1, 1);
-        dummy.setItem(0, Items.OAK_LOG.getDefaultInstance());
         ClientLevel level = Minecraft.getInstance().level;
-        var recipes = level.getRecipeManager().getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), dummy, level);
+        if (level != null) {
+            CraftingContainer dummy = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
+                public ItemStack quickMoveStack(Player player, int index) {
+                    return ItemStack.EMPTY;
+                }
 
-        hasManyRecipes = recipes.size() > 32;
+                public boolean stillValid(Player player) {
+                    return false;
+                }
+            }, 1, 1);
+            dummy.setItem(0, Items.OAK_LOG.getDefaultInstance());
+            var recipes = level.getRecipeManager().getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), dummy, level);
+
+            hasManyRecipes = recipes.size() > 32;
+        }
     }
 
     public static boolean hasManyRecipes() {
