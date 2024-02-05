@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SawmillRecipeGenerator extends DynServerResourcesProvider {
     protected SawmillRecipeGenerator( ) {
@@ -150,7 +152,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         int inputCount = 1;
         double value = (1 / cost) - 0.0001;
         int outputCount;
-        if (value > 0.5)
+        if (value > CommonConfigs.getThreshold())
             outputCount = Mth.ceil(value);
         else outputCount = Mth.floor(value);
         if (outputCount < 1) {
@@ -169,6 +171,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
             //planks recipe
         }
     }
+
 
     private static Ingredient getOrCreatePlankIngredient(Map<WoodType, Ingredient> cache, WoodType type) {
         return cache.computeIfAbsent(type, t -> {
@@ -190,11 +193,14 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
 
     private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<Recipe<?>> recipes, boolean optim) {
         Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost = new HashMap<>();
+        //primitive costs
         for (var type : WoodTypeRegistry.getTypes()) {
-            Map<WoodType, LogCost> cost = Map.of(type, LogCost.of(type, 1d));
+            Map<WoodType, LogCost> logCostInLog = Map.of(type, LogCost.of(type, 1d));
             var children = getAllChildren(type, "log", "wood", "stripped_log", "stripped_wood");
-            children.forEach(item -> itemToPrimitiveCost.put(item, cost));
+            children.forEach(item -> itemToPrimitiveCost.put(item, logCostInLog));
         }
+
+        addHardcodedCosts(itemToPrimitiveCost);
 
         // remove stuff that has non-whitelisted primitives
         Set<Recipe<?>> validRecipes = new HashSet<>();
@@ -218,7 +224,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         }
 
         //remove all the ones we dont need for sure
-        if (optim) removeUnneded(itemToPrimitiveCost, validRecipes, craftableItems);
+        if (optim) removeUnNeded(itemToPrimitiveCost, validRecipes, craftableItems);
 
         craftableItems.clear();
         Multimap<Item, Recipe<?>> itemsToRecipe = HashMultimap.create();
@@ -237,7 +243,26 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         return itemToPrimitiveCost;
     }
 
-    private static void removeUnneded(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost, Set<Recipe<?>> validRecipes, Set<Item> craftableItems) {
+    private static void addHardcodedCosts(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost) {
+        for (var type : WoodTypeRegistry.getTypes()) {
+            double stairCost = CommonConfigs.STAIRS_COST.get() / 4d;
+            if (stairCost != -1) {
+                var stairs = type.getItemOfThis("stairs");
+                if (stairs != null) {
+                    Map<WoodType, LogCost> stairsCostInLog = Map.of(type, LogCost.of(type, stairCost));
+                    itemToPrimitiveCost.put(stairs, stairsCostInLog);
+                }
+            }
+        }
+        double stickCount = CommonConfigs.STICK_COST.get() / 4d;
+        if (stickCount != -1) {
+            var cost = WoodTypeRegistry.getTypes().stream().collect(Collectors.toMap(Function.identity(),
+                    type -> LogCost.of(type, stickCount)));
+            itemToPrimitiveCost.put(Items.STICK, cost);
+        }
+    }
+
+    private static void removeUnNeded(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost, Set<Recipe<?>> validRecipes, Set<Item> craftableItems) {
         Iterator<Recipe<?>> iterator = validRecipes.iterator();
         outer:
         while (iterator.hasNext()) {

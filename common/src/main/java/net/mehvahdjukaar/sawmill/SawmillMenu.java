@@ -9,6 +9,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -21,6 +22,7 @@ public class SawmillMenu extends AbstractContainerMenu {
     private final DataSlot selectedRecipeIndex;
     private final Level level;
     private List<WoodcuttingRecipe> recipes;
+
     private ItemStack input;
     long lastSoundTime;
     final Slot inputSlot;
@@ -102,10 +104,6 @@ public class SawmillMenu extends AbstractContainerMenu {
         return this.recipes;
     }
 
-    public int getNumRecipes() {
-        return this.recipes.size();
-    }
-
     public boolean hasInputItem() {
         return this.inputSlot.hasItem() && !this.recipes.isEmpty();
     }
@@ -123,6 +121,11 @@ public class SawmillMenu extends AbstractContainerMenu {
         }
 
         return true;
+    }
+
+    public void clearResult() {
+        this.selectedRecipeIndex.set(-1);
+        this.setupResultSlot();
     }
 
     private boolean isValidRecipeIndex(int recipeIndex) {
@@ -245,4 +248,5 @@ public class SawmillMenu extends AbstractContainerMenu {
             this.clearContainer(player, this.container);
         });
     }
+
 }

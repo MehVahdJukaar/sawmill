@@ -70,6 +70,7 @@ public class SawmillMod {
     public static void init() {
         if (PlatformHelper.getEnv().isClient()) {
             SawmillClient.init();
+            ClientConfigs.init();
         }
         CarpenterTrades.init();
         CommonConfigs.init();
@@ -136,4 +137,5 @@ public class SawmillMod {
             }
         }
     }
+
 }
