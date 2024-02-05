@@ -5,6 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +32,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
     private EditBox searchBox;
 
-    private final List<WoodcuttingRecipe> filteredRecipes = new ArrayList<>();
+    private final List<RecipeHolder<WoodcuttingRecipe>> filteredRecipes = new ArrayList<>();
     private int filteredIndex = -1;
 
     public SawmillScreen(SawmillMenu sawmillMenu, Inventory inventory, Component component) {
@@ -41,7 +44,6 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     @Override
     protected void init() {
         super.init();
-
 
         int boxX = this.leftPos + 53;
         int boxY = this.topPos + 15;
@@ -57,15 +59,9 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         ClientConfigs.SearchMode searchMode = ClientConfigs.SEARCH_MODE.get();
         boolean hasSearch = searchMode == ClientConfigs.SearchMode.ON ||
                 (searchMode == ClientConfigs.SearchMode.AUTOMATIC && SawmillClient.hasManyRecipes());
-        hasSearch = true;
+
         this.searchBox.visible = hasSearch;
         this.searchBox.active = hasSearch;
-    }
-
-    @Override
-    protected void containerTick() {
-        super.containerTick();
-        if (searchBox.visible) this.searchBox.tick();
     }
 
     @Override
@@ -77,7 +73,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     private void highlightSearch() {
-        this.searchBox.moveCursorToEnd();
+        this.searchBox.moveCursorToEnd(true);
         this.searchBox.setHighlightPos(0);
     }
 
@@ -85,7 +81,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         this.filteredRecipes.clear();
         boolean isFiltered = searchBox.visible && !searchBox.getValue().equals("");
         for (var r : this.menu.getRecipes()) {
-            if (!isFiltered || Utils.getID(r.getResultItem(RegistryAccess.EMPTY).getItem())
+            if (!isFiltered || Utils.getID(r.value().getResultItem(RegistryAccess.EMPTY).getItem())
                     .getPath().contains(searchBox.getValue())) {
                 this.filteredRecipes.add(r);
             }
@@ -98,7 +94,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     private void updateSelectedIndex() {
         filteredIndex = -1;
         int selectedInd = this.menu.getSelectedRecipeIndex();
-        List<WoodcuttingRecipe> recipes = this.menu.getRecipes();
+        var recipes = this.menu.getRecipes();
         if (selectedInd > 0 && filteredIndex < recipes.size()) {
             filteredIndex = filteredRecipes.indexOf(recipes.get(selectedInd));
         }
@@ -139,8 +135,6 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        this.renderBackground(guiGraphics);
-
         ResourceLocation bgLocation = searchBox.visible ? BG_LOCATION_SEARCH : BG_LOCATION;
         guiGraphics.blit(bgLocation, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         int barH = scrollBarHeight();
@@ -162,7 +156,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         super.renderLabels(guiGraphics, mouseX, mouseY);
 
         if (filteredIndex >= 0 && filteredIndex < filteredRecipes.size()) {
-            int input = filteredRecipes.get(filteredIndex).getInputCount();
+            int input = filteredRecipes.get(filteredIndex).value().getInputCount();
             if (input != 1) {
                 String multiplier = input + "x";
 
@@ -185,7 +179,8 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
                 int n = startX + m % 4 * 16;
                 int o = startY + m / 4 * 18 + 2;
                 if (x >= n && x < n + 16 && y >= o && y < o + 18) {
-                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(l)).getResultItem(this.minecraft.level.registryAccess()), x, y);
+                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(l))
+                                    .value().getResultItem(this.minecraft.level.registryAccess()), x, y);
                 }
             }
         }
@@ -241,7 +236,8 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             int k = x + j % 4 * 16;
             int l = j / 4;
             int m = y + l * 18 + 2;
-            ItemStack item = filteredRecipes.get(i).getResultItem(this.minecraft.level.registryAccess());
+            ItemStack item = filteredRecipes.get(i).value()
+                    .getResultItem(this.minecraft.level.registryAccess());
             guiGraphics.renderFakeItem(item, k, m);
             guiGraphics.renderItemDecorations(font, item, k, m);
         }
@@ -293,10 +289,10 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (this.isScrollBarActive()) {
             int offscreenRows = this.getOffscreenRows();
-            float f = (float) delta / offscreenRows;
+            float f = (float) scrollY / offscreenRows;
             this.scrollOffs = Mth.clamp(this.scrollOffs - f, 0.0F, 1.0F);
             this.startIndex = (int) ((this.scrollOffs * offscreenRows) + 0.5) * 4;
         }

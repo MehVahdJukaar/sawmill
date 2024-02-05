@@ -1,13 +1,12 @@
 package net.mehvahdjukaar.sawmill.forge;
 
+import net.mehvahdjukaar.sawmill.SawmillClient;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.VillageStructureModifier;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.event.TagsUpdatedEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
 /**

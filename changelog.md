@@ -1,1 +1,1 @@
-improved shift click logic
+added search bar

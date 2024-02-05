@@ -36,7 +36,8 @@ public class CommonConfigs {
                 .define("stairs_cost", 1d, -1, 10);
         builder.pop();
 
-        builder.buildAndRegister();
+        builder.buildAndRegister().loadFromFile();
+
     }
 
     public static void init() {

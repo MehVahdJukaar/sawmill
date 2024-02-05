@@ -156,7 +156,8 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         int inputCount = 1;
         double value = (1 / cost) - 0.0001;
         int outputCount;
-        if (value > CommonConfigs.getThreshold())
+        //check if the remainder is bigger or smaller than 0.5
+        if (value % 1 > CommonConfigs.getThreshold())
             outputCount = Mth.ceil(value);
         else outputCount = Mth.floor(value);
         if (outputCount < 1) {
