@@ -1,14 +1,10 @@
 package net.mehvahdjukaar.sawmill;
 
-import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -16,11 +12,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     private static final ResourceLocation BG_LOCATION = SawmillMod.res("textures/gui/container/sawmill.png");
@@ -32,7 +28,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
     private EditBox searchBox;
 
-    private final List<RecipeHolder<WoodcuttingRecipe>> filteredRecipes = new ArrayList<>();
+    private final List<FilterableRecipe> filteredRecipes = new ArrayList<>();
     private int filteredIndex = -1;
 
     public SawmillScreen(SawmillMenu sawmillMenu, Inventory inventory, Component component) {
@@ -56,51 +52,54 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         this.searchBox.setResponder(s -> this.refreshSearchResults());
         this.addRenderableWidget(this.searchBox);
 
-        ClientConfigs.SearchMode searchMode = ClientConfigs.SEARCH_MODE.get();
-        boolean hasSearch = searchMode == ClientConfigs.SearchMode.ON ||
-                (searchMode == ClientConfigs.SearchMode.AUTOMATIC && SawmillClient.hasManyRecipes());
+        updateSearchBarVisibility();
+    }
 
+    private void updateSearchBarVisibility(){
+        boolean hasSearch = CommonConfigs.hasSearchBar(menu.getRecipes().size());
         this.searchBox.visible = hasSearch;
         this.searchBox.active = hasSearch;
     }
 
     @Override
-    protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
-        if (slot != null && slot.container == getMenu().container) {
-            highlightSearch();
-        }
-        super.slotClicked(slot, slotId, mouseButton, type);
-    }
-
-    private void highlightSearch() {
-        this.searchBox.moveCursorToEnd(true);
-        this.searchBox.setHighlightPos(0);
+    protected void containerTick() {
+        super.containerTick();
+        if (searchBox.visible) this.searchBox.tick();
     }
 
     private void refreshSearchResults() {
+        int oldSize = filteredRecipes.size();
         this.filteredRecipes.clear();
         boolean isFiltered = searchBox.visible && !searchBox.getValue().equals("");
         for (var r : this.menu.getRecipes()) {
-            if (!isFiltered || Utils.getID(r.value().getResultItem(RegistryAccess.EMPTY).getItem())
-                    .getPath().contains(searchBox.getValue())) {
+            if (!isFiltered || r.matchFilter(searchBox.getValue())) {
                 this.filteredRecipes.add(r);
             }
         }
-        this.scrollOffs = 0;
-        this.startIndex = 0;
+        if (oldSize != filteredRecipes.size()) {
+            //only reset if the filtered list changed
+            this.scrollOffs = 0;
+            this.startIndex = 0;
+        }
+
         updateSelectedIndex();
+        // this makes it so after we typed something, the current result is reset as we are unselecting all clicked stuff
+        // only clear if we cant keep selecting the old one
+        if (filteredIndex == -1 && this.menu.getSelectedRecipeIndex() != -1
+                && this.menu.clickMenuButton(minecraft.player, -1)) {
+            //also send a packet to servers to unselect
+            this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, -1);
+        }
+
+        updateSearchBarVisibility();
     }
 
     private void updateSelectedIndex() {
         filteredIndex = -1;
         int selectedInd = this.menu.getSelectedRecipeIndex();
         var recipes = this.menu.getRecipes();
-        if (selectedInd > 0 && filteredIndex < recipes.size()) {
+        if (selectedInd > -1 && filteredIndex < recipes.size()) {
             filteredIndex = filteredRecipes.indexOf(recipes.get(selectedInd));
-        }
-        if (filteredIndex == -1 && selectedInd != -1) {
-            //pretty sure we only need it client side
-            this.menu.clearResult();
         }
     }
 
@@ -135,60 +134,71 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        this.renderBackground(guiGraphics);
+
         ResourceLocation bgLocation = searchBox.visible ? BG_LOCATION_SEARCH : BG_LOCATION;
         guiGraphics.blit(bgLocation, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+
+        // scrollbar
         int barH = scrollBarHeight();
         int scrollY = minScrollY();
         float barSpan = maxScrollY() - scrollY - barH;
         int barPos = (int) (barSpan * this.scrollOffs);
 
         guiGraphics.blit(bgLocation, this.leftPos + 119, scrollY + barPos, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, barH);
-        int buttonBoxX = this.leftPos + 52;
-        int buttonBoxY = this.topPos + buttonBoxYOffset();
-        int endIndex = this.startIndex + buttonCount();
-        this.renderButtons(guiGraphics, mouseX, mouseY, buttonBoxX, buttonBoxY, endIndex);
-        this.renderRecipes(guiGraphics, buttonBoxX, buttonBoxY, endIndex);
 
+        if (!displayRecipes) return;
+
+        // buttons
+        forEachButton((index, buttonX, buttonY) -> {
+            int textureY = this.imageHeight;
+            if (index == filteredIndex) {
+                textureY += 18;
+            } else if (mouseX >= buttonX && mouseY >= buttonY && mouseX < buttonX + 16 && mouseY < buttonY + 18) {
+                textureY += 36;
+            }
+            guiGraphics.blit(BG_LOCATION, buttonX, buttonY, 0, textureY, 16, 18);
+        });
+
+        // items
+        forEachButton((index, buttonX, buttonY) -> {
+            ItemStack item = filteredRecipes.get(index).recipe().getResultItem(this.minecraft.level.registryAccess());
+            guiGraphics.renderFakeItem(item, buttonX, buttonY + 1);
+            guiGraphics.renderItemDecorations(font, item, buttonX, buttonY + 1);
+        });
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        super.renderTooltip(guiGraphics, mouseX, mouseY);
+        if (this.displayRecipes) {
+            forEachButton((index, buttonX, buttonY) -> {
+                if (mouseX >= buttonX && mouseX < buttonX + 16 && mouseY >= buttonY && mouseY < buttonY + 18) {
+                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(index)).recipe()
+                            .getResultItem(this.minecraft.level.registryAccess()), mouseX, mouseY);
+                }
+            });
+        }
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
-
         if (filteredIndex >= 0 && filteredIndex < filteredRecipes.size()) {
-            int input = filteredRecipes.get(filteredIndex).value().getInputCount();
+            int input = filteredRecipes.get(filteredIndex).recipe().getInputCount();
             if (input != 1) {
                 String multiplier = input + "x";
-
                 guiGraphics.drawString(this.font, multiplier, this.titleLabelX, this.titleLabelY + 37, 4210752, false);
             }
         }
-
     }
 
-    @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
-        if (this.displayRecipes) {
-            int startX = this.leftPos + 52;
-            int startY = this.topPos + 14;
-            int endIndex = this.startIndex + buttonCount();
-
-            for (int l = this.startIndex; l < endIndex && l < filteredRecipes.size(); ++l) {
-                int m = l - this.startIndex;
-                int n = startX + m % 4 * 16;
-                int o = startY + m / 4 * 18 + 2;
-                if (x >= n && x < n + 16 && y >= o && y < o + 18) {
-                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(l))
-                                    .value().getResultItem(this.minecraft.level.registryAccess()), x, y);
-                }
-            }
-        }
-
+    private int buttonBoxX() {
+        return this.leftPos + 52;
     }
 
-    private int buttonBoxYOffset() {
-        return searchBox.visible ? 28 : 14;
+    private int buttonBoxY() {
+        return this.topPos + (searchBox.visible ? 27 : 13);
     }
 
     private int buttonCount() {
@@ -197,6 +207,14 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
     private int getRows() {
         return searchBox.visible ? 2 : 3;
+    }
+
+    private int minScrollX() {
+        return this.leftPos + 119;
+    }
+
+    private int maxScrollX() {
+        return leftPos + 119 * 12;
     }
 
     private int minScrollY() {
@@ -211,35 +229,16 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         return searchBox.visible ? 11 : 15;
     }
 
-    private void renderButtons(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, int lastVisibleElementIndex) {
-        for (int i = this.startIndex; i < lastVisibleElementIndex && i < filteredRecipes.size(); ++i) {
-            int j = i - this.startIndex;
-            int k = x + j % 4 * 16;
-            int l = j / 4;
-            int m = y + l * 18 + 2;
-            int n = this.imageHeight;
-            if (i == filteredIndex) {
-                n += 18;
-            } else if (mouseX >= k && mouseY >= m && mouseX < k + 16 && mouseY < m + 18) {
-                n += 36;
-            }
+    private void forEachButton(ButtonConsumer buttonConsumer) {
+        int x = buttonBoxX();
+        int y = buttonBoxY();
+        int lastVisibleElementIndex = this.startIndex + buttonCount();
 
-            guiGraphics.blit(BG_LOCATION, k, m - 1, 0, n, 16, 18);
-        }
-
-    }
-
-    private void renderRecipes(GuiGraphics guiGraphics, int x, int y, int startIndex) {
-
-        for (int i = this.startIndex; i < startIndex && i < filteredRecipes.size(); ++i) {
-            int j = i - this.startIndex;
-            int k = x + j % 4 * 16;
-            int l = j / 4;
-            int m = y + l * 18 + 2;
-            ItemStack item = filteredRecipes.get(i).value()
-                    .getResultItem(this.minecraft.level.registryAccess());
-            guiGraphics.renderFakeItem(item, k, m);
-            guiGraphics.renderItemDecorations(font, item, k, m);
+        for (int index = this.startIndex; index < lastVisibleElementIndex && index < filteredRecipes.size(); ++index) {
+            int relativeIndex = index - this.startIndex;
+            int buttonX = x + (relativeIndex % 4) * 16;
+            int buttonY = y + (relativeIndex / 4) * 18 + 2;
+            buttonConsumer.accept(index, buttonX, buttonY);
         }
     }
 
@@ -247,28 +246,24 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         this.scrolling = false;
         if (this.displayRecipes) {
-            int i = this.leftPos + 52;
-            int j = this.topPos + buttonBoxYOffset();
-            int endIndex = this.startIndex + buttonCount();
-
-            for (int recipeIndex = this.startIndex; recipeIndex < endIndex && recipeIndex < filteredRecipes.size(); ++recipeIndex) {
-                int m = recipeIndex - this.startIndex;
-                double d = mouseX - (i + m % 4 * 16);
-                double e = mouseY - (j + (m / 4) * 18);
-                int actualIndex = menu.getRecipes().indexOf(filteredRecipes.get(recipeIndex));
-
-                if (d >= 0.0 && e >= 0.0 && d < 16.0 && e < 18.0 && (this.menu).clickMenuButton(this.minecraft.player, actualIndex)) {
-                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SawmillMod.SAWMILL_SELECT.get(), 1.0F));
-                    this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, actualIndex);
-                    updateSelectedIndex();
-                    return true;
+            AtomicReference<Boolean> success = new AtomicReference<>(false);
+            forEachButton((index, buttonX, buttonY) -> {
+                if (success.get()) return;
+                int actualIndex = menu.getRecipes().indexOf(filteredRecipes.get(index));
+                if (mouseX >= buttonX && mouseX < buttonX + 16 && mouseY >= buttonY && mouseY < buttonY + 18) {
+                    if (this.menu.clickMenuButton(this.minecraft.player, actualIndex)) {
+                        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SawmillMod.SAWMILL_SELECT.get(), 1.0F));
+                        this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, actualIndex);
+                        updateSelectedIndex();
+                    }
+                    success.set(true);
                 }
-            }
+            });
 
-            i = this.leftPos + 119;
-            if (mouseX >= i && mouseX < (i + 12) && mouseY >= minScrollY() && mouseY < maxScrollY()) {
+            if (success.get()) return true;
+
+            if (mouseX >= minScrollX() && mouseX < maxScrollX() && mouseY >= minScrollY() && mouseY < maxScrollY()) {
                 this.scrolling = true;
-                highlightSearch();
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -289,10 +284,10 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (this.isScrollBarActive()) {
             int offscreenRows = this.getOffscreenRows();
-            float f = (float) scrollY / offscreenRows;
+            float f = (float) delta / offscreenRows;
             this.scrollOffs = Mth.clamp(this.scrollOffs - f, 0.0F, 1.0F);
             this.startIndex = (int) ((this.scrollOffs * offscreenRows) + 0.5) * 4;
         }
@@ -309,7 +304,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     private void containerChanged() {
-        this.displayRecipes = (this.menu).hasInputItem();
+        this.displayRecipes = this.menu.hasInputItem();
         if (!this.displayRecipes) {
             this.scrollOffs = 0.0F;
             this.startIndex = 0;
@@ -318,7 +313,12 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         this.searchBox.setEditable(displayRecipes);
         this.searchBox.setFocused(displayRecipes);
 
+        //recipes could have changed here so we need to refresh
         this.refreshSearchResults();
+    }
+
+    private interface ButtonConsumer {
+        void accept(int index, int buttonX, int buttonY);
     }
 
 }
