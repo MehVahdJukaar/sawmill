@@ -9,11 +9,12 @@ import java.util.function.Supplier;
 public class CommonConfigs {
 
     public static final Supplier<Boolean> ALLOW_NON_BLOCKS;
-
     public static final Supplier<Boolean> ALLOW_NON_VARIANTS;
     public static final Supplier<List<String>> MOD_BLACKLIST;
     public static final Supplier<Double> STICK_COST;
     public static final Supplier<Double> STAIRS_COST;
+    public static final Supplier<SearchMode> SEARCH_MODE;
+    public static final Supplier<Integer> SEARCH_BAR_THREASHOLD;
 
     static {
 
@@ -27,6 +28,12 @@ public class CommonConfigs {
         MOD_BLACKLIST = builder.comment("List of Mod ids you want to completely exclude from sawmill recipes. All recipes from these mods will be ignored." +
                         "For more fine control use the sawmill:blacklist item tag")
                 .define("mod_blacklist", List.of());
+        SEARCH_MODE = builder
+                .comment("Determines if GUI will have search bar or not. Automatic only enables the bar statically when you have enough mods that add wood recipes. Dynamic changes the gui dynamically depending on how many recipe its displaying")
+                .define("search_bar_mode", SearchMode.AUTOMATIC);
+        SEARCH_BAR_THREASHOLD = builder.comment("At how many recipes the search bar should appear")
+                .define("search_bar_threshold", 32, 0, 200);
+
 
         builder.push("special_costs")
                 .comment("If you would need more of these contact me and I'll make them data driven");
@@ -36,6 +43,7 @@ public class CommonConfigs {
                 .define("stairs_cost", 1d, -1, 10);
         builder.pop();
 
+        builder.setSynced();
         builder.buildAndRegister();
     }
 
@@ -45,5 +53,19 @@ public class CommonConfigs {
 
     public static double getThreshold() {
         return 0.5;
+    }
+
+    public static boolean hasSearchBar(int recipeCount) {
+        var s = SEARCH_MODE.get();
+        return switch (s) {
+            case ON -> true;
+            case OFF -> false;
+            case AUTOMATIC -> SawmillClient.hasManyRecipes();
+            case DYNAMIC -> recipeCount > SEARCH_BAR_THREASHOLD.get();
+        };
+    }
+
+    public enum SearchMode {
+        OFF, ON, AUTOMATIC, DYNAMIC
     }
 }
