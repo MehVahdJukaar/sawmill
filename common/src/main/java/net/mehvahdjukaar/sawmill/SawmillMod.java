@@ -66,7 +66,6 @@ public class SawmillMod {
     public static void init() {
         if (PlatHelper.getPhysicalSide().isClient()) {
             SawmillClient.init();
-            ClientConfigs.init();
         }
         CarpenterTrades.init();
         CommonConfigs.init();

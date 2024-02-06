@@ -9,7 +9,6 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -20,17 +19,16 @@ public class SawmillMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final DataSlot selectedRecipeIndex;
     private final Level level;
-    private List<WoodcuttingRecipe> recipes;
-
-    private ItemStack input;
-    long lastSoundTime;
-    final Slot inputSlot;
-    final Slot resultSlot;
-    Runnable slotUpdateListener;
     public final Container container;
-    final ResultContainer resultContainer;
+    private final Slot inputSlot;
+    private final Slot resultSlot;
 
-    private WoodcuttingRecipe lastSelectedRecipe = null;
+    private List<FilterableRecipe> recipes;
+    private ItemStack input;
+    private long lastSoundTime;
+    private final ResultContainer resultContainer;
+    private Runnable slotUpdateListener;
+    private FilterableRecipe lastSelectedRecipe = null;
 
     public SawmillMenu(int i, Inventory inventory, FriendlyByteBuf buf) {
         this(i, inventory, ContainerLevelAccess.NULL);
@@ -65,7 +63,8 @@ public class SawmillMenu extends AbstractContainerMenu {
             public void onTake(Player player, ItemStack stack) {
                 stack.onCraftedBy(player.level(), player, stack.getCount());
                 resultContainer.awardUsedRecipes(player, this.getRelevantItems());
-                ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get()).getInputCount());
+                ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get())
+                        .recipe().getInputCount());
                 if (!itemStack.isEmpty()) {
                     setupResultSlot();
                 }
@@ -104,7 +103,7 @@ public class SawmillMenu extends AbstractContainerMenu {
         return this.selectedRecipeIndex.get();
     }
 
-    public List<WoodcuttingRecipe> getRecipes() {
+    public List<FilterableRecipe> getRecipes() {
         return this.recipes;
     }
 
@@ -119,17 +118,11 @@ public class SawmillMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        if (this.isValidRecipeIndex(id)) {
+        if (this.isValidRecipeIndex(id) || id == -1) {
             this.selectedRecipeIndex.set(id);
             this.setupResultSlot();
         }
-
         return true;
-    }
-
-    public void clearResult() {
-        this.selectedRecipeIndex.set(-1);
-        this.setupResultSlot();
     }
 
     private boolean isValidRecipeIndex(int recipeIndex) {
@@ -150,18 +143,19 @@ public class SawmillMenu extends AbstractContainerMenu {
     }
 
     private void setupRecipeList(Container container, ItemStack stack) {
-        this.recipes.clear();
         this.selectedRecipeIndex.set(-1);
 
         this.resultSlot.set(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
-            this.recipes = this.level.getRecipeManager()
+            var matching = this.level.getRecipeManager()
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
 
             //remove blacklisted
-            this.recipes.removeIf(r -> r.getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
+            matching.removeIf(r -> r.getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
 
-            RecipeSorter.sort(this.recipes, this.level);
+            RecipeSorter.sort(matching, this.level);
+
+            recipes = matching.stream().map(FilterableRecipe::of).toList();
 
             //preserve last clicked recipe on recipe change
             if (lastSelectedRecipe != null) {
@@ -177,11 +171,11 @@ public class SawmillMenu extends AbstractContainerMenu {
 
     void setupResultSlot() {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
-            WoodcuttingRecipe recipe = this.recipes.get(this.selectedRecipeIndex.get());
-            this.lastSelectedRecipe = recipe;
-            ItemStack itemStack = recipe.assemble(this.container, this.level.registryAccess());
+            FilterableRecipe selected = this.recipes.get(this.selectedRecipeIndex.get());
+            this.lastSelectedRecipe = selected;
+            ItemStack itemStack = selected.recipe().assemble(this.container, this.level.registryAccess());
             if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
-                this.resultContainer.setRecipeUsed(recipe);
+                this.resultContainer.setRecipeUsed(selected.recipe());
                 this.resultSlot.set(itemStack);
             } else {
                 this.resultSlot.set(ItemStack.EMPTY);
@@ -262,5 +256,6 @@ public class SawmillMenu extends AbstractContainerMenu {
             this.clearContainer(player, this.container);
         });
     }
+
 
 }
