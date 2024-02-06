@@ -1,9 +1,11 @@
 package net.mehvahdjukaar.sawmill;
 
+import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigBuilder;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class CommonConfigs {
@@ -11,8 +13,7 @@ public class CommonConfigs {
     public static final Supplier<Boolean> ALLOW_NON_BLOCKS;
     public static final Supplier<Boolean> ALLOW_NON_VARIANTS;
     public static final Supplier<List<String>> MOD_BLACKLIST;
-    public static final Supplier<Double> STICK_COST;
-    public static final Supplier<Double> STAIRS_COST;
+    public static final Supplier<Map<String, Double>> SPECIAL_COSTS;
     public static final Supplier<SearchMode> SEARCH_MODE;
     public static final Supplier<Integer> SEARCH_BAR_THREASHOLD;
 
@@ -34,13 +35,11 @@ public class CommonConfigs {
         SEARCH_BAR_THREASHOLD = builder.comment("At how many recipes the search bar should appear")
                 .define("search_bar_threshold", 32, 0, 200);
 
+        SPECIAL_COSTS = builder.comment("This is a map of wood object type to its cost in planks. Its used to add some discount to some special blocks." +
+                        "Change this if say you want all fences to cost 1 plank. Not all keys will work here bt you can try modded ones if you hae Every Compat")
+                .defineObject("special_recipe_costs", () -> Map.of("stairs", 1d),
+                        Codec.unboundedMap(Codec.STRING, Codec.DOUBLE));
 
-        builder.push("special_costs")
-                .comment("If you would need more of these contact me and I'll make them data driven");
-        STICK_COST = builder.comment("Cost of a stick in planks. Set to -1 to disable this override")
-                .define("sticks_cost", 0.4, -1, 10);
-        STAIRS_COST = builder.comment("Cost of a stair block in planks. Set to -1 to disable this override")
-                .define("stairs_cost", 1d, -1, 10);
         builder.pop();
 
         builder.setSynced();
@@ -52,6 +51,8 @@ public class CommonConfigs {
 
 
     public static double getThreshold() {
+        // when cost remainder is less than this value (logs), output wil be rounded up
+        // 0.25 = giving away 1 free plank per recipe at most
         return 0.5;
     }
 

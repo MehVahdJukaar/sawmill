@@ -153,28 +153,50 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
     private static void addNewRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
-        int inputCount = 1;
-        double value = (1 / cost) - 0.0001;
-        int outputCount;
-        //check if the remainder is bigger or smaller than 0.5
-        if (value % 1 > CommonConfigs.getThreshold())
-            outputCount = Mth.ceil(value);
-        else outputCount = Mth.floor(value);
-        if (outputCount < 1) {
-            outputCount = 1;
-            //discount!
-            inputCount = (int) cost;
-        }
+        InputOutputCost resCost = getInputOutputCost(cost);
+        int inputCount = resCost.inputCount();
+        int outputCount = resCost.outputCount();
         if (only1on1 && inputCount != 1) return;
-        if (outputCount <= result.getMaxStackSize()) {
+        if (outputCount <= result.getMaxStackSize() && outputCount > 0) {
 
+            // we know that we are going to add cost with 1 too,
+            // so we check what cost with that would be to match it if needed
+            if (!only1on1 && false) {
+                var costWith1 = getInputOutputCost(cost / 4);
+                if (costWith1.inputCount == 1 && costWith1.outputCount / cost > outputCount) {
+                    outputCount = (int) (costWith1.outputCount / cost);
+                }
+            }
             ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
 
             WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
             sawmillRecipes.add(new RecipeHolder<>(res, recipe));
-
-            //planks recipe
         }
+    }
+
+    //TODO: finish
+    @NotNull
+    private static InputOutputCost getInputOutputCost(double cost) {
+        int inputCount = 1;
+        int outputCount = 0;
+        double maxDiscount = 0.35; //gives at most 0.25 log free
+
+        if (cost > (1 + maxDiscount)) {
+            inputCount += (int) cost;
+            cost %= 1;
+        }
+
+        double preciseOutputCount = (1 / cost);
+        cost /= (1 + maxDiscount); // 0.4 cost : 1.25 = 0.3 discounted
+        double discountedOutput = (1 / cost);
+        double considerDiscountThreshold = 0.25;
+        outputCount += Mth.floor(preciseOutputCount % 1 > considerDiscountThreshold ?
+                discountedOutput : preciseOutputCount);
+
+        return new InputOutputCost(inputCount, outputCount);
+    }
+
+    private record InputOutputCost(int inputCount, int outputCount) {
     }
 
 
@@ -250,18 +272,21 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     }
 
     private static void addHardcodedCosts(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost) {
+        Map<String, Double> specialCosts = CommonConfigs.SPECIAL_COSTS.get();
+
         for (var type : WoodTypeRegistry.getTypes()) {
-            double stairCost = CommonConfigs.STAIRS_COST.get() / 4d;
-            if (stairCost != -1) {
-                var stairs = type.getItemOfThis("stairs");
+            for (var c : specialCosts.entrySet()) {
+                double stairCost = c.getValue() / 4d;
+                var stairs = type.getItemOfThis(c.getKey());
                 if (stairs != null) {
                     Map<WoodType, LogCost> stairsCostInLog = Map.of(type, LogCost.of(type, stairCost));
                     itemToPrimitiveCost.put(stairs, stairsCostInLog);
                 }
             }
         }
-        double stickCount = CommonConfigs.STICK_COST.get() / 4d;
-        if (stickCount != -1) {
+        Double stick = specialCosts.get("stick");
+        if (stick != null) {
+            double stickCount = stick / 4d;
             var cost = WoodTypeRegistry.getTypes().stream().collect(Collectors.toMap(Function.identity(),
                     type -> LogCost.of(type, stickCount)));
             itemToPrimitiveCost.put(Items.STICK, cost);
