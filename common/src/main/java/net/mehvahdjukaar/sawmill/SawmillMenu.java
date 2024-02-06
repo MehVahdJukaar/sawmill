@@ -64,7 +64,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                 stack.onCraftedBy(player.level(), player, stack.getCount());
                 resultContainer.awardUsedRecipes(player, this.getRelevantItems());
                 ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get())
-                        .recipe().getInputCount());
+                        .getRecipe().getInputCount());
                 if (!itemStack.isEmpty()) {
                     setupResultSlot();
                 }
@@ -151,7 +151,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                     .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), container, this.level);
 
             //remove blacklisted
-            matching.removeIf(r -> r.getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
+            matching.removeIf(r -> r.value().getResultItem(RegistryAccess.EMPTY).is(SawmillMod.BLACKLIST));
 
             RecipeSorter.sort(matching, this.level);
 
@@ -173,7 +173,7 @@ public class SawmillMenu extends AbstractContainerMenu {
         if (!this.recipes.isEmpty() && this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
             FilterableRecipe selected = this.recipes.get(this.selectedRecipeIndex.get());
             this.lastSelectedRecipe = selected;
-            ItemStack itemStack = selected.recipe().assemble(this.container, this.level.registryAccess());
+            ItemStack itemStack = selected.getRecipe().assemble(this.container, this.level.registryAccess());
             if (itemStack.isItemEnabled(this.level.enabledFeatures())) {
                 this.resultContainer.setRecipeUsed(selected.recipe());
                 this.resultSlot.set(itemStack);

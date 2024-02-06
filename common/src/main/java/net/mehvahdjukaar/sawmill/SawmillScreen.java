@@ -64,7 +64,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     @Override
     protected void containerTick() {
         super.containerTick();
-        if (searchBox.visible) this.searchBox.tick();
+        //if (searchBox.visible) this.searchBox.tick();
     }
 
     private void refreshSearchResults() {
@@ -134,7 +134,6 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        this.renderBackground(guiGraphics);
 
         ResourceLocation bgLocation = searchBox.visible ? BG_LOCATION_SEARCH : BG_LOCATION;
         guiGraphics.blit(bgLocation, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
@@ -162,7 +161,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
         // items
         forEachButton((index, buttonX, buttonY) -> {
-            ItemStack item = filteredRecipes.get(index).recipe().getResultItem(this.minecraft.level.registryAccess());
+            ItemStack item = filteredRecipes.get(index).getRecipe().getResultItem(this.minecraft.level.registryAccess());
             guiGraphics.renderFakeItem(item, buttonX, buttonY + 1);
             guiGraphics.renderItemDecorations(font, item, buttonX, buttonY + 1);
         });
@@ -174,7 +173,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         if (this.displayRecipes) {
             forEachButton((index, buttonX, buttonY) -> {
                 if (mouseX >= buttonX && mouseX < buttonX + 16 && mouseY >= buttonY && mouseY < buttonY + 18) {
-                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(index)).recipe()
+                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(index)).getRecipe()
                             .getResultItem(this.minecraft.level.registryAccess()), mouseX, mouseY);
                 }
             });
@@ -185,7 +184,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         if (filteredIndex >= 0 && filteredIndex < filteredRecipes.size()) {
-            int input = filteredRecipes.get(filteredIndex).recipe().getInputCount();
+            int input = filteredRecipes.get(filteredIndex).getRecipe().getInputCount();
             if (input != 1) {
                 String multiplier = input + "x";
                 guiGraphics.drawString(this.font, multiplier, this.titleLabelX, this.titleLabelY + 37, 4210752, false);
@@ -284,10 +283,10 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double xDelta, double yDelta) {
         if (this.isScrollBarActive()) {
             int offscreenRows = this.getOffscreenRows();
-            float f = (float) delta / offscreenRows;
+            float f = (float) yDelta / offscreenRows;
             this.scrollOffs = Mth.clamp(this.scrollOffs - f, 0.0F, 1.0F);
             this.startIndex = (int) ((this.scrollOffs * offscreenRows) + 0.5) * 4;
         }
