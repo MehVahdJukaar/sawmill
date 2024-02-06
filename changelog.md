@@ -1,3 +1,4 @@
+- new textures
 - fixed crash when taking an item from slot when only 1 input was there
 - fixed tooltip being shifted up when search bar is present
 - fixed recipes shown not matching when on servers
