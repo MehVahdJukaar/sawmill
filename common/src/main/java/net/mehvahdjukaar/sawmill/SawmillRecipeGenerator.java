@@ -153,7 +153,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         InputOutputCost resCost = getInputOutputCost(cost);
         int inputCount = resCost.inputCount();
         int outputCount = resCost.outputCount();
-        if (only1on1 && inputCount != 1) return;
+        if (only1on1 && inputCount != 1 && CommonConfigs.PLANKS_ONLY_ONE.get()) return;
         if (outputCount <= result.getMaxStackSize() && outputCount > 0) {
 
             // we know that we are going to add cost with 1 too,
@@ -176,7 +176,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
     private static InputOutputCost getInputOutputCost(double cost) {
         int inputCount = 1;
         int outputCount = 0;
-        double maxDiscount = 0.35; //gives at most 0.25 log free
+        double maxDiscount = CommonConfigs.MAX_DISCOUNT_AMOUNT.get(); //gives at most 0.25 log free
 
         if (cost > (1 + maxDiscount)) {
             inputCount += (int) cost;

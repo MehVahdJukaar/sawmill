@@ -40,7 +40,7 @@ public class SawmillClient {
             dummy.setItem(0, Items.OAK_LOG.getDefaultInstance());
             var recipes = level.getRecipeManager().getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), dummy, level);
 
-            hasManyRecipes = recipes.size() > CommonConfigs.SEARCH_BAR_THREASHOLD.get();
+            hasManyRecipes = recipes.size() > CommonConfigs.SEARCH_BAR_THRESHOLD.get();
         }
     }
 
