@@ -98,7 +98,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         filteredIndex = -1;
         int selectedInd = this.menu.getSelectedRecipeIndex();
         var recipes = this.menu.getRecipes();
-        if (selectedInd > -1 && filteredIndex < recipes.size()) {
+        if (selectedInd > -1 && selectedInd < recipes.size()) {
             filteredIndex = filteredRecipes.indexOf(recipes.get(selectedInd));
         }
     }
