@@ -23,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import org.apache.logging.log4j.Logger;
@@ -56,23 +55,23 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         //gather and parse all recipes. then call process
     }
 
-    public static void process(Collection<RecipeHolder<?>> recipes,
-                               Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map,
-                               ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder,
+    public static void process(Collection<Recipe<?>> recipes,
+                               Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
+                               ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
                                ProfilerFiller profiler) {
         profiler.push("sawmill_recipes");
 
-        List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = process(recipes);
+        List<WoodcuttingRecipe> sawmillRecipes = process(recipes);
 
         for (var r : sawmillRecipes) {
-            builder.put(r.id(), r);
-            map.computeIfAbsent(r.value().getType(), (recipeType) -> ImmutableMap.builder())
-                    .put(r.id(), r);
+            builder.put(r.getId(), r);
+            map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
+                    .put(r.getId(), r);
         }
         profiler.pop();
     }
 
-    public static List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes) {
+    public static List<WoodcuttingRecipe> process(Collection<Recipe<?>> recipes) {
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
@@ -80,7 +79,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         Ingredient anyPlanks = Ingredient.of(ItemTags.PLANKS);
         Ingredient anyWood = Ingredient.of(ItemTags.LOGS);
 
-        List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = new ArrayList<>();
+        List<WoodcuttingRecipe> sawmillRecipes = new ArrayList<>();
         Map<WoodType, Ingredient> logIngredients = new HashMap<>();
         Map<WoodType, Ingredient> plankIngredients = new HashMap<>();
         String group = "logs";
@@ -138,7 +137,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         return m.cost * 4;
     }
 
-    private static void addLogRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, WoodType type, int counter,
+    private static void addLogRecipe(List<WoodcuttingRecipe> sawmillRecipes, WoodType type, int counter,
                                      String from, String to) {
         var fromLog = type.getItemOfThis(from);
         var toLog = type.getItemOfThis(to);
@@ -148,7 +147,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         }
     }
 
-    private static void addNewRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, Ingredient input, String group,
+    private static void addNewRecipe(List<WoodcuttingRecipe> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
         InputOutputCost resCost = getInputOutputCost(cost);
         int inputCount = resCost.inputCount();
@@ -166,8 +165,8 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
             }
             ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
 
-            WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
-            sawmillRecipes.add(new RecipeHolder<>(res, recipe));
+            WoodcuttingRecipe recipe = new WoodcuttingRecipe(res, group, input, new ItemStack(result, outputCount), inputCount);
+            sawmillRecipes.add(recipe);
         }
     }
 
@@ -215,7 +214,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         });
     }
 
-    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<RecipeHolder<?>> recipes, boolean optim) {
+    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<Recipe<?>> recipes, boolean optim) {
         Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost = new HashMap<>();
         //primitive costs
         for (var type : WoodTypeRegistry.getTypes()) {
@@ -233,7 +232,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         for (var recipe : recipes) {
             if (SawmillMod.isWhitelisted(recipe)) {
                 try {
-                    Recipe<?> value = recipe.value();
+                    Recipe<?> value = recipe;
                     Item i = value.getResultItem().getItem();
                     if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
                     if (!value.getIngredients().isEmpty()) {
