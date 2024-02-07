@@ -25,7 +25,7 @@ public class SawmillClient {
 
     private static boolean hasManyRecipes = false;
 
-    public static void refreshRecipeSize() {
+    public static void onTagsUpdated() {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
             CraftingContainer dummy = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
@@ -42,6 +42,10 @@ public class SawmillClient {
 
             hasManyRecipes = recipes.size() > CommonConfigs.SEARCH_BAR_THRESHOLD.get();
         }
+
+        //update sort on client
+        var rec = level.getRecipeManager().getAllRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get());
+        RecipeSorter.accept(rec);
     }
 
     public static boolean hasManyRecipes() {
