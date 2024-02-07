@@ -1,7 +1,1 @@
-- new textures
-- fixed crash when taking an item from slot when only 1 input was there
-- fixed tooltip being shifted up when search bar is present
-- fixed recipes shown not matching when on servers
-- fixed first recipe not being selectable
-- added dynamic option for search bar
-- rewrote sawmill screen gui fixing many issues that plague the vanilla stonecutting one like scrollbar click are being offset below, button tooltips being offset by 1 pixel and more
+- fixed recipes not sorting correctly when on dedicated server

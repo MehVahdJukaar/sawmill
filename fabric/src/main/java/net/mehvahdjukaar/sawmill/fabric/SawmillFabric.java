@@ -14,7 +14,7 @@ public class SawmillFabric implements ModInitializer {
         SawmillMod.init();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> VillageStructureModifier.setup(server.registryAccess()));
         CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> {
-            if (client) SawmillClient.refreshRecipeSize();
+            if (client) SawmillClient.onTagsUpdated();
         });
     }
 
