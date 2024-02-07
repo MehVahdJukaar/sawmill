@@ -29,7 +29,7 @@ public class SawmillForge {
     @SubscribeEvent
     public void onTagReload(TagsUpdatedEvent event){
         if(event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.CLIENT_PACKET_RECEIVED){
-            SawmillClient.refreshRecipeSize();
+            SawmillClient.onTagsUpdated();
         }
     }
 

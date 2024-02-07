@@ -1,2 +1,1 @@
-- many improvements to recipe costs calculation
-- added a config to easily tweak wood block costs
+- fixed recipes not sorting correctly when on dedicated server

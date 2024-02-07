@@ -15,14 +15,11 @@ public class RecipeSorter {
 
     private static final List<Item> ITEM_ORDER = new ArrayList<>();
     private static final List<Item> UNSORTED = new ArrayList<>();
-    private static boolean needsRefresh = true;
 
+
+    //called from server side by recipe stuff. We also need to call this from client side
     public static void accept(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
-        if (needsRefresh) {
-            needsRefresh = false;
-
-            sawmillRecipes.forEach(r -> UNSORTED.add(r.value().getResultItem(RegistryAccess.EMPTY).getItem()));
-        }
+        sawmillRecipes.forEach(r -> UNSORTED.add(r.value().getResultItem(RegistryAccess.EMPTY).getItem()));
     }
 
     // dont think we can repopulate offthread
@@ -55,7 +52,7 @@ public class RecipeSorter {
 
 
     public static void sort(List<RecipeHolder<WoodcuttingRecipe>> recipes, Level level) {
-        //just runs once if needed
+        //Just runs once if needed. Needs to be the same from server and client
         refreshIfNeeded(level);
 
         recipes.sort(Comparator.comparingInt(value ->
