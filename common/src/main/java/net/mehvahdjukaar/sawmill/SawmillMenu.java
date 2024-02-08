@@ -30,6 +30,8 @@ public class SawmillMenu extends AbstractContainerMenu {
     private Runnable slotUpdateListener;
     private FilterableRecipe lastSelectedRecipe = null;
 
+    public boolean isWide = CommonConfigs.WIDE_GUI.get();
+
     public SawmillMenu(int i, Inventory inventory, FriendlyByteBuf buf) {
         this(i, inventory, ContainerLevelAccess.NULL);
     }
@@ -52,8 +54,8 @@ public class SawmillMenu extends AbstractContainerMenu {
         this.resultContainer = new ResultContainer();
         this.access = containerLevelAccess;
         this.level = inventory.player.level();
-        this.inputSlot = this.addSlot(new Slot(this.container, 0, 21, 33));
-        this.resultSlot = this.addSlot(new Slot(this.resultContainer, 1, 143, 33) {
+        this.inputSlot = this.addSlot(new Slot(this.container, 0, isWide ? 17 : 21, 33));
+        this.resultSlot = this.addSlot(new Slot(this.resultContainer, 1, isWide ? 146 : 143, 33) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;

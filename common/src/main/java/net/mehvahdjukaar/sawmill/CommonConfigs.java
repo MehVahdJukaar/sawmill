@@ -13,6 +13,7 @@ public class CommonConfigs {
     public static final Supplier<Boolean> ALLOW_NON_BLOCKS;
     public static final Supplier<Boolean> ALLOW_NON_VARIANTS;
     public static final Supplier<Boolean> PLANKS_ONLY_ONE;
+    public static final Supplier<Boolean> WIDE_GUI;
     public static final Supplier<List<String>> MOD_BLACKLIST;
     public static final Supplier<Map<String, Double>> SPECIAL_COSTS;
     public static final Supplier<SearchMode> SEARCH_MODE;
@@ -33,6 +34,8 @@ public class CommonConfigs {
                 .define("mod_blacklist", List.of());
         PLANKS_ONLY_ONE = builder.comment("Makes so planks recipes can only craft items with 1 input plank. Disable to allow more recipes")
                 .define("limit_planks_input_to_one", true);
+        WIDE_GUI = builder.comment("Makes Sawmill GUI slightly wider")
+                .define("wider_gui", false);
         SEARCH_MODE = builder
                 .comment("Determines if GUI will have search bar or not. Automatic only enables the bar statically when you have enough mods that add wood recipes. Dynamic changes the gui dynamically depending on how many recipe its displaying")
                 .define("search_bar_mode", SearchMode.AUTOMATIC);
