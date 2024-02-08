@@ -9,9 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +18,11 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
-    private static final ResourceLocation BG_LOCATION = SawmillMod.res("textures/gui/container/sawmill.png");
-    private static final ResourceLocation BG_LOCATION_SEARCH = SawmillMod.res("textures/gui/container/sawmill_search.png");
+    private static final ResourceLocation BACKGROUND = SawmillMod.res("textures/gui/container/sawmill.png");
+    private static final ResourceLocation BACKGROUND_SEARCH = SawmillMod.res("textures/gui/container/sawmill_search.png");
+    private static final ResourceLocation BACKGROUND_WIDE = SawmillMod.res("textures/gui/container/sawmill_wide.png");
+    private static final ResourceLocation BACKGROUND_WIDE_SEARCH = SawmillMod.res("textures/gui/container/sawmill_search_wide.png");
+
     private float scrollOffs;
     private boolean scrolling;
     private int startIndex;
@@ -41,7 +43,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     protected void init() {
         super.init();
 
-        int boxX = this.leftPos + 53;
+        int boxX = this.leftPos + (menu.isWide ? 41 : 53);
         int boxY = this.topPos + 15;
         this.searchBox = new EditBox(this.font, boxX, boxY, 69, 9, Component.translatable("itemGroup.search"));
         this.searchBox.setMaxLength(50);
@@ -55,7 +57,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         updateSearchBarVisibility();
     }
 
-    private void updateSearchBarVisibility(){
+    private void updateSearchBarVisibility() {
         boolean hasSearch = CommonConfigs.hasSearchBar(menu.getRecipes().size());
         this.searchBox.visible = hasSearch;
         this.searchBox.active = hasSearch;
@@ -136,7 +138,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         this.renderBackground(guiGraphics);
 
-        ResourceLocation bgLocation = searchBox.visible ? BG_LOCATION_SEARCH : BG_LOCATION;
+        ResourceLocation bgLocation = getBgLocation();
         guiGraphics.blit(bgLocation, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
         // scrollbar
@@ -145,7 +147,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         float barSpan = maxScrollY() - scrollY - barH;
         int barPos = (int) (barSpan * this.scrollOffs);
 
-        guiGraphics.blit(bgLocation, this.leftPos + 119, scrollY + barPos, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, barH);
+        guiGraphics.blit(bgLocation, minScrollX(), scrollY + barPos, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, barH);
 
         if (!displayRecipes) return;
 
@@ -157,7 +159,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             } else if (mouseX >= buttonX && mouseY >= buttonY && mouseX < buttonX + 16 && mouseY < buttonY + 18) {
                 textureY += 36;
             }
-            guiGraphics.blit(BG_LOCATION, buttonX, buttonY, 0, textureY, 16, 18);
+            guiGraphics.blit(BACKGROUND, buttonX, buttonY, 0, textureY, 16, 18);
         });
 
         // items
@@ -166,6 +168,14 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             guiGraphics.renderFakeItem(item, buttonX, buttonY + 1);
             guiGraphics.renderItemDecorations(font, item, buttonX, buttonY + 1);
         });
+    }
+
+    @NotNull
+    private ResourceLocation getBgLocation() {
+        if (menu.isWide) {
+            return searchBox.visible ? BACKGROUND_WIDE_SEARCH : BACKGROUND_WIDE;
+        }
+        return searchBox.visible ? BACKGROUND_SEARCH : BACKGROUND;
     }
 
     @Override
@@ -188,21 +198,18 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             int input = filteredRecipes.get(filteredIndex).recipe().getInputCount();
             if (input != 1) {
                 String multiplier = input + "x";
-                guiGraphics.drawString(this.font, multiplier, this.titleLabelX, this.titleLabelY + 37, 4210752, false);
+                int labelX =  this.titleLabelX + (menu.isWide ? -4 : 0);
+                guiGraphics.drawString(this.font, multiplier, labelX, this.titleLabelY + 37, 4210752, false);
             }
         }
     }
 
-    private int buttonBoxX() {
-        return this.leftPos + 52;
-    }
-
-    private int buttonBoxY() {
-        return this.topPos + (searchBox.visible ? 27 : 13);
-    }
-
     private int buttonCount() {
-        return getRows() * 4;
+        return getRows() * buttonsPerRow();
+    }
+
+    private int buttonsPerRow() {
+        return menu.isWide ? 5 : 4;
     }
 
     private int getRows() {
@@ -210,11 +217,11 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     private int minScrollX() {
-        return this.leftPos + 119;
+        return this.leftPos + (menu.isWide ? 123 : 119);
     }
 
     private int maxScrollX() {
-        return leftPos + 119 * 12;
+        return minScrollX() + 12;
     }
 
     private int minScrollY() {
@@ -230,14 +237,14 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     private void forEachButton(ButtonConsumer buttonConsumer) {
-        int x = buttonBoxX();
-        int y = buttonBoxY();
+        int buttonBoxX = this.leftPos + (menu.isWide ? 40 : 52);
+        int buttonBoxY = this.topPos + (searchBox.visible ? 27 : 13);
         int lastVisibleElementIndex = this.startIndex + buttonCount();
-
+        int buttonsPerRow = buttonsPerRow();
         for (int index = this.startIndex; index < lastVisibleElementIndex && index < filteredRecipes.size(); ++index) {
-            int relativeIndex = index - this.startIndex;
-            int buttonX = x + (relativeIndex % 4) * 16;
-            int buttonY = y + (relativeIndex / 4) * 18 + 2;
+            int visualIndex = index - this.startIndex;
+            int buttonX = buttonBoxX + (visualIndex % buttonsPerRow) * 16;
+            int buttonY = buttonBoxY + (visualIndex / buttonsPerRow) * 18 + 2;
             buttonConsumer.accept(index, buttonX, buttonY);
         }
     }
