@@ -178,8 +178,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesProvider {
         double maxDiscount = CommonConfigs.MAX_DISCOUNT_AMOUNT.get(); //gives at most 0.25 log free
 
         if (cost > (1 + maxDiscount)) {
-            inputCount += (int) cost;
-            cost %= 1;
+            return new InputOutputCost((int) cost, 1);
         }
 
         double preciseOutputCount = (1 / cost);
