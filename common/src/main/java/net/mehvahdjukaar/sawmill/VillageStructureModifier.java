@@ -20,7 +20,7 @@ public class VillageStructureModifier {
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(
             Registries.PROCESSOR_LIST, new ResourceLocation("empty"));
     private static final ResourceKey<StructureProcessorList> MOSSY_PROCESSOR_LIST_KEY = ResourceKey.create(
-            Registries.PROCESSOR_LIST, new ResourceLocation("empty"));
+            Registries.PROCESSOR_LIST, new ResourceLocation("mossify_10_percent"));
 
     private static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry,
                                           ResourceLocation poolRL,
@@ -57,13 +57,19 @@ public class VillageStructureModifier {
                 "plains", "sawmill:plains_medium", true, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "snowy", "sawmill:snowy_small", false, 3);
+                "snowy", "sawmill:snowy_small", false, 2);
+
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "snowy", "sawmill:snowy_medium", false, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
                 "savanna", "sawmill:savanna_small", false, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
                 "savanna", "sawmill:savanna_big", false, 2);
+
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                "taiga", "sawmill:taiga_small", true, 1);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
                 "taiga", "sawmill:taiga_big", true, 2);
