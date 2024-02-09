@@ -1,1 +1,4 @@
-added big optional gui
+- added new taiga and snowy structures
+- fixed some recipes not working
+- tweaked villager texture
+- fixed structures not being mossified
