@@ -3,6 +3,9 @@ package net.mehvahdjukaar.sawmill;
 import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigBuilder;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigType;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +24,6 @@ public class CommonConfigs {
     public static final Supplier<Double> MAX_DISCOUNT_AMOUNT;
 
     static {
-
         ConfigBuilder builder = ConfigBuilder.create(SawmillMod.MOD_ID, ConfigType.COMMON);
 
         builder.push("general");
