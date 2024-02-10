@@ -41,7 +41,7 @@ public class ItemListingRegistry extends SimpleJsonResourceReloadListener {
     private int count = 0;
 
     public ItemListingRegistry() {
-        super(new Gson(), "villager_trades/carpenter");
+        super(new Gson(), "carpenter_trades");
         serializers.put(new ResourceLocation("simple"), (Codec<ModItemListing>) (Object) SimpleItemListing.CODEC);
     }
 

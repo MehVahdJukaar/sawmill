@@ -1,7 +1,8 @@
 package net.mehvahdjukaar.sawmill;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -48,7 +49,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         this.searchBox = new EditBox(this.font, boxX, boxY, 69, 9, Component.translatable("itemGroup.search"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setBordered(false);
-        this.searchBox.setFocused(false);
+        this.searchBox.setFocus(false);
         this.searchBox.setEditable(false);
         this.searchBox.setTextColor(16777215);
         this.searchBox.setResponder(s -> this.refreshSearchResults());
@@ -129,17 +130,18 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(PoseStack guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack guiGraphics, float partialTick, int mouseX, int mouseY) {
         this.renderBackground(guiGraphics);
 
-        ResourceLocation bgLocation = getBgLocation();
-        guiGraphics.blit(bgLocation, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        RenderSystem.setShaderTexture(0,  getBgLocation());
+
+        this.blit(guiGraphics, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
         // scrollbar
         int barH = scrollBarHeight();
@@ -147,7 +149,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         float barSpan = maxScrollY() - scrollY - barH;
         int barPos = (int) (barSpan * this.scrollOffs);
 
-        guiGraphics.blit(bgLocation, minScrollX(), scrollY + barPos, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, barH);
+        this.blit(guiGraphics, minScrollX(), scrollY + barPos, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, barH);
 
         if (!displayRecipes) return;
 
@@ -159,14 +161,13 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             } else if (mouseX >= buttonX && mouseY >= buttonY && mouseX < buttonX + 16 && mouseY < buttonY + 18) {
                 textureY += 36;
             }
-            guiGraphics.blit(BACKGROUND, buttonX, buttonY, 0, textureY, 16, 18);
+            this.blit(guiGraphics, buttonX, buttonY, 0, textureY, 16, 18);
         });
 
         // items
         forEachButton((index, buttonX, buttonY) -> {
-            ItemStack item = filteredRecipes.get(index).recipe().getResultItem(this.minecraft.level.registryAccess());
-            guiGraphics.renderFakeItem(item, buttonX, buttonY + 1);
-            guiGraphics.renderItemDecorations(font, item, buttonX, buttonY + 1);
+            ItemStack item = filteredRecipes.get(index).recipe().getResultItem();
+            this.minecraft.getItemRenderer().renderAndDecorateItem(item, buttonX, buttonY + 1);
         });
     }
 
@@ -179,27 +180,27 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderTooltip(PoseStack guiGraphics, int mouseX, int mouseY) {
         super.renderTooltip(guiGraphics, mouseX, mouseY);
         if (this.displayRecipes) {
             forEachButton((index, buttonX, buttonY) -> {
                 if (mouseX >= buttonX && mouseX < buttonX + 16 && mouseY >= buttonY && mouseY < buttonY + 18) {
-                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(index)).recipe()
-                            .getResultItem(this.minecraft.level.registryAccess()), mouseX, mouseY);
+                    this.renderTooltip(guiGraphics, (filteredRecipes.get(index)).recipe()
+                            .getResultItem(), mouseX, mouseY);
                 }
             });
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void renderLabels(PoseStack guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         if (filteredIndex >= 0 && filteredIndex < filteredRecipes.size()) {
             int input = filteredRecipes.get(filteredIndex).recipe().getInputCount();
             if (input != 1) {
                 String multiplier = input + "x";
                 int labelX =  this.titleLabelX + (menu.isWide ? -4 : 0);
-                guiGraphics.drawString(this.font, multiplier, labelX, this.titleLabelY + 37, 4210752, false);
+                this.font.draw(guiGraphics, multiplier, labelX, this.titleLabelY + 37, 4210752);
             }
         }
     }
@@ -318,7 +319,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             this.searchBox.setValue("");
         } else this.setFocused(searchBox);
         this.searchBox.setEditable(displayRecipes);
-        this.searchBox.setFocused(displayRecipes);
+        this.searchBox.setFocus(displayRecipes);
 
         //recipes could have changed here so we need to refresh
         this.refreshSearchResults();

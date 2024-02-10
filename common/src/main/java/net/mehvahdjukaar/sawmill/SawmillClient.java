@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -28,7 +27,7 @@ public class SawmillClient {
     public static void onTagsUpdated() {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
-            CraftingContainer dummy = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
+            CraftingContainer dummy = new CraftingContainer(new AbstractContainerMenu(null, -1) {
                 public ItemStack quickMoveStack(Player player, int index) {
                     return ItemStack.EMPTY;
                 }
@@ -44,8 +43,8 @@ public class SawmillClient {
         }
 
         //update sort on client
-        var rec = level.getRecipeManager().getAllRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get());
-        RecipeSorter.accept(rec);
+        //var rec = level.getRecipeManager().getAllRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get());
+        //RecipeSorter.accept(rec);
     }
 
     public static boolean hasManyRecipes() {
