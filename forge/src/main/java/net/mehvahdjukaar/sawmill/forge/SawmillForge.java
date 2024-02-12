@@ -30,6 +30,8 @@ public class SawmillForge {
     public void onTagReload(TagsUpdatedEvent event){
         if(event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.CLIENT_PACKET_RECEIVED){
             SawmillClient.onTagsUpdated();
+        }else{
+            RecipeSorter.refreshIfNeeded(event.getRegistryAccess());
         }
     }
 
