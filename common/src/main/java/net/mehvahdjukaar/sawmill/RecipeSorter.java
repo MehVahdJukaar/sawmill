@@ -51,11 +51,12 @@ public class RecipeSorter {
 
 
     public static void sort(List<WoodcuttingRecipe> recipes, Level level) {
-        //Just runs once if needed. Needs to be the same from server and client
-        refreshIfNeeded(level);
+        if(CommonConfigs.SORT_RECIPES.get()) {
+            //Just runs once if needed. Needs to be the same from server and client
+            refreshIfNeeded(level);
 
-        recipes.sort(Comparator.comparingInt(value ->
-                ITEM_ORDER.indexOf(value.getResultItem(RegistryAccess.EMPTY).getItem())));
-
+            recipes.sort(Comparator.comparingInt(value ->
+                    ITEM_ORDER.indexOf(value.getResultItem(RegistryAccess.EMPTY).getItem())));
+        }
     }
 }

@@ -137,6 +137,8 @@ dependencies {
     modImplementation("curse.maven:selene-499980:5093417")
     modImplementation("net.mehvahdjukaar:moonlight-forge:${moonlight_version}")
 
+    modCompileOnly("org.violetmoon.quark:Quark-4.0-433")
+    modCompileOnly("org.violetmoon.zeta:Zeta-1.0-12")
 
     implementation 'org.jetbrains:annotations:22.0.0'
 }

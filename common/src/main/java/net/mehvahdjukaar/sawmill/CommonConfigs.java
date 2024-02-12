@@ -19,12 +19,15 @@ public class CommonConfigs {
     public static final Supplier<SearchMode> SEARCH_MODE;
     public static final Supplier<Integer> SEARCH_BAR_THRESHOLD;
     public static final Supplier<Double> MAX_DISCOUNT_AMOUNT;
+    public static final Supplier<Boolean> SORT_RECIPES;
 
     static {
 
         ConfigBuilder builder = ConfigBuilder.create(SawmillMod.MOD_ID, ConfigType.COMMON);
 
         builder.push("general");
+        SORT_RECIPES = builder.comment("Sort recipes following cretive tab order. Could cause issue in the case when, for whatever reason, creative other would differ from server to client.")
+                .define("sort_recipes", true);
         ALLOW_NON_BLOCKS = builder.comment("Allow crafting non-block items")
                 .define("allow_non_blocks", true);
         ALLOW_NON_VARIANTS = builder.comment("Allows crafting non wood variant items (crafting table for example)")
