@@ -41,11 +41,6 @@ public class SawmillClient {
             var recipes = level.getRecipeManager().getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), dummy, level);
 
             hasManyRecipes = recipes.size() > CommonConfigs.SEARCH_BAR_THRESHOLD.get();
-
-
-            //update sort on client
-            var rec = level.getRecipeManager().getAllRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get());
-            RecipeSorter.accept(rec);
         }
     }
 

@@ -33,4 +33,9 @@ public class SawmillForge {
         }
     }
 
+    @SubscribeEvent
+    public void dataSync(OnDatapackSyncEvent event) {
+        RecipeSorter.sendOrderToClient(event.getPlayer());
+    }
+
 }

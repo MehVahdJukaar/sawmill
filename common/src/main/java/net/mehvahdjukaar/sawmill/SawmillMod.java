@@ -69,6 +69,7 @@ public class SawmillMod {
         if (PlatHelper.getPhysicalSide().isClient()) {
             SawmillClient.init();
         }
+        NetworkStuff.init();
         CarpenterTrades.init();
         CommonConfigs.init();
         RegHelper.addItemsToTabsRegistration(event ->
