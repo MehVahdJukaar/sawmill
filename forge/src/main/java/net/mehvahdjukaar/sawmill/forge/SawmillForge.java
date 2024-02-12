@@ -1,9 +1,8 @@
 package net.mehvahdjukaar.sawmill.forge;
 
-import net.mehvahdjukaar.sawmill.SawmillClient;
-import net.mehvahdjukaar.sawmill.SawmillMod;
-import net.mehvahdjukaar.sawmill.VillageStructureModifier;
+import net.mehvahdjukaar.sawmill.*;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,6 +30,11 @@ public class SawmillForge {
         if(event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.CLIENT_PACKET_RECEIVED){
             SawmillClient.onTagsUpdated();
         }
+    }
+
+    @SubscribeEvent
+    public void dataSync(OnDatapackSyncEvent event) {
+        RecipeSorter.sendOrderToClient(event.getPlayer());
     }
 
 }
