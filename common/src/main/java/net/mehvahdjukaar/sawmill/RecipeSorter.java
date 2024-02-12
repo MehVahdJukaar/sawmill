@@ -3,9 +3,12 @@ package net.mehvahdjukaar.sawmill;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -21,7 +24,7 @@ public class RecipeSorter {
     private static final List<Item> UNSORTED = new ArrayList<>();
 
 
-    //called from server side by recipe stuff. We also need to call this from client side
+    //called from server side by recipe stuff.
     public static void accept(List<WoodcuttingRecipe> sawmillRecipes) {
         sawmillRecipes.forEach(r -> UNSORTED.add(r.getResultItem(RegistryAccess.EMPTY).getItem()));
     }
@@ -32,10 +35,10 @@ public class RecipeSorter {
     }
 
     // dont think we can repopulate offthread
-    private static void refreshIfNeeded(Level level) {
+    public static void refreshIfNeeded(RegistryAccess reg) {
         if (UNSORTED.isEmpty()) return;
         if (!CreativeModeTabs.getDefaultTab().hasAnyItems()) {
-            CreativeModeTabs.tryRebuildTabContents(level.enabledFeatures(), false, level.registryAccess());
+            CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, reg);
         }
         Map<CreativeModeTab, List<Item>> tabContent = new HashMap<>();
 
@@ -63,7 +66,7 @@ public class RecipeSorter {
     public static void sort(List<WoodcuttingRecipe> recipes, Level level) {
         if (CommonConfigs.SORT_RECIPES.get()) {
             //Just runs once if needed. Needs to be the same from server and client
-            refreshIfNeeded(level);
+            refreshIfNeeded(level.registryAccess());
 
             recipes.sort(Comparator.comparingInt(value ->
                     ITEM_ORDER.indexOf(value.getResultItem(RegistryAccess.EMPTY).getItem())));

@@ -1,1 +1,1 @@
-added config to disable recipe sort
+recipe order is not synced from server to client to prevent possible desyncs

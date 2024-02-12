@@ -3,8 +3,7 @@ package net.mehvahdjukaar.sawmill.fabric;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
-import net.fabricmc.fabric.impl.client.indigo.renderer.IndigoRenderer;
+import net.mehvahdjukaar.sawmill.RecipeSorter;
 import net.mehvahdjukaar.sawmill.SawmillClient;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.VillageStructureModifier;
@@ -17,6 +16,7 @@ public class SawmillFabric implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> VillageStructureModifier.setup(server.registryAccess()));
         CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> {
             if (client) SawmillClient.onTagsUpdated();
+            else RecipeSorter.refreshIfNeeded(registries);
         });
     }
 
