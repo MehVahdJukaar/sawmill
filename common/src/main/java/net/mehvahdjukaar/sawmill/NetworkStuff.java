@@ -1,18 +1,18 @@
 package net.mehvahdjukaar.sawmill;
 
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.mehvahdjukaar.moonlight.api.platform.network.ChannelHandler;
 import net.mehvahdjukaar.moonlight.api.platform.network.Message;
 import net.mehvahdjukaar.moonlight.api.platform.network.NetworkDir;
+import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class NetworkStuff {
 
-    public static void init(){}
+    public static void init() {
 
-    public static final ChannelHandler CHANNEL = ChannelHandler.builder(SawmillMod.MOD_ID)
-            .register(NetworkDir.PLAY_TO_CLIENT, SyncRecipeOrder.class, SyncRecipeOrder::new)
-            .build();
+        NetworkHelper.addRegistration(SawmillMod.MOD_ID, event ->
+                event.register(NetworkDir.CLIENTBOUND, SyncRecipeOrder.class, SyncRecipeOrder::new));
+    }
 
     public record SyncRecipeOrder(IntList list) implements Message {
 
@@ -21,13 +21,14 @@ public class NetworkStuff {
         }
 
         @Override
-        public void writeToBuffer(FriendlyByteBuf friendlyByteBuf) {
+        public void write(FriendlyByteBuf friendlyByteBuf) {
             friendlyByteBuf.writeIntIdList(list);
         }
 
         @Override
-        public void handle(ChannelHandler.Context context) {
+        public void handle(NetworkHelper.Context context) {
             RecipeSorter.acceptOrder(list);
+
         }
     }
 }

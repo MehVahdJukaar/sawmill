@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
+import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
@@ -79,9 +80,9 @@ public class RecipeSorter {
         ITEM_ORDER.forEach(i -> list.add(BuiltInRegistries.ITEM.getId(i)));
         NetworkStuff.SyncRecipeOrder message = new NetworkStuff.SyncRecipeOrder(list);
         if (player != null) {
-            NetworkStuff.CHANNEL.sendToClientPlayer(player, message);
+            NetworkHelper.sendToClientPlayer(player, message);
         } else {
-            NetworkStuff.CHANNEL.sendToAllClientPlayers(message);
+            NetworkHelper.sendToAllClientPlayers(message);
         }
     }
 }
