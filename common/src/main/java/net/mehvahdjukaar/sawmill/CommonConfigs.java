@@ -26,7 +26,9 @@ public class CommonConfigs {
         ConfigBuilder builder = ConfigBuilder.create(SawmillMod.MOD_ID, ConfigType.COMMON);
 
         builder.push("general");
-        SORT_RECIPES = builder.comment("Sort recipes following cretive tab order. Could cause issue in the case when, for whatever reason, creative other would differ from server to client.")
+        SORT_RECIPES = builder.comment("Sort recipes following cretive tab order. " +
+                        "Could cause issue in the case when, for whatever reason, creative other would differ from server to client." +
+                        "Additionally Neoforge has a bug where this stuff won't work on servers. Use Forge instead!")
                 .define("sort_recipes", true);
         ALLOW_NON_BLOCKS = builder.comment("Allow crafting non-block items")
                 .define("allow_non_blocks", true);

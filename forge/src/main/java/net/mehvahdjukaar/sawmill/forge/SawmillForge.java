@@ -19,7 +19,6 @@ public class SawmillForge {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-
     @SubscribeEvent
     public void onServerStart(ServerAboutToStartEvent event){
         VillageStructureModifier.setup(event.getServer().registryAccess());
