@@ -1,1 +1,1 @@
-recipe order is not synced from server to client to prevent possible desyncs
+made recipe order populate a bit later

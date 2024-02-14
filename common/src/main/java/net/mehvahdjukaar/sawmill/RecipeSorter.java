@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
+import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,7 +35,7 @@ public class RecipeSorter {
         list.forEach(i -> ITEM_ORDER.add(BuiltInRegistries.ITEM.byId(i)));
     }
 
-    // dont think we can repopulate offthread
+    // don't think we can repopulate off-thread
     public static void refreshIfNeeded(RegistryAccess reg) {
         if (UNSORTED.isEmpty()) return;
         if (!CreativeModeTabs.getDefaultTab().hasAnyItems()) {
@@ -74,6 +75,7 @@ public class RecipeSorter {
     }
 
     public static void sendOrderToClient(@Nullable ServerPlayer player) {
+        refreshIfNeeded(Utils.hackyGetRegistryAccess());
         IntList list = new IntArrayList();
         ITEM_ORDER.forEach(i -> list.add(BuiltInRegistries.ITEM.getId(i)));
         NetworkStuff.SyncRecipeOrder message = new NetworkStuff.SyncRecipeOrder(list);
