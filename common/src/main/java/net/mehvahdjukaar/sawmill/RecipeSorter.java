@@ -27,17 +27,20 @@ public class RecipeSorter {
 
     //called from server side by recipe stuff.
     public static void accept(List<WoodcuttingRecipe> sawmillRecipes) {
+        UNSORTED.clear();
         sawmillRecipes.forEach(r -> UNSORTED.add(r.getResultItem(RegistryAccess.EMPTY).getItem()));
     }
 
     public static void acceptOrder(IntList list) {
         UNSORTED.clear();
+        ITEM_ORDER.clear();
         list.forEach(i -> ITEM_ORDER.add(BuiltInRegistries.ITEM.byId(i)));
     }
 
     // don't think we can repopulate off-thread
     public static void refreshIfNeeded(RegistryAccess reg) {
         if (UNSORTED.isEmpty()) return;
+        ITEM_ORDER.clear();
         if (!CreativeModeTabs.getDefaultTab().hasAnyItems()) {
             CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, reg);
         }
