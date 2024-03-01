@@ -10,6 +10,7 @@ import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
@@ -270,24 +271,30 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     }
 
     private static void addHardcodedCosts(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost) {
-        Map<String, Double> specialCosts = CommonConfigs.SPECIAL_COSTS.get();
-
-        for (var type : WoodTypeRegistry.getTypes()) {
-            for (var c : specialCosts.entrySet()) {
-                double stairCost = c.getValue() / 4d;
-                var stairs = type.getItemOfThis(c.getKey());
-                if (stairs != null) {
-                    Map<WoodType, LogCost> stairsCostInLog = Map.of(type, LogCost.of(type, stairCost));
-                    itemToPrimitiveCost.put(stairs, stairsCostInLog);
+        Map<String, Double> specialCosts = new HashMap<>(CommonConfigs.SPECIAL_COSTS.get());
+        var iter = specialCosts.entrySet().iterator();
+        while (iter.hasNext()) {
+            var c = iter.next();
+            String id = c.getKey();
+            double costInLogs = c.getValue() / 4d;
+            boolean hasWood = false;
+            for (var type : WoodTypeRegistry.getTypes()) {
+                Item woodItem = type.getItemOfThis(id);
+                if (woodItem != null) {
+                    Map<WoodType, LogCost> stairsCostInLog = Map.of(type, LogCost.of(type, costInLogs));
+                    itemToPrimitiveCost.put(woodItem, stairsCostInLog);
+                    hasWood = true;
                 }
             }
-        }
-        Double stick = specialCosts.get("stick");
-        if (stick != null) {
-            double stickCount = stick / 4d;
-            var cost = WoodTypeRegistry.getTypes().stream().collect(Collectors.toMap(Function.identity(),
-                    type -> LogCost.of(type, stickCount)));
-            itemToPrimitiveCost.put(Items.STICK, cost);
+            if(!hasWood){
+                var opt = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(id));
+                if(opt.isPresent()) {
+                    var cost = WoodTypeRegistry.getTypes().stream().collect(Collectors.toMap(Function.identity(),
+                            type -> LogCost.of(type, costInLogs)));
+                    itemToPrimitiveCost.put(opt.get(), cost);
+                }
+            }
+            iter.remove();
         }
     }
 
