@@ -18,7 +18,7 @@ public class CommonConfigs {
     public static final Supplier<Map<String, Double>> SPECIAL_COSTS;
     public static final Supplier<SearchMode> SEARCH_MODE;
     public static final Supplier<Integer> SEARCH_BAR_THRESHOLD;
-    public static final Supplier<Double> MAX_DISCOUNT_AMOUNT;
+    public static final Supplier<Double> MAX_DISCOUNT;
     public static final Supplier<Boolean> SORT_RECIPES;
 
     static {
@@ -52,7 +52,7 @@ public class CommonConfigs {
                         "Change this if say you want all fences to cost 1 plank. Not all keys will work here bt you can try modded ones if you hae Every Compat")
                 .defineObject("special_recipe_costs", () -> Map.of("stairs", 1d),
                         Codec.unboundedMap(Codec.STRING, Codec.DOUBLE));
-        MAX_DISCOUNT_AMOUNT = builder.comment("Maximum discount that sawmill will given when converting recipes. Unit is percentage of input item")
+        MAX_DISCOUNT = builder.comment("Maximum discount that sawmill will given when converting recipes. Unit is percentage of input item")
                         .define("max_discount", 0.35, 0, 1);
         builder.pop();
 

@@ -22,7 +22,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -179,18 +178,18 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     private static InputOutputCost getInputOutputCost(double cost) {
         int inputCount = 1;
         int outputCount = 0;
-        double maxDiscount = CommonConfigs.MAX_DISCOUNT_AMOUNT.get(); //gives at most 0.25 log free
+        double maxDiscount = CommonConfigs.MAX_DISCOUNT.get(); //gives at most 0.25 log free
 
         if (cost > (1 + maxDiscount)) {
             return new InputOutputCost((int) cost, 1);
         }
-
+        // all of this is totally made up
         double preciseOutputCount = (1 / cost);
         cost /= (1 + maxDiscount); // 0.4 cost : 1.25 = 0.3 discounted
         double discountedOutput = (1 / cost);
         double considerDiscountThreshold = 0.25;
         outputCount += Mth.floor(preciseOutputCount % 1 > considerDiscountThreshold ?
-                discountedOutput : preciseOutputCount);
+                (preciseOutputCount + discountedOutput) / 2f : preciseOutputCount);
 
         return new InputOutputCost(inputCount, outputCount);
     }
@@ -237,6 +236,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                 try {
                     Recipe<?> value = recipe;
                     Item i = value.getResultItem(RegistryAccess.EMPTY).getItem();
+
                     if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
                     if (!value.getIngredients().isEmpty()) {
                         craftableItems.add(i);
@@ -264,6 +264,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
         //magic
         for (var item : craftableItems) {
+
             getPrimitiveCostRecursive(item, itemsToRecipe, itemToPrimitiveCost, new HashSet<>());
         }
         itemToPrimitiveCost.values().removeIf(Objects::isNull);
@@ -286,9 +287,9 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                     hasWood = true;
                 }
             }
-            if(!hasWood){
+            if (!hasWood) {
                 var opt = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(id));
-                if(opt.isPresent()) {
+                if (opt.isPresent()) {
                     var cost = WoodTypeRegistry.getTypes().stream().collect(Collectors.toMap(Function.identity(),
                             type -> LogCost.of(type, costInLogs)));
                     itemToPrimitiveCost.put(opt.get(), cost);
@@ -362,9 +363,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         //try to uncraft looping through all its recipes
         List<Map<WoodType, LogCost>> possibleCosts = new ArrayList<>();
         Collection<Recipe<?>> possibleRecipes = allRecipes.get(itemToUncraft);
-        if (itemToUncraft == Items.OAK_SIGN) {
-            int aa = 1;
-        }
+
         outer:
         for (var recipe : possibleRecipes) {
             if (visitedRecipes.contains(recipe)) {

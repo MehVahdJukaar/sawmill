@@ -1,4 +1,1 @@
-- fixed sawmill recipe view breaking wen displaying more than 128 recipes
-- sawmill screen can now at most display 255 recipes at once. Further recipes will not be shown, even when searching
-- (yes its not ideal but how can anybody have more than *that* anyways?)
-- blacklisted framedblocks mod from sawmill recipe generation
+- adjusted discount logic slightly
