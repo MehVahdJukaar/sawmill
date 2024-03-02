@@ -34,9 +34,10 @@ public class CommonConfigs {
                 .define("allow_non_blocks", true);
         ALLOW_NON_VARIANTS = builder.comment("Allows crafting non wood variant items (crafting table for example)")
                 .define("allow_non_variant", true);
-        MOD_BLACKLIST = builder.comment("List of Mod ids you want to completely exclude from sawmill recipes. All recipes from these mods will be ignored." +
+        MOD_BLACKLIST = builder.comment("List of Mod ids you want to completely exclude from sawmill recipes. " +
+                        "All recipes from these mods will be ignored. Use to remove mods with many recipes as sawmill can display at most 255 at once" +
                         "For more fine control use the sawmill:blacklist item tag")
-                .define("mod_blacklist", List.of());
+                .define("mods_blacklist", List.of("framedblocks"));
         PLANKS_ONLY_ONE = builder.comment("Makes so planks recipes can only craft items with 1 input plank. Disable to allow more recipes")
                 .define("limit_planks_input_to_one", true);
         WIDE_GUI = builder.comment("Makes Sawmill GUI slightly wider")

@@ -135,6 +135,7 @@ dependencies {
     modImplementation("curse.maven:jei-238222:4712868")
     modImplementation("curse.maven:repurposed-structures-368293:4823487")
     modImplementation("curse.maven:selene-499980:5093417")
+    modImplementation("curse.maven:framedblocks-441647:5143589")
     modImplementation("net.mehvahdjukaar:moonlight-forge:${moonlight_version}")
 
     modCompileOnly("org.violetmoon.quark:Quark-4.0-433")

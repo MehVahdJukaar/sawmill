@@ -120,7 +120,9 @@ public class SawmillMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        if (this.isValidRecipeIndex(id) || id == -1) {
+        // hack since the freaking packet sends a byte not an int
+        id = Byte.toUnsignedInt((byte)id);
+        if (this.isValidRecipeIndex(id) || id == 255) {
             this.selectedRecipeIndex.set(id);
             this.setupResultSlot();
         }
@@ -158,6 +160,8 @@ public class SawmillMenu extends AbstractContainerMenu {
             RecipeSorter.sort(matching, this.level);
 
             recipes = matching.stream().map(FilterableRecipe::of).toList();
+            // at most 256 recipes
+            recipes = recipes.subList(0, Math.min(recipes.size(), 255));
 
             //preserve last clicked recipe on recipe change
             if (lastSelectedRecipe != null) {
