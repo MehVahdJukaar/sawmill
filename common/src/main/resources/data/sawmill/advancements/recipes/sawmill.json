@@ -1,0 +1,70 @@
+{
+    "parent": "minecraft:recipes/root",
+    "criteria": {
+        "has_slabs": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "tag": "minecraft:wooden_slabs"
+                    }
+                ]
+            }
+        },
+        "has_fences": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "tag": "minecraft:wooden_fences"
+                    }
+                ]
+            }
+        },
+        "has_sticks": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "minecraft:stick"
+                        ]
+                    }
+                ]
+            }
+        },
+        "has_iron": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "items": [
+                            "minecraft:iron_ingot"
+                        ]
+                    }
+                ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+                "recipe": "sawmill:sawmill"
+            }
+        }
+    },
+    "requirements": [
+        [
+            "has_slabs",
+            "has_fences",
+            "has_sticks",
+            "has_iron",
+            "has_the_recipe"
+        ]
+    ],
+    "rewards": {
+        "recipes": [
+            "sawmill:sawmill"
+        ]
+    },
+    "sends_telemetry_event": false
+}
