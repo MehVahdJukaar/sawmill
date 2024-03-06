@@ -1,1 +1,1 @@
-- adjusted discount logic slightly
+- maybe fixed some

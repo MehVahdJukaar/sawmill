@@ -130,6 +130,7 @@ public class SawmillMod {
                 break;
             }
         }
+        SawmillMod.LOGGER.info("Intercepted tag results");
     }
 
 }
