@@ -1,0 +1,9 @@
+{
+  "container.sawmill.sawmill": "Piła",
+  "block.sawmill.sawmill": "Piła",
+  "jei.sawmill.category.woodcutting": "Piłowanie",
+  "entity.minecraft.villager.sawmill.carpenter": "Stolarz",
+  "entity.minecraft.villager.carpenter": "Stolarz",
+  "subtitles.sawmill.entity.villager.work_carpenter": "Stolarz pracuje",
+  "subtitles.sawmill.ui.sawmill.take_result": "Użyto tartaku"
+}
