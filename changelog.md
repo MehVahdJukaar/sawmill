@@ -1,1 +1,2 @@
-- maybe fixed some
+- added mod menu integration
+- recipe sort will now be based off item name not item id (allows to work with translations)

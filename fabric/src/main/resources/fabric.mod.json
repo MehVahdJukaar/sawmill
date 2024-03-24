@@ -20,6 +20,9 @@
     ],
     "jei_mod_plugin": [
       "net.mehvahdjukaar.sawmill.integration.JEIPlugin"
+    ],
+    "modmenu": [
+      "net.mehvahdjukaar.sawmill.integration.fabric.ModMenuCompat"
     ]
   },
   "mixins": [

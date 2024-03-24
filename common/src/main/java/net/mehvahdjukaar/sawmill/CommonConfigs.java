@@ -2,6 +2,7 @@ package net.mehvahdjukaar.sawmill;
 
 import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigBuilder;
+import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigSpec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigType;
 
 import java.util.List;
@@ -20,6 +21,8 @@ public class CommonConfigs {
     public static final Supplier<Integer> SEARCH_BAR_THRESHOLD;
     public static final Supplier<Double> MAX_DISCOUNT;
     public static final Supplier<Boolean> SORT_RECIPES;
+
+    public static final ConfigSpec SPEC;
 
     static {
 
@@ -57,7 +60,7 @@ public class CommonConfigs {
         builder.pop();
 
         builder.setSynced();
-        builder.buildAndRegister();
+       SPEC = builder.buildAndRegister();
     }
 
     public static void init() {
