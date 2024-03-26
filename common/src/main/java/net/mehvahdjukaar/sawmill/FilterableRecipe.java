@@ -3,6 +3,8 @@ package net.mehvahdjukaar.sawmill;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Locale;
+
 public record FilterableRecipe(WoodcuttingRecipe recipe, ItemStack output) {
 
     public static FilterableRecipe of(WoodcuttingRecipe recipe) {
@@ -10,7 +12,7 @@ public record FilterableRecipe(WoodcuttingRecipe recipe, ItemStack output) {
     }
 
     public boolean matchFilter(String filter) {
-        return output.getDisplayName().getString().contains(filter);
+        return output.getDisplayName().getString().toLowerCase(Locale.ROOT).contains(filter);
     }
 
 
