@@ -66,7 +66,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     private void updateSearchBarVisibility() {
-        boolean hasSearch = true;// CommonConfigs.hasSearchBar(menu.getRecipes().size());
+        boolean hasSearch = CommonConfigs.hasSearchBar(menu.getRecipes().size());
         this.searchBox.visible = hasSearch;
         this.searchBox.active = hasSearch;
     }
