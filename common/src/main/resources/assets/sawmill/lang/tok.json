@@ -1,0 +1,9 @@
+{
+  "container.sawmill.sawmill": "ilo pi kipisi kasi",
+  "block.sawmill.sawmill": "ilo pi kipisi kasi",
+  "jei.sawmill.category.woodcutting": "kipisi pi kiwen kasi",
+  "entity.minecraft.villager.sawmill.carpenter": "jan pi kiwen kasi",
+  "entity.minecraft.villager.carpenter": "jan pi kiwen kasi",
+  "subtitles.sawmill.entity.villager.work_carpenter": "jan pi kiwen kasi li pali",
+  "subtitles.sawmill.ui.sawmill.take_result": "ilo pi kipisi kasi li pali"
+}
