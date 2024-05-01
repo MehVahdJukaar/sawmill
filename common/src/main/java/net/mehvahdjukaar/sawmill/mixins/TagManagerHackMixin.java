@@ -20,13 +20,14 @@ public class TagManagerHackMixin {
 
     @Inject(method = "method_40098", at = @At(value = "TAIL"))
     private void joinHack(List<CompletableFuture<TagManager.LoadResult<?>>> list, Void void_, CallbackInfo ci) {
-
-        SawmillMod.setTagManagerResults(list.stream().map(loadResultCompletableFuture -> {
+        synchronized (results) { //i don't even know anymore. People keep reporting issues and i have no clue where that is
+            SawmillMod.setTagManagerResults(list.stream().map(loadResultCompletableFuture -> {
             try {
                 return loadResultCompletableFuture.get();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }).collect(Collectors.toUnmodifiableList()));
+        }
     }
 }

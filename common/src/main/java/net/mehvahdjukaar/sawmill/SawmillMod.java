@@ -3,8 +3,8 @@ package net.mehvahdjukaar.sawmill;
 import com.google.common.collect.ImmutableSet;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
+import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -80,40 +80,63 @@ public class SawmillMod {
         return new ResourceLocation(MOD_ID, name);
     }
 
-    //Hacky tag stuff below here
+    // Hacky tag stuff below here. way more complex than it needs to be because prople reported some issue with recipes breaking or something
+    // I have no idea where those come from so i just made it as complex as possible to avoid any possible issues
 
-    private static Map<ResourceLocation, Collection<Holder>> tags = null;
+    private static final Object lock = new Object();
+    private static boolean receivedTags = false;
+    private static final Map<ResourceLocation, Collection<Holder>> tags = new HashMap<>();
     private static final Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
-    private static final List<RecipeType<?>> whitelist = new ArrayList<>();
+    private static final Map<RecipeType<?>, Boolean> cachedWhitelist = new HashMap<>();
+    private static final List<Holder<RecipeType<?>>> whitelist = new ArrayList<>();
 
     public static Collection<ItemStack> getTagElements(TagKey<Item> tag) {
-        if (tags == null) {
-            return List.of();
-        }
-        return cachedTags.computeIfAbsent(tag, t -> {
-            var tagList = tags.get(t.location());
-            if (tagList == null) {
-                return List.of();
+        synchronized (lock) {
+            if (!receivedTags) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Sawmill error:", e);
+                }
             }
-            return tagList.stream().map(h -> ((Item) h.value()).getDefaultInstance())
-                    .toList();
-        });
+            return cachedTags.computeIfAbsent(tag, t -> {
+                var tagList = tags.get(t.location());
+                if (tagList == null) {
+                    return List.of();
+                }
+                return tagList.stream().map(h -> ((Item) h.value()).getDefaultInstance())
+                        .toList();
+            });
+        }
     }
 
     public static void clearTagHacks() {
         tags = null;
         whitelist.clear();
         cachedTags.clear();
+        cachedWhitelist.clear();
+        receivedTags = false;
     }
 
     public static boolean isWhitelisted(Recipe<?> recipe) {
-        return whitelist.contains(recipe.getType())
-                && !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace());
-
+        synchronized (lock) {
+            if (!receivedTags) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Sawmill error:", e);
+                }
+            }
+            return cachedWhitelist.computeIfAbsent(recipe.getType(),
+                    recipeType -> !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace()) &&
+                            whitelist.stream().anyMatch(h -> h.value() == recipeType)) ;
+        }
     }
 
     public static void setTagManagerResults(List<TagManager.LoadResult<?>> results) {
-        tags = new HashMap<>();
+        //actually here we are already on main thread so this isn't even needed.....
+        synchronized (lock) {
+            tags.clear();
         for (var r : results) {
             if (r.key() == Registries.ITEM) {
                 for (var e : r.tags().entrySet()) {
@@ -126,9 +149,12 @@ public class SawmillMod {
         for (var r : results) {
             if (r.key() == Registries.RECIPE_TYPE) {
                 whitelist.addAll(r.tags().get(res("whitelist"))
-                        .stream().map(holder -> (RecipeType<?>) holder.value()).toList());
-                break;
+                        .stream().map(holder -> (Holder<RecipeType<?>>) holder).toList());
+                    break;
+                }
             }
+            receivedTags = true;
+            lock.notifyAll();
         }
         SawmillMod.LOGGER.info("Intercepted tag results");
     }

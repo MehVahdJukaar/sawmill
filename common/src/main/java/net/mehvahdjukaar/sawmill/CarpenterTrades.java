@@ -127,6 +127,9 @@ public class CarpenterTrades {
                 if (w != null) {
                     ItemStack wood = new ItemStack(w, woodPrice);
                     ItemStack emerald = emeralds;
+                    if (wood.isEmpty()) {
+                        throw new AssertionError("Wood item is empty. How?" + childKey + " " + type + " " + wood);
+                    }
                     if (buys) {
                         return new MerchantOffer(wood, ItemStack.EMPTY, emerald, maxTrades, xp, priceMult);
                     } else {
