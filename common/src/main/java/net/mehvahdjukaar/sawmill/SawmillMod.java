@@ -3,7 +3,6 @@ package net.mehvahdjukaar.sawmill;
 import com.google.common.collect.ImmutableSet;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
-import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -111,7 +110,6 @@ public class SawmillMod {
     }
 
     public static void clearTagHacks() {
-        tags = null;
         whitelist.clear();
         cachedTags.clear();
         cachedWhitelist.clear();
@@ -127,9 +125,12 @@ public class SawmillMod {
                     throw new RuntimeException("Sawmill error:", e);
                 }
             }
-            return cachedWhitelist.computeIfAbsent(recipe.getType(),
-                    recipeType -> !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace()) &&
-                            whitelist.stream().anyMatch(h -> h.value() == recipeType)) ;
+            boolean ret = cachedWhitelist.computeIfAbsent(recipe.getType(),
+                    recipeType -> whitelist.stream().anyMatch(h -> h.value() == recipeType));
+            if (ret) {
+                if (CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace())) return false;
+            }
+            return ret;
         }
     }
 
@@ -137,19 +138,19 @@ public class SawmillMod {
         //actually here we are already on main thread so this isn't even needed.....
         synchronized (lock) {
             tags.clear();
-        for (var r : results) {
-            if (r.key() == Registries.ITEM) {
-                for (var e : r.tags().entrySet()) {
-                    tags.computeIfAbsent(e.getKey(), y -> new ArrayList<>())
-                            .addAll(e.getValue());
+            for (var r : results) {
+                if (r.key() == Registries.ITEM) {
+                    for (var e : r.tags().entrySet()) {
+                        tags.computeIfAbsent(e.getKey(), y -> new ArrayList<>())
+                                .addAll(e.getValue());
+                    }
+                    break;
                 }
-                break;
             }
-        }
-        for (var r : results) {
-            if (r.key() == Registries.RECIPE_TYPE) {
-                whitelist.addAll(r.tags().get(res("whitelist"))
-                        .stream().map(holder -> (Holder<RecipeType<?>>) holder).toList());
+            for (var r : results) {
+                if (r.key() == Registries.RECIPE_TYPE) {
+                    whitelist.addAll(r.tags().get(res("whitelist"))
+                            .stream().map(holder -> (Holder<RecipeType<?>>) holder).toList());
                     break;
                 }
             }
