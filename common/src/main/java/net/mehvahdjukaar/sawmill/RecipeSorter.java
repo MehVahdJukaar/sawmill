@@ -42,6 +42,7 @@ public class RecipeSorter {
         if (UNSORTED.isEmpty()) return;
         ITEM_ORDER.clear();
         if (!CreativeModeTabs.getDefaultTab().hasAnyItems()) {
+            // this is NOT a client only method. Calling on server thread is valid.
             CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, reg);
         }
         Map<CreativeModeTab, List<Item>> tabContent = new HashMap<>();
