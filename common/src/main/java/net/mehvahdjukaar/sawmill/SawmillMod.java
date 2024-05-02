@@ -1,5 +1,6 @@
 package net.mehvahdjukaar.sawmill;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
@@ -10,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagManager;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.inventory.MenuType;
@@ -90,23 +92,14 @@ public class SawmillMod {
     private static final List<Holder<RecipeType<?>>> whitelist = new ArrayList<>();
 
     public static Collection<ItemStack> getTagElements(TagKey<Item> tag) {
-        synchronized (lock) {
-            if (!receivedTags) {
-                try {
-                    lock.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Sawmill error:", e);
-                }
+        return cachedTags.computeIfAbsent(tag, t -> {
+            var tagList = tags.get(t.location());
+            if (tagList == null) {
+                return List.of();
             }
-            return cachedTags.computeIfAbsent(tag, t -> {
-                var tagList = tags.get(t.location());
-                if (tagList == null) {
-                    return List.of();
-                }
-                return tagList.stream().map(h -> ((Item) h.value()).getDefaultInstance())
-                        .toList();
-            });
-        }
+            return tagList.stream().map(h -> ((Item) h.value()).getDefaultInstance())
+                    .toList();
+        });
     }
 
     public static void clearTagHacks() {
@@ -117,21 +110,12 @@ public class SawmillMod {
     }
 
     public static boolean isWhitelisted(Recipe<?> recipe) {
-        synchronized (lock) {
-            if (!receivedTags) {
-                try {
-                    lock.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Sawmill error:", e);
-                }
-            }
-            boolean ret = cachedWhitelist.computeIfAbsent(recipe.getType(),
-                    recipeType -> whitelist.stream().anyMatch(h -> h.value() == recipeType));
-            if (ret) {
-                if (CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace())) return false;
-            }
-            return ret;
+        boolean ret = cachedWhitelist.computeIfAbsent(recipe.getType(),
+                recipeType -> whitelist.stream().anyMatch(h -> h.value() == recipeType));
+        if (ret) {
+            if (CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace())) return false;
         }
+        return ret;
     }
 
     public static void setTagManagerResults(List<TagManager.LoadResult<?>> results) {
@@ -160,4 +144,18 @@ public class SawmillMod {
         SawmillMod.LOGGER.info("Intercepted tag results");
     }
 
+
+    public static void waitForTags() {
+        // wait for tags to be ready so we don't initialize some recipes with unfinished tags or some shit
+        synchronized (lock) {
+            if (!receivedTags) {
+                try {
+                    SawmillMod.LOGGER.info("Waiting for tags");
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Sawmill error:", e);
+                }
+            }
+        }
+    }
 }

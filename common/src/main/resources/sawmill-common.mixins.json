@@ -5,6 +5,7 @@
   "package": "net.mehvahdjukaar.sawmill.mixins",
   "mixins": [
     "TagManagerHackMixin",
+    "UnnededMixin",
     "VillagerGoalHackMixin"
   ],
   "client": [

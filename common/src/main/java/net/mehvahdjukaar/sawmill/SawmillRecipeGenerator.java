@@ -58,9 +58,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
     public static void process(Collection<Recipe<?>> recipes,
                                Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
-                               ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
-                               ProfilerFiller profiler) {
-        profiler.push("sawmill_recipes");
+                               ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder) {
 
         List<WoodcuttingRecipe> sawmillRecipes = process(recipes);
 
@@ -69,10 +67,11 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             map.computeIfAbsent(r.getType(), (recipeType) -> ImmutableMap.builder())
                     .put(r.getId(), r);
         }
-        profiler.pop();
     }
 
     public static List<WoodcuttingRecipe> process(Collection<Recipe<?>> recipes) {
+        SawmillMod.waitForTags();
+        
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);

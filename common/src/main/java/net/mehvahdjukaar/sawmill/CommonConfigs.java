@@ -53,7 +53,8 @@ public class CommonConfigs {
 
         SPECIAL_COSTS = builder.comment("This is a map of wood object type to its cost in planks. Its used to add some discount to some special blocks." +
                         "Change this if say you want all fences to cost 1 plank. Not all keys will work here bt you can try modded ones if you hae Every Compat")
-                .defineObject("special_recipe_costs", () -> Map.of("stairs", 1d),
+                .defineObject("special_recipe_costs", () -> Map.of("stairs", 1d,
+                                "boat", 4d),
                         Codec.unboundedMap(Codec.STRING, Codec.DOUBLE));
         MAX_DISCOUNT = builder.comment("Maximum discount that sawmill will given when converting recipes. Unit is percentage of input item")
                         .define("max_discount", 0.35, 0, 1);
