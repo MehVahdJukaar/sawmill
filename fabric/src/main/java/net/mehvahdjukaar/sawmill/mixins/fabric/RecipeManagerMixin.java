@@ -34,7 +34,7 @@ public class RecipeManagerMixin {
                                       @Local ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder,
                                       @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
 
-        SawmillRecipeGenerator.process(parsed.get(), map, builder, profiler);
+        SawmillRecipeGenerator.process(parsed.get(), map, builder);
     }
 
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",

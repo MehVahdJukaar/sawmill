@@ -82,7 +82,7 @@ public class CarpenterTrades {
                 RecordCodecBuilder.create(i -> i.group(
                         StrOpt.of(Codec.BOOL, "buys", true).forGetter(WoodToItemListing::buys),
                         Codec.STRING.fieldOf("wood_block").forGetter(WoodToItemListing::childKey),
-                        Codec.INT.fieldOf("wood_block_amount").forGetter(WoodToItemListing::woodPrice),
+                        ExtraCodecs.POSITIVE_INT.fieldOf("wood_block_amount").forGetter(WoodToItemListing::woodPrice),
                         ItemStack.CODEC.fieldOf("emeralds").forGetter(WoodToItemListing::emeralds),
                         StrOpt.of(ExtraCodecs.POSITIVE_INT, "max_trades", 16).forGetter(WoodToItemListing::maxTrades),
                         StrOpt.of(ExtraCodecs.POSITIVE_INT, "xp").forGetter(w -> Optional.of(w.xp)),
@@ -128,7 +128,8 @@ public class CarpenterTrades {
                     ItemStack wood = new ItemStack(w, woodPrice);
                     ItemStack emerald = emeralds;
                     if (wood.isEmpty()) {
-                        throw new AssertionError("Wood item is empty. How?" + childKey + " " + type + " " + wood);
+                        //if this gets triggered something REALLY bad happened...
+                        throw new AssertionError("Wood item is empty. How? Key:" + childKey + ", Wood Type:" + type + ", ItemStack: " + wood + ", Item: " + w + ", Block: " + type.getBlockOfThis(childKey));
                     }
                     if (buys) {
                         return new MerchantOffer(wood, ItemStack.EMPTY, emerald, maxTrades, xp, priceMult);

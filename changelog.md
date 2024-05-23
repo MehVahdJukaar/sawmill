@@ -1,1 +1,1 @@
-changed some logic trying to prevent some possible concurrency issues
+fixed recipe sort not working on servers on fabric

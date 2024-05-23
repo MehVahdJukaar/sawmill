@@ -15,8 +15,6 @@ public class UnnededMixin {
     @Inject(method = "rebuildSearchTree", at = @At("HEAD"), cancellable = true)
     public void preventCallOnServerThreadBecauseSomeModsMightHaveIncorrectNonThreadSafeTooltipLines(CallbackInfo ci) {
         // check if server thread
-        ItemStack s;
-        s.getTooltipLines()
         MinecraftServer currentServer = PlatHelper.getCurrentServer();
         if (currentServer != null && currentServer.isSameThread()) {
             ci.cancel();

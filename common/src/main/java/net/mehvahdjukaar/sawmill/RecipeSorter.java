@@ -1,6 +1,7 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
@@ -8,6 +9,7 @@ import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTab;
