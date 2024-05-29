@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
+import net.mehvahdjukaar.moonlight.api.resources.ResType;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
@@ -18,7 +19,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,9 +35,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
+
+    public static final SawmillRecipeGenerator INSTANCE = new SawmillRecipeGenerator(new DynamicDataPack(SawmillMod.res("sawmill_recipes"),
+            Pack.Position.TOP, true, true));
+
     protected SawmillRecipeGenerator(DynamicDataPack pack) {
-        super(new DynamicDataPack(SawmillMod.res("sawmill_recipes"),
-                Pack.Position.TOP, false, false));
+        super(pack);
+        pack.setGenerateDebugResources(true);
     }
 
     @Override
@@ -70,8 +74,11 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     }
 
     public static List<WoodcuttingRecipe> process(Collection<Recipe<?>> recipes) {
+        if (!CommonConfigs.DYNAMIC_RECIPES.get() && !CommonConfigs.SAVE_RECIPES.get()) return List.of();
+
+
         SawmillMod.waitForTags();
-        
+
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
         Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
@@ -128,7 +135,18 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
         long millis = stopwatch.elapsed().toMillis();
         SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
+        if (millis > 2000) {
+            SawmillMod.LOGGER.warn("Generating Sawmill recipes took a long time. Consider disabling dynamic recipes in the configs and adding them statically via datapack. You can turn on save_recipe configs to help you with that");
+        }
         SawmillMod.clearTagHacks();
+
+        if (CommonConfigs.SAVE_RECIPES.get()) {
+            for (var r : sawmillRecipes) {
+                INSTANCE.dynamicPack.addJson(r.getId(), WoodcuttingRecipe.Serializer.toJson(r), ResType.RECIPES);
+            }
+        }
+
+        if (!CommonConfigs.DYNAMIC_RECIPES.get()) return List.of();
 
         RecipeSorter.accept(sawmillRecipes);
         return sawmillRecipes;

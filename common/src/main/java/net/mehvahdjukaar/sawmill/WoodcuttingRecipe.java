@@ -52,10 +52,20 @@ public class WoodcuttingRecipe extends SingleItemRecipe {
                 ingredient = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "ingredient"), false);
             }
             int inCount = GsonHelper.getAsInt(json, "ingredient_count", 1);
-            String string2 = GsonHelper.getAsString(json, "result");
+            String res = GsonHelper.getAsString(json, "result");
             int i = GsonHelper.getAsInt(json, "count");
-            ItemStack itemStack = new ItemStack( BuiltInRegistries.ITEM.get(new ResourceLocation(string2)), i);
+            ItemStack itemStack = new ItemStack( BuiltInRegistries.ITEM.get(new ResourceLocation(res)), i);
             return new WoodcuttingRecipe(recipeId, string, ingredient, itemStack, inCount);
+        }
+
+        public static JsonObject toJson(WoodcuttingRecipe recipe){
+            JsonObject json = new JsonObject();
+            json.addProperty("group", recipe.group);
+            json.add("ingredient", recipe.ingredient.toJson());
+            json.addProperty("ingredient_count", recipe.inputCount);
+            json.addProperty("result", BuiltInRegistries.ITEM.getKey(recipe.result.getItem()).toString());
+            json.addProperty("count", recipe.result.getCount());
+            return json;
         }
 
         @Override

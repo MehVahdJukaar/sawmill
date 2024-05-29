@@ -15,6 +15,8 @@ public class CommonConfigs {
     public static final Supplier<Boolean> ALLOW_NON_VARIANTS;
     public static final Supplier<Boolean> PLANKS_ONLY_ONE;
     public static final Supplier<Boolean> WIDE_GUI;
+    public static final Supplier<Boolean> SAVE_RECIPES;
+    public static final Supplier<Boolean> DYNAMIC_RECIPES;
     public static final Supplier<List<String>> MOD_BLACKLIST;
     public static final Supplier<Map<String, Double>> SPECIAL_COSTS;
     public static final Supplier<SearchMode> SEARCH_MODE;
@@ -33,6 +35,10 @@ public class CommonConfigs {
                         "Could cause issue in the case when, for whatever reason, creative other would differ from server to client." +
                         "Additionally Neoforge has a bug where this stuff won't work on servers. Use Forge instead!")
                 .define("sort_recipes", true);
+        SAVE_RECIPES = builder.comment("Save sawmill recipes to disk. Enable this if you are the author of a modpack and want to disable dynamic recipe generation. To do so just turn of that config, turn this one on and after booting up the game just copy the generated recipes in the generated folder in your own datapack, then turn off this config")
+                .define("save_recipes", false);
+        DYNAMIC_RECIPES = builder.comment("Generates Sawmill recipes dynamically. Remove this if you plan to add all of them manually instead. Can speed up boot time slightly")
+                .define("dynamic_recipes", true);
         ALLOW_NON_BLOCKS = builder.comment("Allow crafting non-block items")
                 .define("allow_non_blocks", true);
         ALLOW_NON_VARIANTS = builder.comment("Allows crafting non wood variant items (crafting table for example)")
@@ -57,11 +63,11 @@ public class CommonConfigs {
                                 "boat", 4d),
                         Codec.unboundedMap(Codec.STRING, Codec.DOUBLE));
         MAX_DISCOUNT = builder.comment("Maximum discount that sawmill will given when converting recipes. Unit is percentage of input item")
-                        .define("max_discount", 0.35, 0, 1);
+                .define("max_discount", 0.35, 0, 1);
         builder.pop();
 
         builder.setSynced();
-       SPEC = builder.buildAndRegister();
+        SPEC = builder.buildAndRegister();
     }
 
     public static void init() {
