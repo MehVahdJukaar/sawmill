@@ -65,6 +65,8 @@ public class WoodcuttingRecipe extends SingleItemRecipe {
             json.addProperty("ingredient_count", recipe.inputCount);
             json.addProperty("result", BuiltInRegistries.ITEM.getKey(recipe.result.getItem()).toString());
             json.addProperty("count", recipe.result.getCount());
+
+            json.addProperty("type", "sawmill:woodcutting");
             return json;
         }
 

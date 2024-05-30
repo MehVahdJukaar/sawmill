@@ -138,6 +138,10 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         if (millis > 2000) {
             SawmillMod.LOGGER.warn("Generating Sawmill recipes took a long time. Consider disabling dynamic recipes in the configs and adding them statically via datapack. You can turn on save_recipe configs to help you with that");
         }
+        if (millis > 7000) {
+            SawmillMod.LOGGER.error("You might really want to consider above advice...");
+        }
+
         SawmillMod.clearTagHacks();
 
         if (CommonConfigs.SAVE_RECIPES.get()) {
