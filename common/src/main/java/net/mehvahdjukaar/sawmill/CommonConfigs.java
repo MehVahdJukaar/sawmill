@@ -23,6 +23,7 @@ public class CommonConfigs {
     public static final Supplier<Integer> SEARCH_BAR_THRESHOLD;
     public static final Supplier<Double> MAX_DISCOUNT;
     public static final Supplier<Boolean> SORT_RECIPES;
+    public static final Supplier<Boolean> IGNORE_CUSTOM_INGREDIENTS;
 
     public static final ConfigSpec SPEC;
 
@@ -64,6 +65,9 @@ public class CommonConfigs {
                         Codec.unboundedMap(Codec.STRING, Codec.DOUBLE));
         MAX_DISCOUNT = builder.comment("Maximum discount that sawmill will given when converting recipes. Unit is percentage of input item")
                 .define("max_discount", 0.35, 0, 1);
+        IGNORE_CUSTOM_INGREDIENTS = builder.comment("Ignore all custom ingredient types when scanning recipes." +
+                        "Turn this on if some recipes are missing.")
+                .define("ignore_custom_ingredients", true);
         builder.pop();
 
         builder.setSynced();

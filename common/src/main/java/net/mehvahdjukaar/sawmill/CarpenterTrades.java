@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class CarpenterTrades {
+public final class CarpenterTrades {
 
     public static void init() {
         ItemListingRegistry.registerSerializer(SawmillMod.res("wood_item_to_emerald"), WoodToItemListing.CODEC);
