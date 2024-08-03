@@ -1,2 +1,1 @@
-Changed how the mod parses custom ingredient types
-Added config to change wether mod will parse or not custom ingredient types. By default its ON. You might want to turn if off if you notice some recipes arent generated
+hardcoded stick cost to always be 0.125 logs

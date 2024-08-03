@@ -22,6 +22,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -244,6 +245,9 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             Map<WoodType, LogCost> logCostInLog = Map.of(type, LogCost.of(type, 1d));
             var children = getAllChildren(type, "log", "wood", "stripped_log", "stripped_wood");
             children.forEach(item -> itemToPrimitiveCost.put(item, logCostInLog));
+
+            //shamelessly hardcodes sticks
+            itemToPrimitiveCost.computeIfAbsent(Items.STICK, s -> new HashMap<>()).put(type, LogCost.of(type, 0.125));
         }
 
         addHardcodedCosts(itemToPrimitiveCost);
