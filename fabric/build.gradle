@@ -26,10 +26,6 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-
-    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}")))
-    annotationProcessor 'net.fabricmc:sponge-mixin:0.12.5+mixin.0.8.5'
-
     modImplementation("net.mehvahdjukaar:moonlight-fabric:${moonlight_version}")
 
     modImplementation("curse.maven:yacl-667299:4574163")
@@ -37,34 +33,13 @@ dependencies {
     modCompileOnly("curse.maven:modmenu-308702:3920481") {
         exclude module: "fabric-api"
     }
-
-
 }
 
 
 
 processResources {
-    // input variables of this task:
-    var replaceProperties = [
-            minecraft_version    : minecraft_version,
-            minecraft_min_version: minecraft_min_version,
-            minecraft_max_version: minecraft_max_version,
-
-            mod_id               : mod_id,
-            mod_name             : mod_name,
-            mod_version          : mod_version,
-            mod_license          : mod_license,
-            mod_authors          : mod_authors,
-            mod_description      : mod_description,
-            mod_credits          : mod_credits,
-            mod_homepage         : mod_homepage,
-            mod_github           : mod_github
-    ]
-    // setting them as input
-    inputs.properties replaceProperties
-
     filesMatching("fabric.mod.json") {
-        expand replaceProperties + [project: project]
+        expand rootProject.ext.replaceProperties + [project: project]
     }
 }
 
@@ -76,10 +51,13 @@ shadowJar {
 }
 
 remapJar {
+    exclude '**/example/**'
+
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier = "fabric"
+    archiveClassifier = null
+    archiveClassifier = 'fabric'
 }
 
 jar {
@@ -90,6 +68,12 @@ sourcesJar {
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
+
+    archiveClassifier = "fabric-sources"
+}
+
+remapSourcesJar{
+    archiveClassifier = "fabric-sources"
 }
 
 components.java {

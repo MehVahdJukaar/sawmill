@@ -1,13 +1,13 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.1-SNAPSHOT" apply false
+    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
     id 'io.github.juuxel.loom-quiltflower' version '1.7.1' apply false
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.modrinth.minotaur" version "2.+"
 }
 
 architectury {
-    minecraft = rootProject.minecraft_version
+    minecraft = minecraft_version
 }
 
 subprojects {
@@ -21,9 +21,9 @@ subprojects {
     }
 
     dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        minecraft "com.mojang:minecraft:${minecraft_version}"
         mappings loom.layered() {
-            it.parchment("org.parchmentmc.data:parchment-${rootProject.parchment_version}")
+            it.parchment("org.parchmentmc.data:parchment-${parchment_version}")
             it.officialMojangMappings {
                 setNameSyntheticMembers(false)
             }
@@ -40,10 +40,14 @@ subprojects {
         modrinth {
             projectId = "universal-sawmill"
             uploadFile = tasks.remapJar
-            gameVersions = [rootProject.minecraft_version]
-            loaders = [modLoader]
+            additionalFiles.add(tasks.remapSourcesJar)
+            gameVersions = [minecraft_version]
+            if (modLoader == "forge") {
+                loaders = ["neoforge"]
+            } else loaders = [modLoader]
             changelog = changelogText
-
+            versionNumber = modLoader +"_"+ mod_version
+            versionType = release_type
             if (modLoader == "fabric") {
                 dependencies {
                     required.project "fabric-api"
@@ -61,23 +65,23 @@ subprojects {
         curseforge {
             apiKey = env.CURSEFORGE_TOKEN
             project {
-                id = rootProject.project_id
+                id = project_id
                 changelog = changelogText
-                releaseType = 'release'
-                addGameVersion rootProject.minecraft_version
-                addGameVersion modLoader.capitalize()
+                releaseType = release_type
+                addGameVersion minecraft_version
+
+                if (modLoader == "neoforge") {
+                    addGameVersion("NeoForge")
+                } else addGameVersion modLoader.capitalize()
 
                 mainArtifact(tasks.remapJar)
+                addArtifact(tasks.remapSourcesJar)
 
                 if (modLoader == "fabric") {
                     relations {
                         requiredDependency "fabric-api"
-                        requiredDependency "selene"
                     }
                 } else {
-                    relations {
-                        requiredDependency "selene"
-                    }
                 }
             }
         }
@@ -101,6 +105,7 @@ allprojects {
         }
 
         mavenLocal()
+        mavenCentral()
 
         maven { url "https://maven.parchmentmc.org" }
 
@@ -128,14 +133,63 @@ allprojects {
             url = "https://api.modrinth.com/maven"
         }
 
+        maven {
+            url = "https://maven.blamejared.com/"
+        }
+
     }
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
-        options.release = 17
+        options.release = rootProject.java_version
     }
 
     java {
         withSourcesJar()
     }
 }
+
+
+ext{
+    replaceProperties = [
+            minecraft_version    : minecraft_version,
+            minecraft_min_version: minecraft_min_version,
+            minecraft_max_version: minecraft_max_version,
+            pack_format_number   : pack_format_number,
+
+            mod_id               : mod_id,
+            mod_name             : mod_name,
+            mod_version          : mod_version,
+            mod_license          : mod_license,
+            mod_authors          : mod_authors,
+            mod_description      : mod_description,
+            mod_credits          : mod_credits,
+            mod_homepage         : mod_homepage,
+            mod_github           : mod_github,
+
+            neo_version          : neo_version,
+            neo_version_range    : neo_version_range,
+            loader_version_range : loader_version_range,
+    ]
+}
+
+
+task buildAndPublishAll {
+    dependsOn ':clean'
+    dependsOn ':build'
+    dependsOn ':forge:curseforge'
+    dependsOn ':forge:modrinth'
+    dependsOn ':fabric:curseforge'
+    dependsOn ':fabric:modrinth'
+}
+
+buildAndPublishAll.group = 'build'
+buildAndPublishAll.description = 'Runs clean, build, and publish forge and fabric'
+
+task buildAndPublishAllM {
+    dependsOn buildAndPublishAll
+    dependsOn ':publishToMavenLocal'
+}
+
+buildAndPublishAllM.group = 'build'
+buildAndPublishAllM.description = 'Runs clean, build, publish forge and fabric and uploads to maven local'

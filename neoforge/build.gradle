@@ -4,20 +4,14 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    forge()
+    neoForge {
+        //platformPackage = "forge"
+    }
 }
 
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
-
-    forge {
-        convertAccessWideners = true
-        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
-
-        mixinConfig  "sawmill.mixins.json"
-        mixinConfig  "sawmill-common.mixins.json"
-    }
 }
 
 configurations {
@@ -25,37 +19,13 @@ configurations {
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    developmentNeoForge.extendsFrom common
 }
 
 
 processResources {
-    // input variables of this task:
-    var replaceProperties = [
-            minecraft_version    : minecraft_version,
-            minecraft_min_version: minecraft_min_version,
-            minecraft_max_version: minecraft_max_version,
-            pack_format_number   : pack_format_number,
-
-            mod_id               : mod_id,
-            mod_name             : mod_name,
-            mod_version          : mod_version,
-            mod_license          : mod_license,
-            mod_authors          : mod_authors,
-            mod_description      : mod_description,
-            mod_credits          : mod_credits,
-            mod_homepage         : mod_homepage,
-            mod_github           : mod_github,
-
-            neo_version          : neo_version,
-            neo_version_range    : neo_version_range,
-            loader_version_range : loader_version_range,
-    ]
-    // setting them as input
-    inputs.properties replaceProperties
-
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta', 'update.json']) {
-        expand replaceProperties + [project: project]
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta', 'update.json']) {
+        expand rootProject.ext.replaceProperties + [project: project]
     }
 }
 
@@ -70,7 +40,8 @@ shadowJar {
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier = null
+    archiveClassifier = "neoforge"
+    atAccessWideners.add("${rootProject.mod_id}.accesswidener") // this is a path inside the mod jar
 }
 
 jar {
@@ -81,6 +52,12 @@ sourcesJar {
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
+
+    archiveClassifier = "neoforge-sources"
+}
+
+remapSourcesJar{
+    archiveClassifier = "neoforge-sources"
 }
 
 components.java {
@@ -112,26 +89,16 @@ publishing {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
-repositories{
-    // Built mods
-    flatDir {
-        dirs "mods"
-    }
-    mavenCentral()
-}
-
 dependencies {
-    forge "net.minecraftforge:forge:1.20.1-47.2.1"
+    neoForge "net.neoforged:neoforge:${neo_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
-    implementation(include("io.github.llamalad7:mixinextras-forge:${mixin_extras_version}"))
-    annotationProcessor 'net.fabricmc:sponge-mixin:0.12.5+mixin.0.8.5'
+    implementation 'org.jetbrains:annotations:22.0.0'
 
-   // modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
-   // modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")
+    // modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
+    // modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")
     modImplementation("curse.maven:jei-238222:4712868")
     modImplementation("curse.maven:repurposed-structures-368293:4823487")
     modImplementation("curse.maven:selene-499980:5093417")
@@ -143,5 +110,6 @@ dependencies {
     modCompileOnly("org.violetmoon.quark:Quark-4.0-433")
     modCompileOnly("org.violetmoon.zeta:Zeta-1.0-12")
 
-    implementation 'org.jetbrains:annotations:22.0.0'
+
+
 }
