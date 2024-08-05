@@ -38,7 +38,7 @@ subprojects {
 
     if (env.MODRINTH_TOKEN) {
         modrinth {
-            projectId = "universal-sawmill"
+            projectId = rootProject.mod_id
             uploadFile = tasks.remapJar
             additionalFiles.add(tasks.remapSourcesJar)
             gameVersions = [minecraft_version]
@@ -80,8 +80,12 @@ subprojects {
                 if (modLoader == "fabric") {
                     relations {
                         requiredDependency "fabric-api"
+                        requiredDependency "selene"
                     }
                 } else {
+                    relations {
+                        requiredDependency "selene"
+                    }
                 }
             }
         }
@@ -141,7 +145,7 @@ allprojects {
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
-        options.release = rootProject.java_version
+        options.release = rootProject.java_version.toInteger()
     }
 
     java {
@@ -170,6 +174,8 @@ ext{
             neo_version          : neo_version,
             neo_version_range    : neo_version_range,
             loader_version_range : loader_version_range,
+
+            moonlight_version_range : moonlight_version_range,
     ]
 }
 

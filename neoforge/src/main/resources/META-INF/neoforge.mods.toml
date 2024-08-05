@@ -5,6 +5,13 @@ loaderVersion = "${loader_version_range}"
 license = "${mod_license}"
 issueTrackerURL = "${mod_github}/issues"
 
+
+[[mixins]]
+config = "${mod_id}.mixins.json"
+[[mixins]]
+config = "${mod_id}-common.mixins.json"
+
+
 [[mods]]
     modId = "sawmill"
     version = "${mod_version}"
@@ -14,16 +21,16 @@ issueTrackerURL = "${mod_github}/issues"
     credits = "${mod_credits}"
     description = '''${mod_description}'''
     modUrl = "${mod_homepage}"
-    itemIcon="minecraft:brush" #catalogue icon
+    itemIcon = "minecraft:brush" #catalogue icon
 
-[[dependencies.sawmill]]
-    modId = "forge"
+[[dependencies.${mod_id}]]
+    modId = "neoforge"
     mandatory = true
     versionRange = "${neo_version_range}"
     ordering = "NONE"
     side = "BOTH"
 
-[[dependencies.sawmill]]
+[[dependencies.${mod_id}]]
     modId = "minecraft"
     mandatory = true
     versionRange = "[${minecraft_min_version},${minecraft_max_version})"
