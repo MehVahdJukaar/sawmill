@@ -10,13 +10,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SingleItemRecipe;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 
 public class WoodcuttingRecipe extends SingleItemRecipe {
     private final int inputCount;
-    public WoodcuttingRecipe(ResourceLocation resourceLocation, String string,
+    public WoodcuttingRecipe( String group,
                              Ingredient ingredient, ItemStack itemStack, int inputCount) {
-        super(SawmillMod.WOODCUTTING_RECIPE.get(), SawmillMod.WOODCUTTING_RECIPE_SERIALIZER.get(), resourceLocation, string, ingredient, itemStack);
+        super(SawmillMod.WOODCUTTING_RECIPE.get(), SawmillMod.WOODCUTTING_RECIPE_SERIALIZER.get(),
+                group, ingredient, itemStack);
         this.inputCount = inputCount;
     }
 
@@ -25,7 +27,7 @@ public class WoodcuttingRecipe extends SingleItemRecipe {
     }
 
     @Override
-    public boolean matches(Container container, Level level) {
+    public boolean matches(SingleRecipeInput container, Level level) {
         ItemStack item = container.getItem(0);
         return this.ingredient.test(item) && item.getCount() >= inputCount;
     }

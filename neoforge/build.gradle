@@ -97,18 +97,13 @@ dependencies {
 
     implementation 'org.jetbrains:annotations:22.0.0'
 
-    // modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
-    // modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")
-    modImplementation("curse.maven:jei-238222:4712868")
-    modImplementation("curse.maven:repurposed-structures-368293:4823487")
-    modImplementation("curse.maven:selene-499980:5093417")
-    modImplementation("curse.maven:framedblocks-441647:5143589")
-    modImplementation("net.mehvahdjukaar:moonlight-forge:${moonlight_version}")
-    modImplementation("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
-    modImplementation("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
+    modImplementation("net.mehvahdjukaar:moonlight-neoforge:${moonlight_version}")
 
-    modCompileOnly("org.violetmoon.quark:Quark-4.0-433")
-    modCompileOnly("org.violetmoon.zeta:Zeta-1.0-12")
+    modCompileOnly("curse.maven:jei-238222:4712868")
+    modCompileOnly("curse.maven:repurposed-structures-368293:4823487")
+    modCompileOnly("curse.maven:framedblocks-441647:5143589")
+    modCompileOnly("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
+    modCompileOnly("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
 
 
 

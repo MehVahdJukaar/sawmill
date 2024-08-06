@@ -1,23 +1,18 @@
 package net.mehvahdjukaar.sawmill.integration;
 
-import dev.latvian.mods.kubejs.KubeJSPlugin;
-import dev.latvian.mods.kubejs.item.InputItem;
-import dev.latvian.mods.kubejs.item.OutputItem;
-import dev.latvian.mods.kubejs.recipe.RecipeKey;
-import dev.latvian.mods.kubejs.recipe.RecipesEventJS;
-import dev.latvian.mods.kubejs.recipe.component.ItemComponents;
-import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
-import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
-import net.mehvahdjukaar.sawmill.SawmillMod;
+import dev.latvian.mods.kubejs.core.RecipeManagerKJS;
+import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
+import dev.latvian.mods.kubejs.recipe.RecipesKubeEvent;
+import dev.latvian.mods.kubejs.recipe.schema.RecipeSchemaRegistry;
 import net.mehvahdjukaar.sawmill.SawmillRecipeGenerator;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Map;
 
 
-public class KubeJsPlugin extends KubeJSPlugin {
+public class KubeJsPlugin implements KubeJSPlugin {
+    /*
     RecipeKey<OutputItem> RESULT = ItemComponents.OUTPUT_ID_WITH_COUNT.key("result");
     RecipeKey<InputItem> INGREDIENT = ItemComponents.INPUT.key("ingredient");
 
@@ -29,16 +24,18 @@ public class KubeJsPlugin extends KubeJSPlugin {
             return super.inputCount();
         }
     }.uniqueOutputId(RESULT);
+*/
 
     @Override
-    public void registerRecipeSchemas(RegisterRecipeSchemasEvent event) {
-        event.register(SawmillMod.res("woodcutting"), WOODCUTTING_SCHEMA);
+    public void registerRecipeSchemas(RecipeSchemaRegistry registry) {
+        //registry.register(SawmillMod.res("woodcutting"), WOODCUTTING_SCHEMA);
     }
 
     @Override
-    public void injectRuntimeRecipes(RecipesEventJS event, RecipeManager manager, Map<ResourceLocation, Recipe<?>> recipesByName) {
+    public void injectRuntimeRecipes(RecipesKubeEvent event, RecipeManagerKJS manager,
+                                     Map<ResourceLocation, RecipeHolder<?>> recipesByName) {
         var newRecipes = SawmillRecipeGenerator.process(recipesByName.values());
-        newRecipes.forEach(r -> recipesByName.put(r.getId(), r));
+        newRecipes.forEach(r -> recipesByName.put(r.id(), r));
     }
 
 }

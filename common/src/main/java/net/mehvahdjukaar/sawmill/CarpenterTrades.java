@@ -2,8 +2,8 @@ package net.mehvahdjukaar.sawmill;
 
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.mehvahdjukaar.moonlight.api.misc.StrOpt;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.trades.ItemListingRegistry;
@@ -16,6 +16,7 @@ import net.minecraft.world.entity.npc.VillagerDataHolder;
 import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,14 +33,14 @@ public final class CarpenterTrades {
     public record LogStrippingListing(ItemStack price, int amount, int maxTrades, int xp,
                                       float priceMult, int level) implements ModItemListing {
 
-        public static final Codec<LogStrippingListing> CODEC =
-                RecordCodecBuilder.create(i -> i.group(
+        public static final MapCodec<LogStrippingListing> CODEC =
+                RecordCodecBuilder.mapCodec(i -> i.group(
                         ItemStack.CODEC.fieldOf("price").forGetter(LogStrippingListing::price),
                         Codec.INT.fieldOf("amount").forGetter(LogStrippingListing::amount),
-                        StrOpt.of(ExtraCodecs.POSITIVE_INT, "max_trades", 16).forGetter(LogStrippingListing::maxTrades),
-                        StrOpt.of(ExtraCodecs.POSITIVE_INT, "xp").forGetter(w -> Optional.of(w.xp)),
-                        StrOpt.of(ExtraCodecs.POSITIVE_FLOAT, "price_multiplier", 0.05f).forGetter(LogStrippingListing::priceMult),
-                        StrOpt.of(Codec.intRange(1, 5), "level", 1).forGetter(LogStrippingListing::level)
+                        ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_trades", 16).forGetter(LogStrippingListing::maxTrades),
+                        ExtraCodecs.POSITIVE_INT.optionalFieldOf("xp").forGetter(w -> Optional.of(w.xp)),
+                        ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf("price_multiplier", 0.05f).forGetter(LogStrippingListing::priceMult),
+                        Codec.intRange(1, 5).optionalFieldOf("level", 1).forGetter(LogStrippingListing::level)
                 ).apply(i, LogStrippingListing::createDefault));
 
         private static LogStrippingListing createDefault(ItemStack price, int amount, int maxTrades,
@@ -49,7 +50,7 @@ public final class CarpenterTrades {
         }
 
         @Override
-        public Codec<? extends ModItemListing> getCodec() {
+        public MapCodec<? extends ModItemListing> getCodec() {
             return CODEC;
         }
 
@@ -61,7 +62,7 @@ public final class CarpenterTrades {
             Item log = type.log.asItem();
             Item stripped = type.getItemOfThis("stripped_log");
             if (stripped != null) {
-                return new MerchantOffer(new ItemStack(log, amount), price, new ItemStack(stripped, amount), maxTrades, xp, priceMult);
+                return new MerchantOffer(new ItemCost(log, amount), price, new ItemStack(stripped, amount), maxTrades, xp, priceMult);
             }
             return null;
         }
@@ -78,17 +79,17 @@ public final class CarpenterTrades {
                                     float priceMult, int level,
                                     boolean typeDependant) implements ModItemListing {
 
-        public static final Codec<WoodToItemListing> CODEC =
-                RecordCodecBuilder.create(i -> i.group(
-                        StrOpt.of(Codec.BOOL, "buys", true).forGetter(WoodToItemListing::buys),
+        public static final MapCodec<WoodToItemListing> CODEC =
+                RecordCodecBuilder.mapCodec(i -> i.group(
+                       Codec.BOOL.optionalFieldOf("buys", true).forGetter(WoodToItemListing::buys),
                         Codec.STRING.fieldOf("wood_block").forGetter(WoodToItemListing::childKey),
                         ExtraCodecs.POSITIVE_INT.fieldOf("wood_block_amount").forGetter(WoodToItemListing::woodPrice),
                         ItemStack.CODEC.fieldOf("emeralds").forGetter(WoodToItemListing::emeralds),
-                        StrOpt.of(ExtraCodecs.POSITIVE_INT, "max_trades", 16).forGetter(WoodToItemListing::maxTrades),
-                        StrOpt.of(ExtraCodecs.POSITIVE_INT, "xp").forGetter(w -> Optional.of(w.xp)),
-                        StrOpt.of(ExtraCodecs.POSITIVE_FLOAT, "price_multiplier", 0.05f).forGetter(WoodToItemListing::priceMult),
-                        StrOpt.of(Codec.intRange(1, 5), "level", 1).forGetter(WoodToItemListing::level),
-                        StrOpt.of(Codec.BOOL, "type_dependant", false).forGetter(WoodToItemListing::typeDependant)
+                        ExtraCodecs.POSITIVE_INT.optionalFieldOf( "max_trades", 16).forGetter(WoodToItemListing::maxTrades),
+                        ExtraCodecs.POSITIVE_INT.optionalFieldOf( "xp").forGetter(w -> Optional.of(w.xp)),
+                        ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf( "price_multiplier", 0.05f).forGetter(WoodToItemListing::priceMult),
+                        Codec.intRange(1, 5).optionalFieldOf( "level", 1).forGetter(WoodToItemListing::level),
+                        Codec.BOOL.optionalFieldOf( "type_dependant", false).forGetter(WoodToItemListing::typeDependant)
                 ).apply(i, WoodToItemListing::createDefault));
 
 
@@ -103,7 +104,7 @@ public final class CarpenterTrades {
         }
 
         @Override
-        public Codec<? extends ModItemListing> getCodec() {
+        public MapCodec<? extends ModItemListing> getCodec() {
             return CODEC;
         }
 
@@ -168,7 +169,7 @@ public final class CarpenterTrades {
     });
 
     private static WoodType wood(String name) {
-        return WoodTypeRegistry.getValue(new ResourceLocation(name));
+        return WoodTypeRegistry.getValue(ResourceLocation.parse(name));
     }
 
     private static void maybeAddWood(List<WoodType> list, String... names) {

@@ -18,9 +18,9 @@ import java.util.List;
 // Thanks to TelepathicGrunt
 public class VillageStructureModifier {
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(
-            Registries.PROCESSOR_LIST, new ResourceLocation("empty"));
+            Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace("empty"));
     private static final ResourceKey<StructureProcessorList> MOSSY_PROCESSOR_LIST_KEY = ResourceKey.create(
-            Registries.PROCESSOR_LIST, new ResourceLocation("mossify_10_percent"));
+            Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace("mossify_10_percent"));
 
     private static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry,
                                           ResourceLocation poolRL,
@@ -94,13 +94,13 @@ public class VillageStructureModifier {
                         processorListRegistry.getHolderOrThrow(EMPTY_PROCESSOR_LIST_KEY);
 
         Holder<StructureProcessorList> zombieProcessor = processorListRegistry.getHolderOrThrow(ResourceKey.create(
-                Registries.PROCESSOR_LIST, new ResourceLocation("zombie_" + villageName)
+                Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace("zombie_" + villageName)
         ));
 
-        addBuildingToPool(templatePoolRegistry, new ResourceLocation("village/" + villageName + "/houses"),
+        addBuildingToPool(templatePoolRegistry, ResourceLocation.withDefaultNamespace("village/" + villageName + "/houses"),
                 pieceName, normalProcessor, weight);
 
-        addBuildingToPool(templatePoolRegistry, new ResourceLocation("village/" + villageName + "/zombie/houses"),
+        addBuildingToPool(templatePoolRegistry, ResourceLocation.withDefaultNamespace("village/" + villageName + "/zombie/houses"),
                 pieceName, zombieProcessor, weight);
     }
 

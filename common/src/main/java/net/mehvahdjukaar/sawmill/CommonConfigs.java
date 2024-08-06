@@ -2,8 +2,8 @@ package net.mehvahdjukaar.sawmill;
 
 import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigBuilder;
-import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigSpec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigType;
+import net.mehvahdjukaar.moonlight.api.platform.configs.ModConfigHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -25,11 +25,11 @@ public class CommonConfigs {
     public static final Supplier<Boolean> SORT_RECIPES;
     public static final Supplier<Boolean> IGNORE_CUSTOM_INGREDIENTS;
 
-    public static final ConfigSpec SPEC;
+    public static final ModConfigHolder CONFIG;
 
     static {
 
-        ConfigBuilder builder = ConfigBuilder.create(SawmillMod.MOD_ID, ConfigType.COMMON);
+        ConfigBuilder builder = ConfigBuilder.create(SawmillMod.MOD_ID, ConfigType.COMMON_SYNCED);
 
         builder.push("general");
         SORT_RECIPES = builder.comment("Sort recipes following cretive tab order. " +
@@ -70,8 +70,7 @@ public class CommonConfigs {
                 .define("ignore_custom_ingredients", true);
         builder.pop();
 
-        builder.setSynced();
-        SPEC = builder.buildAndRegister();
+        CONFIG = builder.build();
     }
 
     public static void init() {

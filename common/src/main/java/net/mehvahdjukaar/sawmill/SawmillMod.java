@@ -18,10 +18,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,7 +77,7 @@ public class SawmillMod {
     }
 
     public static ResourceLocation res(String name) {
-        return new ResourceLocation(MOD_ID, name);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
     }
 
     // Hacky tag stuff below here. way more complex than it needs to be because prople reported some issue with recipes breaking or something
@@ -111,11 +108,11 @@ public class SawmillMod {
         receivedTags = false;
     }
 
-    public static boolean isWhitelisted(Recipe<?> recipe) {
-        boolean ret = cachedWhitelist.computeIfAbsent(recipe.getType(),
+    public static boolean isWhitelisted(RecipeHolder<?> recipe) {
+        boolean ret = cachedWhitelist.computeIfAbsent(recipe.value().getType(),
                 recipeType -> whitelist.stream().anyMatch(h -> h.value() == recipeType));
         if (ret) {
-            if (CommonConfigs.MOD_BLACKLIST.get().contains(recipe.getId().getNamespace())) return false;
+            if (CommonConfigs.MOD_BLACKLIST.get().contains(recipe.id().getNamespace())) return false;
         }
         return ret;
     }

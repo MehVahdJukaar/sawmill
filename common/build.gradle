@@ -14,8 +14,8 @@ dependencies {
     modImplementation ("net.mehvahdjukaar:moonlight:${moonlight_version}")
 
     modCompileOnly("curse.maven:jei-238222:4712868")
-    modCompileOnly("curse.maven:kubejs-238086:5034251")
-    modCompileOnly("curse.maven:rhino-416294:4944325")
+    modCompileOnly("curse.maven:kubejs-238086:5580858")
+    modCompileOnly("curse.maven:rhino-416294:5589424")
 
     modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
     modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")

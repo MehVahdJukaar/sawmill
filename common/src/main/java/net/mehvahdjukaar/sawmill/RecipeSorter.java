@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
+import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,9 +30,9 @@ public class RecipeSorter {
 
 
     //called from server side by recipe stuff.
-    public static void accept(List<WoodcuttingRecipe> sawmillRecipes) {
+    public static void accept(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
         UNSORTED.clear();
-        sawmillRecipes.forEach(r -> UNSORTED.add(r.getResultItem(RegistryAccess.EMPTY).getItem()));
+        sawmillRecipes.forEach(r -> UNSORTED.add(r.value().getResultItem(RegistryAccess.EMPTY).getItem()));
     }
 
     public static void acceptOrder(IntList list) {
@@ -86,9 +88,9 @@ public class RecipeSorter {
         ITEM_ORDER.forEach(i -> list.add(BuiltInRegistries.ITEM.getId(i)));
         NetworkStuff.SyncRecipeOrder message = new NetworkStuff.SyncRecipeOrder(list);
         if (player != null) {
-            NetworkStuff.CHANNEL.sendToClientPlayer(player, message);
+            NetworkHelper.sendToClientPlayer(player, message);
         } else {
-            NetworkStuff.CHANNEL.sendToAllClientPlayers(message);
+            NetworkHelper.sendToAllClientPlayers(message);
         }
     }
 }
