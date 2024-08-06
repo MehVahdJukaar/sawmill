@@ -85,7 +85,7 @@ public class SawmillMod {
 
     private static final Object lock = new Object();
     private static boolean receivedTags = false;
-    private static final Map<ResourceLocation, Collection<Holder>> tags = new HashMap<>();
+    private static final Map<ResourceLocation, Collection<Holder<?>>> tags = new HashMap<>();
     private static final Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
     private static final Map<RecipeType<?>, Boolean> cachedWhitelist = new HashMap<>();
     private static final List<Holder<RecipeType<?>>> whitelist = new ArrayList<>();

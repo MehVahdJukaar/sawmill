@@ -4,6 +4,9 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import net.mehvahdjukaar.moonlight.api.resources.ResType;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
@@ -149,7 +152,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
         if (CommonConfigs.SAVE_RECIPES.get()) {
             for (var r : sawmillRecipes) {
-                INSTANCE.dynamicPack.addJson(r.id(), WoodcuttingRecipe.Serializer.toJson(r.value()), ResType.RECIPES);
+                INSTANCE.dynamicPack.addRecipe(r);
             }
         }
 

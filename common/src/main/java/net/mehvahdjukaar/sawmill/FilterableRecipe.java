@@ -2,13 +2,14 @@ package net.mehvahdjukaar.sawmill;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Locale;
 
-public record FilterableRecipe(WoodcuttingRecipe recipe, ItemStack output) {
+public record FilterableRecipe(RecipeHolder<WoodcuttingRecipe> recipe, ItemStack output) {
 
-    public static FilterableRecipe of(WoodcuttingRecipe recipe) {
-        return new FilterableRecipe(recipe, recipe.getResultItem(RegistryAccess.EMPTY));
+    public static FilterableRecipe of(RecipeHolder<WoodcuttingRecipe> recipe) {
+        return new FilterableRecipe(recipe, recipe.value().getResultItem(RegistryAccess.EMPTY));
     }
 
     public boolean matchFilter(String filter) {

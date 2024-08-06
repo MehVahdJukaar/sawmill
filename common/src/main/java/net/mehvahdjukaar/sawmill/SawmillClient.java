@@ -11,6 +11,8 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 
 public class SawmillClient {
 
@@ -28,18 +30,8 @@ public class SawmillClient {
     public static void onTagsUpdated() {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
-            CraftingContainer dummy = new TransientCraftingContainer(new AbstractContainerMenu(null, -1) {
-                public ItemStack quickMoveStack(Player player, int index) {
-                    return ItemStack.EMPTY;
-                }
-
-                public boolean stillValid(Player player) {
-                    return false;
-                }
-            }, 1, 1);
-            dummy.setItem(0, Items.OAK_LOG.getDefaultInstance());
-            var recipes = level.getRecipeManager()
-                    .getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), dummy, level);
+            SingleRecipeInput dummy = new SingleRecipeInput(Items.OAK_LOG.getDefaultInstance());
+            var recipes = level.getRecipeManager().getRecipesFor(SawmillMod.WOODCUTTING_RECIPE.get(), dummy, level);
 
             hasManyRecipes = recipes.size() > CommonConfigs.SEARCH_BAR_THRESHOLD.get();
         }

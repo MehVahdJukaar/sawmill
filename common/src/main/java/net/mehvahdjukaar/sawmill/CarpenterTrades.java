@@ -30,12 +30,12 @@ public final class CarpenterTrades {
         ItemListingRegistry.registerSerializer(SawmillMod.res("log_stripping"), LogStrippingListing.CODEC);
     }
 
-    public record LogStrippingListing(ItemStack price, int amount, int maxTrades, int xp,
+    public record LogStrippingListing(ItemCost price, int amount, int maxTrades, int xp,
                                       float priceMult, int level) implements ModItemListing {
 
         public static final MapCodec<LogStrippingListing> CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
-                        ItemStack.CODEC.fieldOf("price").forGetter(LogStrippingListing::price),
+                        ItemCost.CODEC.fieldOf("price").forGetter(LogStrippingListing::price),
                         Codec.INT.fieldOf("amount").forGetter(LogStrippingListing::amount),
                         ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_trades", 16).forGetter(LogStrippingListing::maxTrades),
                         ExtraCodecs.POSITIVE_INT.optionalFieldOf("xp").forGetter(w -> Optional.of(w.xp)),
@@ -43,7 +43,7 @@ public final class CarpenterTrades {
                         Codec.intRange(1, 5).optionalFieldOf("level", 1).forGetter(LogStrippingListing::level)
                 ).apply(i, LogStrippingListing::createDefault));
 
-        private static LogStrippingListing createDefault(ItemStack price, int amount, int maxTrades,
+        private static LogStrippingListing createDefault(ItemCost price, int amount, int maxTrades,
                                                          Optional<Integer> xp, float priceMult, int level) {
             return new LogStrippingListing(price, amount, maxTrades,
                     xp.orElse(ModItemListing.defaultXp(false, level)), priceMult, level);
@@ -62,7 +62,7 @@ public final class CarpenterTrades {
             Item log = type.log.asItem();
             Item stripped = type.getItemOfThis("stripped_log");
             if (stripped != null) {
-                return new MerchantOffer(new ItemCost(log, amount), price, new ItemStack(stripped, amount), maxTrades, xp, priceMult);
+                return new MerchantOffer(new ItemCost(log, amount), Optional.of(price), new ItemStack(stripped, amount), maxTrades, xp, priceMult);
             }
             return null;
         }
@@ -75,7 +75,7 @@ public final class CarpenterTrades {
 
 
     public record WoodToItemListing(boolean buys, String childKey, int woodPrice,
-                                    ItemStack emeralds, int maxTrades, int xp,
+                                    ItemCost emeralds, int maxTrades, int xp,
                                     float priceMult, int level,
                                     boolean typeDependant) implements ModItemListing {
 
@@ -84,7 +84,7 @@ public final class CarpenterTrades {
                        Codec.BOOL.optionalFieldOf("buys", true).forGetter(WoodToItemListing::buys),
                         Codec.STRING.fieldOf("wood_block").forGetter(WoodToItemListing::childKey),
                         ExtraCodecs.POSITIVE_INT.fieldOf("wood_block_amount").forGetter(WoodToItemListing::woodPrice),
-                        ItemStack.CODEC.fieldOf("emeralds").forGetter(WoodToItemListing::emeralds),
+                        ItemCost.CODEC.fieldOf("emeralds").forGetter(WoodToItemListing::emeralds),
                         ExtraCodecs.POSITIVE_INT.optionalFieldOf( "max_trades", 16).forGetter(WoodToItemListing::maxTrades),
                         ExtraCodecs.POSITIVE_INT.optionalFieldOf( "xp").forGetter(w -> Optional.of(w.xp)),
                         ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf( "price_multiplier", 0.05f).forGetter(WoodToItemListing::priceMult),
@@ -93,7 +93,7 @@ public final class CarpenterTrades {
                 ).apply(i, WoodToItemListing::createDefault));
 
 
-        private static WoodToItemListing createDefault(boolean buys, String wood, int woodAmount, ItemStack emeralds, int maxTrades,
+        private static WoodToItemListing createDefault(boolean buys, String wood, int woodAmount, ItemCost emeralds, int maxTrades,
                                                        Optional<Integer> xp, float priceMult, int level, boolean typeDependant) {
             return new WoodToItemListing(buys, wood, woodAmount, emeralds, maxTrades,
                     xp.orElse(ModItemListing.defaultXp(buys, level)), priceMult, level, typeDependant);
@@ -126,16 +126,16 @@ public final class CarpenterTrades {
                 types.remove(type);
                 Item w = type.getItemOfThis(childKey);
                 if (w != null) {
-                    ItemStack wood = new ItemStack(w, woodPrice);
-                    ItemStack emerald = emeralds;
-                    if (wood.isEmpty()) {
+                    ItemCost wood = new ItemCost(w, woodPrice);
+                    ItemCost emerald = emeralds;
+                    if (wood.itemStack().isEmpty()) {
                         //if this gets triggered something REALLY bad happened...
                         throw new AssertionError("Wood item is empty. How? Key:" + childKey + ", Wood Type:" + type + ", ItemStack: " + wood + ", Item: " + w + ", Block: " + type.getBlockOfThis(childKey));
                     }
                     if (buys) {
-                        return new MerchantOffer(wood, ItemStack.EMPTY, emerald, maxTrades, xp, priceMult);
+                        return new MerchantOffer(wood, Optional.empty(), emerald.itemStack(), maxTrades, xp, priceMult);
                     } else {
-                        return new MerchantOffer(emerald, ItemStack.EMPTY, wood, maxTrades, xp, priceMult);
+                        return new MerchantOffer(emerald, Optional.empty(), wood.itemStack(), maxTrades, xp, priceMult);
                     }
                 }
             }
