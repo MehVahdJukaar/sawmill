@@ -38,7 +38,7 @@ subprojects {
 
     if (env.MODRINTH_TOKEN) {
         modrinth {
-            projectId = rootProject.mod_id
+            projectId = "universal-sawmill"
             uploadFile = tasks.remapJar
             additionalFiles.add(tasks.remapSourcesJar)
             gameVersions = [minecraft_version]
@@ -183,8 +183,8 @@ ext{
 task buildAndPublishAll {
     dependsOn ':clean'
     dependsOn ':build'
-    dependsOn ':forge:curseforge'
-    dependsOn ':forge:modrinth'
+    dependsOn ':neoforge:curseforge'
+    dependsOn ':neoforge:modrinth'
     dependsOn ':fabric:curseforge'
     dependsOn ':fabric:modrinth'
 }
