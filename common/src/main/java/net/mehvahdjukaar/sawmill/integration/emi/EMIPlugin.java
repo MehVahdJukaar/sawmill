@@ -11,14 +11,20 @@ import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.runtime.EmiDrawContext;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 @EmiEntrypoint
 public class EMIPlugin implements EmiPlugin {
 
     public static final EmiRecipeCategory WOODCUTTING_CATEGORY = new EmiRecipeCategory(
-            SawmillMod.res("woodcutting"), EmiStack.of(Items.STONECUTTER),
-            simplifiedRenderer(160, 240), EmiRecipeSorting.compareInputThenOutput());
+            SawmillMod.res("woodcutting"), EmiStack.of(SawmillMod.SAWMILL_BLOCK.get()),
+            simplifiedRenderer(160, 240), EmiRecipeSorting.compareInputThenOutput()){
+        @Override
+        public Component getName() {
+            return Component.translatable("sawmill.category.wood_cutting");
+        }
+    };
 
     private static EmiRenderable simplifiedRenderer(int u, int v) {
         return (raw, x, y, delta) -> {

@@ -10,9 +10,15 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.widget.Bounds;
+import dev.emi.emi.api.widget.Widget;
 import dev.emi.emi.api.widget.WidgetHolder;
 import net.mehvahdjukaar.sawmill.WoodcuttingRecipe;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -20,11 +26,13 @@ public class EmiWoodcuttingRecipe implements EmiRecipe {
     private final ResourceLocation id;
     private final EmiIngredient input;
     private final EmiStack output;
+    private final int inputCount;
 
     public EmiWoodcuttingRecipe(WoodcuttingRecipe recipe) {
         this.id = EmiPort.getId(recipe);
         this.input = EmiIngredient.of(recipe.getIngredients().get(0));
         this.output = EmiStack.of(EmiPort.getOutput(recipe));
+        this.inputCount = recipe.getInputCount();
     }
 
     @Override
@@ -61,6 +69,19 @@ public class EmiWoodcuttingRecipe implements EmiRecipe {
     public void addWidgets(WidgetHolder widgets) {
         widgets.addTexture(EmiTexture.EMPTY_ARROW, 26, 1);
         widgets.addSlot(this.input, 0, 0);
+        widgets.add(new Widget() {
+            private final Bounds bounds = new Bounds(0,0,18,18);
+            @Override
+            public Bounds getBounds() {
+                return bounds;
+            }
+
+            @Override
+            public void render(GuiGraphics guiGraphics, int i, int i1, float v) {
+                guiGraphics.renderItemDecorations(Minecraft.getInstance().font,
+                        new ItemStack(Items.DIRT, inputCount), 0,0);
+            }
+        });
         widgets.addSlot(this.output, 58, 0).recipeContext(this);
     }
 }

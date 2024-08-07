@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import net.mehvahdjukaar.moonlight.api.platform.neoforge.RegHelperImpl;
 import net.mehvahdjukaar.sawmill.SawmillRecipeGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -28,7 +29,6 @@ public class RecipeManagerMixin {
     public void sawmill$addRecipes(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
                                       @Local LocalRef<ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> byName,
                                       @Local LocalRef<ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>>> byType) {
-
         var oldRecipes = byName.get().build();
 
         ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> copy = ImmutableMap.builder();

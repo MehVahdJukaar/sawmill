@@ -92,6 +92,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         Map<WoodType, Ingredient> plankIngredients = new HashMap<>();
         String group = "logs";
         String group2 = "planks";
+
         for (var entry : costs.entrySet()) {
             Item result = entry.getKey();
             String itemId = Utils.getID(result).toDebugFileName();
@@ -174,16 +175,18 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
     private static void addNewRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
-        InputOutputCost resCost = getInputOutputCost(cost);
+        int maxStackSize = result.components().getOrDefault(DataComponents.MAX_STACK_SIZE, 1);
+
+        InputOutputCost resCost = getInputOutputCost(cost, maxStackSize);
         int inputCount = resCost.inputCount();
         int outputCount = resCost.outputCount();
         if (only1on1 && inputCount != 1 && CommonConfigs.PLANKS_ONLY_ONE.get()) return;
-        if (outputCount <= result.components().getOrDefault(DataComponents.MAX_STACK_SIZE, 1) && outputCount > 0) {
+        if (outputCount > 0) {
 
             // we know that we are going to add cost with 1 too,
             // so we check what cost with that would be to match it if needed
             if (!only1on1 && false) {
-                var costWith1 = getInputOutputCost(cost / 4);
+                var costWith1 = getInputOutputCost(cost / 4, maxStackSize);
                 if (costWith1.inputCount == 1 && costWith1.outputCount / cost > outputCount) {
                     outputCount = (int) (costWith1.outputCount / cost);
                 }
@@ -197,7 +200,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
     //TODO: finish
     @NotNull
-    private static InputOutputCost getInputOutputCost(double cost) {
+    private static InputOutputCost getInputOutputCost(double cost, int maxOutputCount) {
         int inputCount = 1;
         int outputCount = 0;
         double maxDiscount = CommonConfigs.MAX_DISCOUNT.get(); //gives at most 0.25 log free
@@ -210,9 +213,15 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         cost /= (1 + maxDiscount); // 0.4 cost : 1.25 = 0.3 discounted
         double discountedOutput = (1 / cost);
         double considerDiscountThreshold = 0.25;
-        outputCount += Mth.floor(preciseOutputCount % 1 > considerDiscountThreshold ?
+        //this used to be floor. might be more forgiving like this but also more op
+        outputCount += Math.round(preciseOutputCount % 1 > considerDiscountThreshold ?
                 (preciseOutputCount + discountedOutput) / 2f : preciseOutputCount);
 
+        if (outputCount > maxOutputCount) {
+            double ratio = (double) maxOutputCount / outputCount;
+            outputCount = maxOutputCount;
+            inputCount = Mth.ceil(inputCount * ratio);
+        }
         return new InputOutputCost(inputCount, outputCount);
     }
 
@@ -289,7 +298,6 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
         //magic
         for (var item : craftableItems) {
-
             getPrimitiveCostRecursive(item, itemsToRecipe, itemToPrimitiveCost, new HashSet<>());
         }
         itemToPrimitiveCost.values().removeIf(Objects::isNull);
@@ -329,6 +337,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         outer:
         while (iterator.hasNext()) {
             Recipe<?> recipe = iterator.next();
+
             for (var ing : recipe.getIngredients()) {
                 //don't consider air
                 if (!ing.isEmpty()) {
@@ -337,6 +346,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
                     for (var alternative : getIngItems(ing)) {
                         Item a = alternative.getItem();
+
                         // if we don't have a recipe for this it means it's a primitive. if it's not whitelisted we remove
                         if (itemToPrimitiveCost.containsKey(a) || craftableItems.contains(a)) {
                             // it is not primitive or its primitive of the right type.

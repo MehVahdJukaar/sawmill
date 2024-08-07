@@ -10,7 +10,12 @@ import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import net.mehvahdjukaar.sawmill.SawmillMod;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -42,8 +47,21 @@ public class WoodcuttingCategory implements DisplayCategory<WoodcuttingDisplay> 
                 .entries(display.getOutputEntries().get(0))
                 .disableBackground()
                 .markOutput());
-        widgets.add(Widgets.createSlot(new Point(startPoint.x + 4, startPoint.y + 5))
+        Point point = new Point(startPoint.x + 4, startPoint.y + 5);
+        widgets.add(Widgets.createSlot(point)
                 .entries(display.getInputEntries().get(0)).markInput());
+        widgets.add(new Widget() {
+            @Override
+            public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                guiGraphics.renderItemDecorations(Minecraft.getInstance().font,
+                        new ItemStack(Items.DIRT, display.getInputCount()), point.x,point.y);
+            }
+
+            @Override
+            public List<? extends GuiEventListener> children() {
+                return List.of();
+            }
+        });
         return widgets;
     }
 

@@ -22,13 +22,17 @@ import java.util.List;
 import java.util.Optional;
 
 public class WoodcuttingDisplay extends BasicDisplay {
+    private final int inputCount;
+
     public WoodcuttingDisplay(RecipeHolder<WoodcuttingRecipe> recipe) {
-        this(EntryIngredients.ofIngredients(recipe.value().getIngredients()), Collections.singletonList(EntryIngredients.of(recipe.value().getResultItem(BasicDisplay.registryAccess()))),
+        super(EntryIngredients.ofIngredients(recipe.value().getIngredients()), Collections.singletonList(EntryIngredients.of(recipe.value().getResultItem(BasicDisplay.registryAccess()))),
                 Optional.ofNullable(recipe.id()));
+        this.inputCount = recipe.value().getInputCount();
+
     }
 
-    public WoodcuttingDisplay(List<EntryIngredient> inputs, List<EntryIngredient> outputs, Optional<ResourceLocation> location) {
-        super(inputs, outputs, location);
+    public int getInputCount() {
+        return inputCount;
     }
 
     @Override
