@@ -1,13 +1,14 @@
-package net.mehvahdjukaar.sawmill.forge;
+package net.mehvahdjukaar.sawmill.neoforge;
 
 import net.mehvahdjukaar.sawmill.*;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
 /**
  * Author: MehVahdJukaar
@@ -17,7 +18,7 @@ public class SawmillModImpl {
 
     public SawmillModImpl() {
         SawmillMod.init();
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
@@ -39,7 +40,7 @@ public class SawmillModImpl {
     }
 
     public static boolean isVanillaIngredient(Ingredient ing) {
-        return ing.isVanilla();
+        return !ing.isCustom();
     }
 
 }

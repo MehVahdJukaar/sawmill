@@ -22,7 +22,7 @@
   ],
   "result": {
     "count": 1,
-    "item": "sawmill:sawmill"
+    "id": "sawmill:sawmill"
   },
   "show_notification": true
 }

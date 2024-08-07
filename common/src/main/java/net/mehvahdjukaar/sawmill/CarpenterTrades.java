@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
-import net.mehvahdjukaar.moonlight.api.trades.ItemListingRegistry;
+import net.mehvahdjukaar.moonlight.api.trades.ItemListingManager;
 import net.mehvahdjukaar.moonlight.api.trades.ModItemListing;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
@@ -26,8 +26,8 @@ import java.util.function.Supplier;
 public final class CarpenterTrades {
 
     public static void init() {
-        ItemListingRegistry.registerSerializer(SawmillMod.res("wood_item_to_emerald"), WoodToItemListing.CODEC);
-        ItemListingRegistry.registerSerializer(SawmillMod.res("log_stripping"), LogStrippingListing.CODEC);
+        ItemListingManager.registerSerializer(SawmillMod.res("wood_item_to_emerald"), WoodToItemListing.CODEC);
+        ItemListingManager.registerSerializer(SawmillMod.res("log_stripping"), LogStrippingListing.CODEC);
     }
 
     public record LogStrippingListing(ItemCost price, int amount, int maxTrades, int xp,

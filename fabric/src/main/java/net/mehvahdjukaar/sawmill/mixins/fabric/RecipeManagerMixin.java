@@ -1,15 +1,15 @@
 package net.mehvahdjukaar.sawmill.mixins.fabric;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import net.fabricmc.fabric.impl.resource.conditions.conditions.AllModsLoadedResourceCondition;
 import net.mehvahdjukaar.sawmill.SawmillRecipeGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -27,26 +27,23 @@ public class RecipeManagerMixin {
 
 
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
-            at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;",
-                    ordinal = 1,
+            at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;",
                     shift = At.Shift.BEFORE))
     public void addSawmillRecipesHack(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
-                                      @Local(ordinal = 1) Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map,
-                                      @Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder,
-                                      @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
+                                      @Local com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
+                                      @Local ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType,
+                                      @Share("parsed") LocalRef<List<RecipeHolder<?>>> parsed) {
 
-        SawmillRecipeGenerator.process(parsed.get(), map, builder);
+        SawmillRecipeGenerator.process(parsed.get(), byName, byType);
     }
 
 
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
             at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableMap$Builder;put(Ljava/lang/Object;Ljava/lang/Object;)Lcom/google/common/collect/ImmutableMap$Builder;",
-                    ordinal = 1))
+                    ordinal = 0))
     public void interceptRecipe(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager,
                                 ProfilerFiller profiler, CallbackInfo ci,
-                                @Local Recipe<?> recipe,
-                                @Local ImmutableMap.Builder<ResourceLocation, Recipe<?>> b,
-                                @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
+                                @Local RecipeHolder<?> recipe, @Share("parsed") LocalRef<List<RecipeHolder<?>>> parsed) {
         if (parsed.get() == null) {
             parsed.set(new ArrayList<>());
         }

@@ -1,1 +1,2 @@
-hardcoded stick cost to always be 0.125 logs
+updatd to 1.21
+added rei and emi integration

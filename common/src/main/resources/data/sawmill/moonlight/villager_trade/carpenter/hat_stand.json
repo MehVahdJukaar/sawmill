@@ -1,12 +1,8 @@
 {
-  "global_conditions": [
+  "fabric:load_conditions": [
     {
-      "type": "forge:mod_loaded",
-      "modid": "supplementaries"
-    },
-    {
-      "type": "supplementaries:flag",
-      "flag": "hat_stand"
+        "condition": "fabric:mod_loaded",
+        "modid": "supplementaries"
     }
   ],
   "type": "simple",

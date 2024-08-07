@@ -4,13 +4,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -45,7 +49,6 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     public SawmillScreen(SawmillMenu sawmillMenu, Inventory inventory, Component component) {
         super(sawmillMenu, inventory, component);
         sawmillMenu.registerUpdateListener(this::containerChanged);
-        StonecutterScreen
         --this.titleLabelY;
     }
 
@@ -76,8 +79,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     @Override
     protected void containerTick() {
         super.containerTick();
-        if (searchBox.visible) this.searchBox.tick();
-
+        //if (searchBox.visible) this.searchBox.tick();
     }
 
     private void refreshSearchResults() {
@@ -148,8 +150,6 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        this.renderBackground(guiGraphics);
-
         ResourceLocation bgLocation = getBgLocation();
         guiGraphics.blit(bgLocation, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
@@ -159,24 +159,31 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         float barSpan = maxScrollY() - scrollY - barH;
         int barPos = (int) (barSpan * this.scrollOffs);
 
-        guiGraphics.blit(bgLocation, minScrollX(), scrollY + barPos, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, barH);
+        //guiGraphics.blit(bgLocation, minScrollX(), scrollY + barPos, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, barH);
+
+        int k = (int)(41.0F * this.scrollOffs);
+        ResourceLocation resourceLocation = this.isScrollBarActive() ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
+        guiGraphics.blitSprite(resourceLocation, this.leftPos + 119, this.topPos + 15 + k, 12, 15);
+
 
         if (!displayRecipes) return;
 
         // buttons
         forEachButton((index, buttonX, buttonY) -> {
-            int textureY = this.imageHeight;
+            ResourceLocation buttonTexture;
             if (index == filteredIndex) {
-                textureY += 18;
+                buttonTexture = RECIPE_SELECTED_SPRITE;
             } else if (mouseX >= buttonX && mouseY >= buttonY && mouseX < buttonX + 16 && mouseY < buttonY + 18) {
-                textureY += 36;
+                buttonTexture = RECIPE_HIGHLIGHTED_SPRITE;
+            }else {
+                buttonTexture = RECIPE_SPRITE;
             }
-            guiGraphics.blit(BACKGROUND, buttonX, buttonY, 0, textureY, 16, 18);
+            guiGraphics.blitSprite(buttonTexture, buttonX, buttonY, 16, 18);
         });
 
         // items
         forEachButton((index, buttonX, buttonY) -> {
-            ItemStack item = filteredRecipes.get(index).recipe().getResultItem(this.minecraft.level.registryAccess());
+            ItemStack item = filteredRecipes.get(index).recipe().value().getResultItem(this.minecraft.level.registryAccess());
             guiGraphics.renderFakeItem(item, buttonX, buttonY + 1);
             guiGraphics.renderItemDecorations(font, item, buttonX, buttonY + 1);
         });
@@ -196,7 +203,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         if (this.displayRecipes) {
             forEachButton((index, buttonX, buttonY) -> {
                 if (mouseX >= buttonX && mouseX < buttonX + 16 && mouseY >= buttonY && mouseY < buttonY + 18) {
-                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(index)).recipe()
+                    guiGraphics.renderTooltip(this.font, (filteredRecipes.get(index)).recipe().value()
                             .getResultItem(this.minecraft.level.registryAccess()), mouseX, mouseY);
                 }
             });
@@ -207,7 +214,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         super.renderLabels(guiGraphics, mouseX, mouseY);
         if (filteredIndex >= 0 && filteredIndex < filteredRecipes.size()) {
-            int input = filteredRecipes.get(filteredIndex).recipe().getInputCount();
+            int input = filteredRecipes.get(filteredIndex).recipe().value().getInputCount();
             if (input != 1) {
                 String multiplier = input + "x";
                 int labelX = this.titleLabelX + (menu.isWide ? -4 : 0);
@@ -303,12 +310,12 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (this.isScrollBarActive()) {
-            int offscreenRows = this.getOffscreenRows();
-            float f = (float) delta / offscreenRows;
+            int i = this.getOffscreenRows();
+            float f = (float)scrollY / (float)i;
             this.scrollOffs = Mth.clamp(this.scrollOffs - f, 0.0F, 1.0F);
-            this.startIndex = (int) ((this.scrollOffs * offscreenRows) + 0.5) * 4;
+            this.startIndex = (int)((double)(this.scrollOffs * (float)i) + 0.5) * 4;
         }
 
         return true;

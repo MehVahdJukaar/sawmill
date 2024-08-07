@@ -2,12 +2,8 @@ package net.mehvahdjukaar.sawmill;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.google.gson.JsonElement;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
-import net.mehvahdjukaar.moonlight.api.resources.ResType;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
@@ -67,15 +63,14 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     }
 
     public static void process(Collection<RecipeHolder<?>> recipes,
-                               Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map,
-                               ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder) {
+                               com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
+                               ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType) {
 
         List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = process(recipes);
 
         for (var r : sawmillRecipes) {
-            builder.put(r.id(), r.value());
-            map.computeIfAbsent(r.value().getType(), (recipeType) -> ImmutableMap.builder())
-                    .put(r.id(), r);
+            byName.put(r.id(), r);
+            byType.put(r.value().getType(), r);
         }
     }
 
