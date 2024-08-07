@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +25,13 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     private static final ResourceLocation BACKGROUND_WIDE = SawmillMod.res("textures/gui/container/sawmill_wide.png");
     private static final ResourceLocation BACKGROUND_WIDE_SEARCH = SawmillMod.res("textures/gui/container/sawmill_search_wide.png");
 
+    private static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.withDefaultNamespace("container/stonecutter/scroller");
+    private static final ResourceLocation SCROLLER_DISABLED_SPRITE = ResourceLocation.withDefaultNamespace("container/stonecutter/scroller_disabled");
+    private static final ResourceLocation RECIPE_SELECTED_SPRITE = ResourceLocation.withDefaultNamespace("container/stonecutter/recipe_selected");
+    private static final ResourceLocation RECIPE_HIGHLIGHTED_SPRITE = ResourceLocation.withDefaultNamespace("container/stonecutter/recipe_highlighted");
+    private static final ResourceLocation RECIPE_SPRITE = ResourceLocation.withDefaultNamespace("container/stonecutter/recipe");
+
+
     private float scrollOffs;
     private boolean scrolling;
     private int startIndex;
@@ -37,6 +45,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     public SawmillScreen(SawmillMenu sawmillMenu, Inventory inventory, Component component) {
         super(sawmillMenu, inventory, component);
         sawmillMenu.registerUpdateListener(this::containerChanged);
+        StonecutterScreen
         --this.titleLabelY;
     }
 

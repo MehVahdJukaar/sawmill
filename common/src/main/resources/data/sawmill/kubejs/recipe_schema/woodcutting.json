@@ -1,0 +1,22 @@
+{
+  "keys": [
+    {
+      "name": "result",
+      "role": "output",
+      "type": "item_stack"
+    },
+    {
+      "name": "ingredient",
+      "role": "input",
+      "type": "ingredient"
+    },
+    {
+      "name": "ingredient_count",
+      "role": "input",
+      "type": "int",
+      "function_names": ["input_count", "ingredient_count"],
+      "optional": 1.0
+    }
+  ],
+  "unique": ["result"]
+}

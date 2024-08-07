@@ -19,7 +19,13 @@
       "net.mehvahdjukaar.sawmill.fabric.SawmillModImpl"
     ],
     "jei_mod_plugin": [
-      "net.mehvahdjukaar.sawmill.integration.JEIPlugin"
+      "net.mehvahdjukaar.sawmill.integration.jei.JEIPlugin"
+    ],
+    "rei_client": [
+      "net.mehvahdjukaar.sawmill.integration.rei.REIPlugin"
+    ],
+    "emi": [
+      "net.mehvahdjukaar.sawmill.integration.emi.EMIPlugin"
     ],
     "modmenu": [
       "net.mehvahdjukaar.sawmill.integration.fabric.ModMenuCompat"

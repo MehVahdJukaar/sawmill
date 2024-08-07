@@ -1,4 +1,4 @@
-package net.mehvahdjukaar.sawmill.integration;
+package net.mehvahdjukaar.sawmill.integration.jei;
 
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -19,18 +19,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class SawmillRecipeCategory implements IRecipeCategory<WoodcuttingRecipe> {
-    public static final int width = 82;
-    public static final int height = 34;
+public class WoodcuttingCategory implements IRecipeCategory<WoodcuttingRecipe> {
     private final IDrawable background;
     private final IDrawable icon;
     private final Component localizedName;
 
-    public SawmillRecipeCategory(IGuiHelper guiHelper) {
+    public WoodcuttingCategory(IGuiHelper guiHelper) {
         ResourceLocation location = Constants.RECIPE_GUI_VANILLA;
         this.background = guiHelper.createDrawable(location, 0, 220, 82, 34);
         this.icon = guiHelper.createDrawableItemStack(SawmillMod.SAWMILL_BLOCK.get().asItem().getDefaultInstance());
-        this.localizedName = Component.translatable("jei.sawmill.category.woodcutting");
+        this.localizedName = Component.translatable("sawmill.category.wood_cutting");
     }
 
     @Override
