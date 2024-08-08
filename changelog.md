@@ -1,3 +1,1 @@
-updatd to 1.21
-added rei and emi integration
-tweaked recipe cost calculation
+fix on neo that for some rason had some production only mixin issues. as usual

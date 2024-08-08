@@ -214,7 +214,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         double discountedOutput = (1 / cost);
         double considerDiscountThreshold = 0.25;
         //this used to be floor. might be more forgiving like this but also more op
-        outputCount += Math.round(preciseOutputCount % 1 > considerDiscountThreshold ?
+            outputCount += Math.round(preciseOutputCount % 1 > considerDiscountThreshold ?
                 (preciseOutputCount + discountedOutput) / 2f : preciseOutputCount);
 
         if (outputCount > maxOutputCount) {
