@@ -1,7 +1,14 @@
 package net.mehvahdjukaar.sawmill.neoforge;
 
+import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
+import net.mehvahdjukaar.moonlight.api.platform.neoforge.RegHelperImpl;
+import net.mehvahdjukaar.moonlight.core.Moonlight;
+import net.mehvahdjukaar.moonlight.neoforge.MoonlightForge;
 import net.mehvahdjukaar.sawmill.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
@@ -16,7 +23,8 @@ import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 @Mod(SawmillMod.MOD_ID)
 public class SawmillModImpl {
 
-    public SawmillModImpl() {
+    public SawmillModImpl(IEventBus bus) {
+        RegHelperImpl.startRegisteringFor(bus);
         SawmillMod.init();
         NeoForge.EVENT_BUS.register(this);
     }

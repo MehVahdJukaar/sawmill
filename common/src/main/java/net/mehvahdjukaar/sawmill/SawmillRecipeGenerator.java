@@ -366,11 +366,11 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     @NotNull
     private static ItemStack[] getIngItems(Ingredient ing) {
         List<ItemStack> stacks = new ArrayList<>();
-        boolean isTag = false;
         boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
         if (!isVanilla && CommonConfigs.IGNORE_CUSTOM_INGREDIENTS.get()) {
             return new ItemStack[]{};
         }
+        boolean isTag = false;
         if (isVanilla) {
             for (var v : ing.values) {
                 if (v instanceof Ingredient.TagValue tv) {
@@ -379,8 +379,18 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                     stacks.addAll(SawmillMod.getTagElements(tag));
                 }
             }
+
         }
-        if (!isTag) return ing.getItems();
+
+        //TODO: add support for forge custom ingredients with tags
+        if (!isTag) {
+            // very, very bad
+            stacks.addAll(List.of(ing.getItems()));
+            // get item is unsafe to call here. we must reset it
+            // this is still not enough for compount ingredients...
+            ing.itemStacks = null;
+        }
+
         return stacks.toArray(ItemStack[]::new);
     }
 

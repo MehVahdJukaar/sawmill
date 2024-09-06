@@ -67,7 +67,7 @@ public class CommonConfigs {
                 .define("max_discount", 0.35, 0, 1);
         IGNORE_CUSTOM_INGREDIENTS = builder.comment("Ignore all custom ingredient types when scanning recipes." +
                         "Turn this on if some recipes are missing.")
-                .define("ignore_custom_ingredients", false);
+                .define("ignore_custom_ingredients", true);
         builder.pop();
 
         CONFIG = builder.build();
