@@ -367,7 +367,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     private static ItemStack[] getIngItems(Ingredient ing) {
         List<ItemStack> stacks = new ArrayList<>();
         boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
-        if (!isVanilla && CommonConfigs.IGNORE_CUSTOM_INGREDIENTS.get()) {
+        if (!isVanilla) {
             return new ItemStack[]{};
         }
         boolean isTag = false;

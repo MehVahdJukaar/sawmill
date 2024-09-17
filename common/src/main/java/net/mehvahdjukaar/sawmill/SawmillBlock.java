@@ -97,7 +97,7 @@ public class SawmillBlock extends WaterBlock {
             return InteractionResult.SUCCESS;
         } else {
             player.openMenu(state.getMenuProvider(level, pos));
-            player.awardStat(Stats.INTERACT_WITH_STONECUTTER);
+            //player.awardStat(Stats.INTERACT_WITH_STONECUTTER);
             return InteractionResult.CONSUME;
         }
     }

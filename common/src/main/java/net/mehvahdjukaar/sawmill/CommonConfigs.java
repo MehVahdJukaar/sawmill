@@ -5,6 +5,7 @@ import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigBuilder;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigType;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ModConfigHolder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -23,7 +24,6 @@ public class CommonConfigs {
     public static final Supplier<Integer> SEARCH_BAR_THRESHOLD;
     public static final Supplier<Double> MAX_DISCOUNT;
     public static final Supplier<Boolean> SORT_RECIPES;
-    public static final Supplier<Boolean> IGNORE_CUSTOM_INGREDIENTS;
 
     public static final ModConfigHolder CONFIG;
 
@@ -60,14 +60,11 @@ public class CommonConfigs {
 
         SPECIAL_COSTS = builder.comment("This is a map of wood object type to its cost in planks. Its used to add some discount to some special blocks." +
                         "Change this if say you want all fences to cost 1 plank. Not all keys will work here bt you can try modded ones if you hae Every Compat")
-                .defineObject("special_recipe_costs", () -> Map.of("stairs", 1d,
-                                "boat", 4d),
+                .defineObject("special_recipe_costs", () -> new HashMap<>(Map.of("stairs", 1d,
+                                "boat", 4d)),
                         Codec.unboundedMap(Codec.STRING, Codec.DOUBLE));
         MAX_DISCOUNT = builder.comment("Maximum discount that sawmill will given when converting recipes. Unit is percentage of input item")
                 .define("max_discount", 0.35, 0, 1);
-        IGNORE_CUSTOM_INGREDIENTS = builder.comment("Ignore all custom ingredient types when scanning recipes." +
-                        "Turn this on if some recipes are missing.")
-                .define("ignore_custom_ingredients", true);
         builder.pop();
 
         CONFIG = builder.build();

@@ -1,3 +1,2 @@
-- mod will now ignore all custom ingredients by default
-- this was done to prevent breaking said ingredients as they had to be initialized before tags were properly loaded
-- you might want to reset your configs for this to take effect
+- removed custom ingredient config (which was off by default) as having it on would always cause some issues messing up custom ingredients one way or another
+- changed some config default value
