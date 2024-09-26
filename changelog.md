@@ -1,2 +1,1 @@
-- removed custom ingredient config (which was off by default) as having it on would always cause some issues messing up custom ingredients one way or another
-- changed some config default value
+updated rei version

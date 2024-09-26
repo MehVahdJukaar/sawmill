@@ -1,0 +1,9 @@
+{
+  "container.sawmill.sawmill": "Sierra",
+  "block.sawmill.sawmill": "Sierra",
+  "jei.sawmill.category.woodcutting": "Cortando",
+  "entity.minecraft.villager.sawmill.carpenter": "Carpintero",
+  "entity.minecraft.villager.carpenter": "Carpintero",
+  "subtitles.sawmill.entity.villager.work_carpenter": "Carpintero trabajando",
+  "subtitles.sawmill.ui.sawmill.take_result": "Sierra usandose"
+}

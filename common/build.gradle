@@ -17,7 +17,8 @@ dependencies {
     modImplementation("curse.maven:jei-238222:5603591")
     modCompileOnly("curse.maven:emi-580555:5704405")
     //modCompileOnly("curse.maven:roughly-enough-items-310111:5435024")
-    modCompileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.729"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777"
+
 
     modCompileOnly("curse.maven:kubejs-238086:5580858")
     modCompileOnly("curse.maven:rhino-416294:5589424")
