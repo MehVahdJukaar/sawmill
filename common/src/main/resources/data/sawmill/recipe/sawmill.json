@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "builting",
+  "category": "building",
   "key": {
     "#": {
       "tag": "minecraft:wooden_slabs"
