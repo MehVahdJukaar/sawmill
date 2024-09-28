@@ -1,0 +1,9 @@
+{
+  "container.sawmill.sawmill": "Testere",
+  "block.sawmill.sawmill": "Testere",
+  "jei.sawmill.category.woodcutting": "Testereyle Kesim",
+  "entity.minecraft.villager.sawmill.carpenter": "Marangoz",
+  "entity.minecraft.villager.carpenter": "Marangoz",
+  "subtitles.sawmill.entity.villager.work_carpenter": "Marangoz çalışıyor",
+  "subtitles.sawmill.ui.sawmill.take_result": "Bıçkıhane kullanıldı"
+}
