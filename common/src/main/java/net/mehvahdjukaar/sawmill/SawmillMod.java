@@ -31,8 +31,6 @@ public class SawmillMod {
 
     public static final Logger LOGGER = LogManager.getLogger("Sawmill");
 
-    public static final boolean KUBEJS = PlatHelper.isModLoaded("kubejs");
-
     public static final Supplier<Block> SAWMILL_BLOCK = RegHelper.registerBlockWithItem(
             res("sawmill"), SawmillBlock::new);
     public static final Supplier<MenuType<SawmillMenu>> SAWMILL_MENU = RegHelper.registerMenuType(

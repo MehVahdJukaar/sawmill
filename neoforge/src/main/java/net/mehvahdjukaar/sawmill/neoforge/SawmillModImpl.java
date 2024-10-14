@@ -1,21 +1,22 @@
 package net.mehvahdjukaar.sawmill.neoforge;
 
-import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.mehvahdjukaar.moonlight.api.platform.neoforge.RegHelperImpl;
-import net.mehvahdjukaar.moonlight.core.Moonlight;
-import net.mehvahdjukaar.moonlight.neoforge.MoonlightForge;
-import net.mehvahdjukaar.sawmill.*;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.mehvahdjukaar.sawmill.RecipeSorter;
+import net.mehvahdjukaar.sawmill.SawmillClient;
+import net.mehvahdjukaar.sawmill.SawmillMod;
+import net.mehvahdjukaar.sawmill.VillageStructureModifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+
+import java.util.function.Supplier;
 
 /**
  * Author: MehVahdJukaar
@@ -27,6 +28,10 @@ public class SawmillModImpl {
         RegHelperImpl.startRegisteringFor(bus);
         SawmillMod.init();
         NeoForge.EVENT_BUS.register(this);
+    }
+
+    public static Supplier<ItemStack> getRecipeCategoryDefaultItem() {
+        return () -> new ItemStack(Items.OAK_PLANKS);
     }
 
     @SubscribeEvent

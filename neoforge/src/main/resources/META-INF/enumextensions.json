@@ -1,0 +1,17 @@
+{
+  "entries": [
+    {
+      // The enum class the entry should be added to
+      "enum": "net/minecraft/client/RecipeBookCategories",
+      // The field name of the new entry, must be prefixed with the mod ID
+      "name": "SAWMILL_WOODCUTTING",
+      // The constructor to be used
+      "constructor": "(ILjava/util/function/Supplier;)V",
+      // Constant parameters provided directly.
+      "parameters": {
+        "class": "net/mehvahdjukaar/sawmill/neoforge/SawmillModImpl",
+        "method": "getRecipeCategoryDefaultItem"
+      }
+    }
+  ]
+}

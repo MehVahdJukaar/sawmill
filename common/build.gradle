@@ -20,7 +20,7 @@ dependencies {
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777"
 
 
-    modCompileOnly("curse.maven:kubejs-238086:5580858")
+    //modCompileOnly("curse.maven:kubejs-238086:5580858")
     modCompileOnly("curse.maven:rhino-416294:5589424")
 
     modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
