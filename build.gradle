@@ -140,6 +140,14 @@ allprojects {
         maven {
             url = "https://maven.blamejared.com/"
         }
+        maven {
+            // saps.dev Maven (KubeJS and Rhino)
+            url = uri("https://maven.saps.dev/releases")
+            content {
+                includeGroup("dev.latvian.mods")
+                includeGroup("dev.latvian.apps")
+            }
+        }
 
     }
 
