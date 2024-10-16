@@ -27,7 +27,10 @@ public class RecipeManagerMixin {
     @Shadow
     private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
 
-    @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At(value = "INVOKE_ASSIGN", target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;", shift = At.Shift.AFTER))
+    @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+            at = @At(value = "INVOKE_ASSIGN",
+                    target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;",
+                    shift = At.Shift.AFTER))
     public void sawmill$addRecipes(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
         ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byNameCopy = ImmutableMap.builder();
         ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byTypeCopy = ImmutableMultimap.builder();
