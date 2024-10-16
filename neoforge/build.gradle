@@ -12,6 +12,11 @@ architectury {
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
+    runs {
+        configureEach {
+            vmArg "-Dmixin.debug.export=true"
+        }
+    }
 }
 
 configurations {
@@ -101,12 +106,13 @@ dependencies {
 
     modCompileOnly("curse.maven:repurposed-structures-368293:4823487")
     modCompileOnly("curse.maven:framedblocks-441647:5143589")
-    modCompileOnly("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
-    modCompileOnly("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
+//    modCompileOnly("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
+//    modCompileOnly("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
 
     modImplementation("curse.maven:emi-580555:5704405")
-    modImplementation("curse.maven:kubejs-238086:5810100")
-
+    modRuntimeOnly "dev.latvian.mods:kubejs-neoforge:2101.7.1-build.181"
+    modRuntimeOnly "dev.latvian.mods:rhino:2101.2.5-build.54"
+    forgeRuntimeLibrary "dev.latvian.apps:tiny-java-server:1.0.0-build.6"
     //modImplementation("curse.maven:jei-238222:5603591")
 
 
