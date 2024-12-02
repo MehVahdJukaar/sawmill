@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
+import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
@@ -214,7 +215,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         double discountedOutput = (1 / cost);
         double considerDiscountThreshold = 0.25;
         //this used to be floor. might be more forgiving like this but also more op
-            outputCount += Math.round(preciseOutputCount % 1 > considerDiscountThreshold ?
+        outputCount += Math.round(preciseOutputCount % 1 > considerDiscountThreshold ?
                 (preciseOutputCount + discountedOutput) / 2f : preciseOutputCount);
 
         if (outputCount > maxOutputCount) {
@@ -367,8 +368,13 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     private static ItemStack[] getIngItems(Ingredient ing) {
         List<ItemStack> stacks = new ArrayList<>();
         boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
+        if (!isVanilla && SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
+            ItemStack[] innerConverted = getIngItems(bts.getInner());
+            stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
+        }
+
         if (!isVanilla) {
-            return new ItemStack[]{};
+            return stacks.toArray(ItemStack[]::new);
         }
         boolean isTag = false;
         if (isVanilla) {

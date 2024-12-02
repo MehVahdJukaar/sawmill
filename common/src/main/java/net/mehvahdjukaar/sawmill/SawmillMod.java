@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,19 +34,26 @@ public class SawmillMod {
 
     public static final Supplier<Block> SAWMILL_BLOCK = RegHelper.registerBlockWithItem(
             res("sawmill"), SawmillBlock::new);
+
     public static final Supplier<MenuType<SawmillMenu>> SAWMILL_MENU = RegHelper.registerMenuType(
             res("sawmill"), SawmillMenu::new);
+
     public static final Supplier<SoundEvent> SAWMILL_TAKE = RegHelper.registerSound(res("ui.sawmill.take_result"));
     public static final Supplier<SoundEvent> SAWMILL_SELECT = RegHelper.registerSound(res("ui.sawmill.select_recipe"));
     public static final Supplier<SoundEvent> CARPENTER_WORK = RegHelper.registerSound(res("entity.villager.work_carpenter"));
+
     public static final Supplier<RecipeSerializer<WoodcuttingRecipe>> WOODCUTTING_RECIPE_SERIALIZER = RegHelper.registerRecipeSerializer(
             res("woodcutting"), WoodcuttingRecipe.Serializer::new);
+
     public static final Supplier<RecipeType<WoodcuttingRecipe>> WOODCUTTING_RECIPE = RegHelper.registerRecipeType(
             res("woodcutting"));
+
     public static final ResourceKey<PoiType> CARPENTER_POI_KEY = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE,
             res("carpenter"));
+
     public static final Supplier<PoiType> CARPENTER_POI = RegHelper.registerPOI(res("carpenter"),
             () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
+
     public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
             "carpenter", CARPENTER_POI_KEY, CARPENTER_WORK);
 
@@ -159,6 +167,11 @@ public class SawmillMod {
 
     @ExpectPlatform
     public static boolean isVanillaIngredient(Ingredient ing) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static Object getCustomIngredient(Ingredient ing){
         throw new AssertionError();
     }
 }

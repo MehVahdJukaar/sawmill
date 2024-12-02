@@ -1,1 +1,1 @@
-works better with kubejs
+updated to work with new EC recipes

@@ -56,4 +56,8 @@ public class SawmillModImpl {
         return !ing.isCustom();
     }
 
+    public static Object getCustomIngredient(Ingredient ing) {
+        return ing.getCustomIngredient();
+    }
+
 }
