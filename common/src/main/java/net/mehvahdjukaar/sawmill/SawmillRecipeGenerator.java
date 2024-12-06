@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import net.mehvahdjukaar.moonlight.api.resources.ResType;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
+import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
@@ -353,15 +354,20 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         }
     }
 
+
     @NotNull
     private static ItemStack[] getIngItems(Ingredient ing) {
         List<ItemStack> stacks = new ArrayList<>();
-        boolean isTag = false;
         boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
-        if (!isVanilla && CommonConfigs.IGNORE_CUSTOM_INGREDIENTS.get()) {
-            return new ItemStack[]{};
+        if (!isVanilla && SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
+            ItemStack[] innerConverted = getIngItems(bts.getInner());
+            stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
         }
-        if (isVanilla) {
+        boolean isTag = false;
+        if (!isVanilla) {
+            return stacks.toArray(ItemStack[]::new);
+        }
+        else{
             for (var v : ing.values) {
                 if (v instanceof Ingredient.TagValue tv) {
                     isTag = true;

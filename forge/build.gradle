@@ -137,11 +137,11 @@ dependencies {
     modImplementation("curse.maven:selene-499980:5093417")
     modImplementation("curse.maven:framedblocks-441647:5143589")
     modImplementation("net.mehvahdjukaar:moonlight-forge:${moonlight_version}")
-    modImplementation("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
-    modImplementation("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
+    //modImplementation("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
+    //modImplementation("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
 
-    modCompileOnly("org.violetmoon.quark:Quark-4.0-433")
-    modCompileOnly("org.violetmoon.zeta:Zeta-1.0-12")
+    //modCompileOnly("org.violetmoon.quark:Quark-4.0-433")
+    //modCompileOnly("org.violetmoon.zeta:Zeta-1.0-12")
 
     implementation 'org.jetbrains:annotations:22.0.0'
 }

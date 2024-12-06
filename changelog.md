@@ -1,1 +1,1 @@
-hardcoded stick cost to always be 0.125 logs
+works with new moonlight block set swap ingredients

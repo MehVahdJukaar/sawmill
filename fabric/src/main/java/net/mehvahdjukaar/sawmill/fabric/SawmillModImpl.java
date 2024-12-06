@@ -27,4 +27,8 @@ public class SawmillModImpl implements ModInitializer {
         return ing.getCustomIngredient() == null;
     }
 
+    public static Object getCustomIngredient(Ingredient ing) {
+        return ing.getCustomIngredient();
+    }
+
 }

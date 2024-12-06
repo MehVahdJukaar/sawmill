@@ -3,6 +3,7 @@ package net.mehvahdjukaar.sawmill.forge;
 import net.mehvahdjukaar.sawmill.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.crafting.AbstractIngredient;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
@@ -40,6 +41,13 @@ public class SawmillModImpl {
 
     public static boolean isVanillaIngredient(Ingredient ing) {
         return ing.isVanilla();
+    }
+
+    public static Object getCustomIngredient(Ingredient ing){
+        if(ing instanceof AbstractIngredient a){
+            return a;
+        }
+        return null;
     }
 
 }

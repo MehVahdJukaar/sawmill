@@ -166,4 +166,9 @@ public class SawmillMod {
     public static boolean isVanillaIngredient(Ingredient ing) {
         throw new AssertionError();
     }
+
+    @ExpectPlatform
+    public static Object getCustomIngredient(Ingredient ing){
+        throw new AssertionError();
+    }
 }
