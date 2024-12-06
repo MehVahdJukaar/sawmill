@@ -9,6 +9,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.common.Constants;
+import mezz.jei.library.plugins.vanilla.stonecutting.StoneCuttingRecipeCategory;
 import mezz.jei.library.util.RecipeUtil;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.WoodcuttingRecipe;
@@ -20,13 +21,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class WoodcuttingCategory implements IRecipeCategory<WoodcuttingRecipe> {
-    private final IDrawable background;
     private final IDrawable icon;
     private final Component localizedName;
 
     public WoodcuttingCategory(IGuiHelper guiHelper) {
-        ResourceLocation location = Constants.RECIPE_GUI_VANILLA;
-        this.background = guiHelper.createDrawable(location, 0, 220, 82, 34);
         this.icon = guiHelper.createDrawableItemStack(SawmillMod.SAWMILL_BLOCK.get().asItem().getDefaultInstance());
         this.localizedName = Component.translatable("sawmill.category.wood_cutting");
     }
@@ -39,11 +37,6 @@ public class WoodcuttingCategory implements IRecipeCategory<WoodcuttingRecipe> {
     @Override
     public Component getTitle() {
         return this.localizedName;
-    }
-
-    @Override
-    public IDrawable getBackground() {
-        return this.background;
     }
 
     @Override

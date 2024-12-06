@@ -1,1 +1,1 @@
-updated to work with new EC recipes
+updated jei module

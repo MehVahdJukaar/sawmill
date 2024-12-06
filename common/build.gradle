@@ -14,11 +14,9 @@ dependencies {
 
     modImplementation ("net.mehvahdjukaar:moonlight:${moonlight_version}")
 
-    modImplementation("curse.maven:jei-238222:5603591")
-    modCompileOnly("curse.maven:emi-580555:5704405")
-    //modCompileOnly("curse.maven:roughly-enough-items-310111:5435024")
+    modImplementation("curse.maven:emi-580555:5872512")
+    modCompileOnly("curse.maven:jei-238222:5846878")
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777"
-
 
     //modCompileOnly("curse.maven:kubejs-238086:5580858")
     modCompileOnly("curse.maven:rhino-416294:5589424")
