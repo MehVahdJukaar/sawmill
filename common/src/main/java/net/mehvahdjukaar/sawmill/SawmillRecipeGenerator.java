@@ -1,5 +1,6 @@
 package net.mehvahdjukaar.sawmill;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -78,6 +79,10 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     public static List<WoodcuttingRecipe> process(Collection<Recipe<?>> recipes) {
         if (!CommonConfigs.DYNAMIC_RECIPES.get() && !CommonConfigs.SAVE_RECIPES.get()) return List.of();
 
+        //check if all recipes are not null
+        for (var r : recipes) {
+            Preconditions.checkNotNull(r, "Found a null recipe. How?");
+        }
 
         SawmillMod.waitForTags();
 
@@ -359,7 +364,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     private static ItemStack[] getIngItems(Ingredient ing) {
         List<ItemStack> stacks = new ArrayList<>();
         boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
-        if (!isVanilla && SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
+        if (!isVanilla && SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient bts) {
             ItemStack[] innerConverted = getIngItems(bts.getInner());
             stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
         }
