@@ -15,7 +15,7 @@ dependencies {
     modImplementation ("net.mehvahdjukaar:moonlight:${moonlight_version}")
 
     modImplementation("curse.maven:emi-580555:5872512")
-    modCompileOnly("curse.maven:jei-238222:5846878")
+    modCompileOnly("curse.maven:jei-238222:5846880")
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777"
 
     //modCompileOnly("curse.maven:kubejs-238086:5580858")

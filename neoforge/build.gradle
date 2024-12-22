@@ -109,11 +109,11 @@ dependencies {
 //    modCompileOnly("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
 //    modCompileOnly("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
 
-    modImplementation("curse.maven:emi-580555:5704405")
+    //modImplementation("curse.maven:emi-580555:5704405")
     modRuntimeOnly "dev.latvian.mods:kubejs-neoforge:2101.7.1-build.181"
     modRuntimeOnly "dev.latvian.mods:rhino:2101.2.5-build.54"
     forgeRuntimeLibrary "dev.latvian.apps:tiny-java-server:1.0.0-build.6"
-    //modImplementation("curse.maven:jei-238222:5603591")
+    modImplementation("curse.maven:jei-238222:5846880")
 
 
 }

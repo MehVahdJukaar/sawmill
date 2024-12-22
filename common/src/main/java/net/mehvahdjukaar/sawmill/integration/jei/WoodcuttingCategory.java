@@ -1,5 +1,6 @@
 package net.mehvahdjukaar.sawmill.integration.jei;
 
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -7,6 +8,7 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.common.Constants;
 import mezz.jei.library.plugins.vanilla.stonecutting.StoneCuttingRecipeCategory;
@@ -19,29 +21,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 
-public class WoodcuttingCategory implements IRecipeCategory<WoodcuttingRecipe> {
-    private final IDrawable icon;
-    private final Component localizedName;
+public class WoodcuttingCategory extends AbstractRecipeCategory<WoodcuttingRecipe> {
 
     public WoodcuttingCategory(IGuiHelper guiHelper) {
-        this.icon = guiHelper.createDrawableItemStack(SawmillMod.SAWMILL_BLOCK.get().asItem().getDefaultInstance());
-        this.localizedName = Component.translatable("sawmill.category.wood_cutting");
-    }
-
-    @Override
-    public RecipeType<WoodcuttingRecipe> getRecipeType() {
-        return JEIPlugin.WOODCUTTING_RECIPE_TYPE;
-    }
-
-    @Override
-    public Component getTitle() {
-        return this.localizedName;
-    }
-
-    @Override
-    public IDrawable getIcon() {
-        return this.icon;
+        super(JEIPlugin.WOODCUTTING_RECIPE_TYPE,
+                Component.translatable("sawmill.category.wood_cutting"),
+                guiHelper.createDrawableItemLike(SawmillMod.SAWMILL_BLOCK.get()), 82, 34);
     }
 
     @Override
@@ -53,7 +40,7 @@ public class WoodcuttingCategory implements IRecipeCategory<WoodcuttingRecipe> {
 
     @Override
     public void draw(WoodcuttingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        IRecipeCategory.super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
+        super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
 
         guiGraphics.renderItemDecorations(Minecraft.getInstance().font,
                 new ItemStack(Items.DIRT, recipe.getInputCount()), 1,9);
