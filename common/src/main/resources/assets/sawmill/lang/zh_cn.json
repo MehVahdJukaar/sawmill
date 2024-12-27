@@ -1,9 +1,9 @@
 {
   "container.sawmill.sawmill": "锯木机",
   "block.sawmill.sawmill": "锯木机",
-  "jei.sawmill.category.woodcutting": "锯木",
   "entity.minecraft.villager.sawmill.carpenter": "木匠",
   "entity.minecraft.villager.carpenter": "木匠",
   "subtitles.sawmill.entity.villager.work_carpenter": "木匠：工作",
-  "subtitles.sawmill.ui.sawmill.take_result": "锯木机：使用"
+  "subtitles.sawmill.ui.sawmill.take_result": "锯木机：使用",
+  "sawmill.category.wood_cutting": "锯木"
 }
