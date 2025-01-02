@@ -1,0 +1,24 @@
+{
+  "target_pool": "repurposed_structures:villages/badlands/houses",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 5,
+      "element": {
+        "location": "sawmill:villages/badlands/sawmill_big",
+        "processors": "repurposed_structures:villages/badlands/randomizer",
+        "projection": "rigid",
+        "element_type": "minecraft:legacy_single_pool_element"
+      }
+    },
+    {
+      "weight": 5,
+      "element": {
+        "location": "sawmill:villages/badlands/sawmill_small",
+        "processors": "repurposed_structures:villages/badlands/randomizer",
+        "projection": "rigid",
+        "element_type": "minecraft:legacy_single_pool_element"
+      }
+    }
+  ]
+}

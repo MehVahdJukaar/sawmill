@@ -18,9 +18,11 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +33,8 @@ public class SawmillMod {
     public static final String MOD_ID = "sawmill";
 
     public static final Logger LOGGER = LogManager.getLogger("Sawmill");
+
+    private static final boolean RS_ON = PlatHelper.isModLoaded("repurposed_structures");
 
     public static final Supplier<Block> SAWMILL_BLOCK = RegHelper.registerBlockWithItem(
             res("sawmill"), SawmillBlock::new);
@@ -74,12 +78,16 @@ public class SawmillMod {
         NetworkStuff.init();
         CarpenterTrades.init();
         CommonConfigs.init();
+        RegHelper.registerSimpleRecipeCondition(res("flag"), ignored -> {
+            if (ignored.equals("rs_compat")) return CommonConfigs.RS_COMPAT.get();
+            return false;
+        });
         RegHelper.addItemsToTabsRegistration(event ->
                 event.addAfter(CreativeModeTabs.FUNCTIONAL_BLOCKS,
                         stack -> stack.is(Items.STONECUTTER),
                         SAWMILL_BLOCK.get().asItem()));
 
-        PlatHelper.addServerReloadListener(SawmillRecipeGenerator.INSTANCE, res("recipe_generator"));
+        PlatHelper.addServerReloadListener(r -> SawmillRecipeGenerator.INSTANCE, res("recipe_generator"));
     }
 
     public static ResourceLocation res(String name) {
@@ -171,7 +179,7 @@ public class SawmillMod {
     }
 
     @ExpectPlatform
-    public static Object getCustomIngredient(Ingredient ing){
+    public static Object getCustomIngredient(Ingredient ing) {
         throw new AssertionError();
     }
 }

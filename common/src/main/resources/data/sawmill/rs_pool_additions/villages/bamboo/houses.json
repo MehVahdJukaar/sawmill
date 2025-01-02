@@ -1,0 +1,15 @@
+{
+  "target_pool": "repurposed_structures:villages/bamboo/houses",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 6,
+      "element": {
+        "location": "sawmill:villages/bamboo/sawmill_medium",
+        "processors": "repurposed_structures:villages/bamboo/mossify",
+        "projection": "rigid",
+        "element_type": "minecraft:legacy_single_pool_element"
+      }
+    }
+  ]
+}

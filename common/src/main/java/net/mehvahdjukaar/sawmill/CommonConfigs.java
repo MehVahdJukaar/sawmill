@@ -24,6 +24,7 @@ public class CommonConfigs {
     public static final Supplier<Integer> SEARCH_BAR_THRESHOLD;
     public static final Supplier<Double> MAX_DISCOUNT;
     public static final Supplier<Boolean> SORT_RECIPES;
+    public static final Supplier<Boolean> RS_COMPAT;
 
     public static final ModConfigHolder CONFIG;
 
@@ -65,6 +66,9 @@ public class CommonConfigs {
                         Codec.unboundedMap(Codec.STRING, Codec.DOUBLE));
         MAX_DISCOUNT = builder.comment("Maximum discount that sawmill will given when converting recipes. Unit is percentage of input item")
                 .define("max_discount", 0.35, 0, 1);
+
+        RS_COMPAT = builder.comment("Enables and disables compat structures for Repurposed Structures mod")
+                .define("repurposed_structures_compat", true);
         builder.pop();
 
         CONFIG = builder.build();

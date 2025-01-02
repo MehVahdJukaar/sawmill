@@ -1,0 +1,24 @@
+{
+  "target_pool": "repurposed_structures:villages/cherry/houses",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 5,
+      "element": {
+        "location": "sawmill:villages/cherry/sawmill_big",
+        "processors": "repurposed_structures:villages/cherry/mossify",
+        "projection": "rigid",
+        "element_type": "minecraft:legacy_single_pool_element"
+      }
+    },
+    {
+      "weight": 5,
+      "element": {
+        "location": "sawmill:villages/cherry/sawmill_medium",
+        "processors": "repurposed_structures:villages/cherry/mossify",
+        "projection": "rigid",
+        "element_type": "minecraft:legacy_single_pool_element"
+      }
+    }
+  ]
+}
