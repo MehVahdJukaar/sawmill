@@ -1,4 +1,10 @@
 {
+    "fabric:load_conditions": [
+    {
+      "condition": "sawmill:flag",
+      "flag": "rs_compat"
+    }
+  ],
   "target_pool": "repurposed_structures:villages/crimson/houses",
   "fallback": "minecraft:empty",
   "elements": [

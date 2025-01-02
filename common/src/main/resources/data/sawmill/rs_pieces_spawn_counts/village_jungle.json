@@ -1,4 +1,10 @@
 {
+  "fabric:load_conditions": [
+    {
+      "condition": "sawmill:flag",
+      "flag": "rs_compat"
+    }
+  ],
   "target_structure": "repurposed_structures:village_jungle",
   "pieces_spawn_counts": [
     {
