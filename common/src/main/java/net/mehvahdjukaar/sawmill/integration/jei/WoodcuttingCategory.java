@@ -1,27 +1,19 @@
 package net.mehvahdjukaar.sawmill.integration.jei;
 
-import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
-import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.common.Constants;
-import mezz.jei.library.plugins.vanilla.stonecutting.StoneCuttingRecipeCategory;
 import mezz.jei.library.util.RecipeUtil;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.WoodcuttingRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 
 public class WoodcuttingCategory extends AbstractRecipeCategory<WoodcuttingRecipe> {
 
@@ -33,9 +25,18 @@ public class WoodcuttingCategory extends AbstractRecipeCategory<WoodcuttingRecip
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, WoodcuttingRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 9)
+        builder.addInputSlot(1, 9)
+                .setStandardSlotBackground()
                 .addIngredients(recipe.getIngredients().get(0));
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 9).addItemStack(RecipeUtil.getResultItem(recipe));
+        builder.addOutputSlot(61, 9)
+                .setOutputSlotBackground()
+                .addItemStack(RecipeUtil.getResultItem(recipe));
+    }
+
+    @Override
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, WoodcuttingRecipe recipe, IFocusGroup focuses) {
+        super.createRecipeExtras(builder, recipe, focuses);
+        builder.addRecipeArrow().setPosition(26, 9);
     }
 
     @Override
@@ -43,6 +44,6 @@ public class WoodcuttingCategory extends AbstractRecipeCategory<WoodcuttingRecip
         super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
 
         guiGraphics.renderItemDecorations(Minecraft.getInstance().font,
-                new ItemStack(Items.DIRT, recipe.getInputCount()), 1,9);
+                new ItemStack(Items.DIRT, recipe.getInputCount()), 1, 9);
     }
 }
