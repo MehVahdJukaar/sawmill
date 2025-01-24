@@ -1,21 +1,15 @@
 package net.mehvahdjukaar.sawmill;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.searchtree.FullTextSearchTree;
-import net.minecraft.client.searchtree.SearchRegistry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,7 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     private static final ResourceLocation BACKGROUND = SawmillMod.res("textures/gui/container/sawmill.png");
@@ -214,15 +207,15 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
         }
     }
 
-    private int buttonCount() {
-        return getRows() * buttonsPerRow();
+    private int getButtonCount() {
+        return getRowCount() * getButtonsPerRow();
     }
 
-    private int buttonsPerRow() {
+    private int getButtonsPerRow() {
         return menu.isWide ? 5 : 4;
     }
 
-    private int getRows() {
+    private int getRowCount() {
         return searchBox.visible ? 2 : 3;
     }
 
@@ -249,8 +242,8 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
     private void forEachButton(ButtonConsumer buttonConsumer) {
         int buttonBoxX = this.leftPos + (menu.isWide ? 40 : 52);
         int buttonBoxY = this.topPos + (searchBox.visible ? 27 : 13);
-        int lastVisibleElementIndex = this.startIndex + buttonCount();
-        int buttonsPerRow = buttonsPerRow();
+        int lastVisibleElementIndex = this.startIndex + getButtonCount();
+        int buttonsPerRow = getButtonsPerRow();
         for (int index = this.startIndex; index < lastVisibleElementIndex && index < filteredRecipes.size(); ++index) {
             int visualIndex = index - this.startIndex;
             int buttonX = buttonBoxX + (visualIndex % buttonsPerRow) * 16;
@@ -293,7 +286,7 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             int max = maxScrollY();
             this.scrollOffs = ((float) mouseY - min - 7.5F) / ((max - min) - 15.0F);
             this.scrollOffs = Mth.clamp(this.scrollOffs, 0.0F, 1.0F);
-            this.startIndex = (int) ((this.scrollOffs * this.getOffscreenRows()) + 0.5) * 4;
+            this.startIndex = (int) ((this.scrollOffs * this.getOffscreenRows()) + 0.5) * getButtonsPerRow();
             return true;
         } else {
             return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
@@ -306,18 +299,19 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillMenu> {
             int offscreenRows = this.getOffscreenRows();
             float f = (float) delta / offscreenRows;
             this.scrollOffs = Mth.clamp(this.scrollOffs - f, 0.0F, 1.0F);
-            this.startIndex = (int) ((this.scrollOffs * offscreenRows) + 0.5) * 4;
+            this.startIndex = (int) ((this.scrollOffs * offscreenRows) + 0.5) * getButtonsPerRow();
         }
 
         return true;
     }
 
     private boolean isScrollBarActive() {
-        return this.displayRecipes && filteredRecipes.size() > buttonCount();
+        return this.displayRecipes && filteredRecipes.size() > getButtonCount();
     }
 
     protected int getOffscreenRows() {
-        return (filteredRecipes.size() + 4 - 1) / 4 - getRows();
+        int b = getButtonsPerRow();
+        return (filteredRecipes.size() + b - 1) / b - getRowCount();
     }
 
     private void containerChanged() {
