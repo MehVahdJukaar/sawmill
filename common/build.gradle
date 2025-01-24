@@ -11,14 +11,16 @@ dependencies {
     // Do NOT use other classes from fabric loader
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 
-    annotationProcessor("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
-    implementation("com.github.LlamaLad7:MixinExtras:${mixin_extras_version}")
+    implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
+    implementation("io.github.llamalad7:mixinextras-forge:${mixin_extras_version}")
     annotationProcessor 'net.fabricmc:sponge-mixin:0.12.5+mixin.0.8.5'
 
 
-    modImplementation("curse.maven:jei-238222:4712868")
-    modImplementation("curse.maven:kubejs-238086:5034251")
-    modImplementation("curse.maven:rhino-416294:4944325")
+    modImplementation("curse.maven:jei-238222:5846810")
+    //modImplementation("curse.maven:kubejs-238086:5853326")
+    //modImplementation("curse.maven:rhino-416294:4944325")
+
+    modCompileOnly("dev.latvian.mods.kubejs:Kubejs")
 
     modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
     modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")

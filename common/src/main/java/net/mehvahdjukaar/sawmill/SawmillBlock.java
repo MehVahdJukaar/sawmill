@@ -56,7 +56,9 @@ public class SawmillBlock extends WaterBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public SawmillBlock() {
-        super(Properties.of().destroyTime(1)
+        super(Properties.of()
+                .explosionResistance(2.5f)
+                .destroyTime(2.5f)
                 .sound(SoundType.WOOD).mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH)
                 .setValue(WATERLOGGED, false)

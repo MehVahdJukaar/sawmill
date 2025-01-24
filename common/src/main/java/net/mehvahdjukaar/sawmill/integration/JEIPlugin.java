@@ -20,7 +20,7 @@ public class JEIPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registry) {
-        registry.addRecipeCategories(new SawmillRecipeCategory(registry.getJeiHelpers().getGuiHelper()));
+        registry.addRecipeCategories(new WoodcuttingRecipeCategory(registry.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
