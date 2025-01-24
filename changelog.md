@@ -1,1 +1,1 @@
-updated jei integration
+added builtin repurposed structures compat

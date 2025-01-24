@@ -87,7 +87,7 @@ public class SawmillMod {
                         stack -> stack.is(Items.STONECUTTER),
                         SAWMILL_BLOCK.get().asItem()));
 
-        PlatHelper.addServerReloadListener(r -> SawmillRecipeGenerator.INSTANCE, res("recipe_generator"));
+        SawmillRecipeGenerator.init();
     }
 
     public static ResourceLocation res(String name) {

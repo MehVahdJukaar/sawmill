@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
 import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
@@ -38,6 +39,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
+
+    public static void init() {
+        PlatHelper.addServerReloadListener(r -> SawmillRecipeGenerator.INSTANCE, SawmillMod.res("recipe_generator"));
+    }
 
     public static final SawmillRecipeGenerator INSTANCE = new SawmillRecipeGenerator(new DynamicDataPack(SawmillMod.res("sawmill_recipes"),
             Pack.Position.TOP, true, true));
