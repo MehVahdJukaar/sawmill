@@ -5,5 +5,22 @@
   "entity.minecraft.villager.carpenter": "木匠",
   "subtitles.sawmill.entity.villager.work_carpenter": "木匠：工作",
   "subtitles.sawmill.ui.sawmill.take_result": "锯木机：使用",
-  "sawmill.category.wood_cutting": "锯木"
+  "sawmill.category.wood_cutting": "锯木",
+
+
+
+  "sawmill.configuration.general": "通用",
+  "sawmill.configuration.sort_recipes": "整理配方",
+  "sawmill.configuration.save_recipes": "保存配方",
+  "sawmill.configuration.dynamic_recipes": "动态配方",
+  "sawmill.configuration.allow_non_blocks": "允许制造非方块制品",
+  "sawmill.configuration.allow_non_variant": "允许制造不具木材变种的制品",
+  "sawmill.configuration.mods_blacklist": "模组黑名单",
+  "sawmill.configuration.limit_planks_input_to_one": "木板输入上限设为1",
+  "sawmill.configuration.wider_gui": "宽形GUI",
+  "sawmill.configuration.search_bar_mode": "搜索栏模式",
+  "sawmill.configuration.search_bar_threshold": "搜索栏阈值",
+  "sawmill.configuration.special_recipe_costs": "特殊配方消耗",
+  "sawmill.configuration.max_discount": "最大材料减免",
+  "sawmill.configuration.repurposed_structures_compat": "结构变体模组兼容"
 }
