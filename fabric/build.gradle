@@ -27,10 +27,11 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     modImplementation("net.mehvahdjukaar:moonlight-fabric:${moonlight_version}")
+    modImplementation("curse.maven:emi-580555:6205505")
 
     modCompileOnly("curse.maven:yacl-667299:4574163")
-    modImplementation "me.shedaniel:RoughlyEnoughItems-fabric:16.0.777"
-    modImplementation "curse.maven:architectury-api-419699:5553799"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-fabric:16.0.777"
+    modCompileOnly "curse.maven:architectury-api-419699:5553799"
 
     modCompileOnly("curse.maven:modmenu-308702:3920481") {
         exclude module: "fabric-api"

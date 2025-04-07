@@ -49,7 +49,12 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
     protected SawmillRecipeGenerator(DynamicDataPack pack) {
         super(pack);
-        pack.setGenerateDebugResources(true);
+        pack.setGenerateDebugResources(CommonConfigs.SAVE_RECIPES.get());
+    }
+
+    @Override
+    public Collection<String> additionalNamespaces() {
+        return List.of("c");
     }
 
     @Override
@@ -198,9 +203,12 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                 }
             }
             ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
-
-            WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
-            sawmillRecipes.add(new RecipeHolder<>(res, recipe));
+            if (inputCount > 64) {
+                SawmillMod.LOGGER.error("Sawmill tried to generate a recipe with too high input count: {}. Ingredient: {}, Result: {},ID: {}", inputCount, input, result, res);
+            } else {
+                WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
+                sawmillRecipes.add(new RecipeHolder<>(res, recipe));
+            }
         }
     }
 

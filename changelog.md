@@ -1,3 +1,1 @@
-fixed scrollbar being wrong
-fixed scroll amount not changing when in wide mode
-update jei plugin to have correct arrows and background slots
+mod will no longer add recipes with more than 64 input count. Seems ipossible but some mods actually add items that are made up of more than 64 planks (like WAAAY more)

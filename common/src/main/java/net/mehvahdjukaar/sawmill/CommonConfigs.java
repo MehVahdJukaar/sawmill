@@ -72,6 +72,7 @@ public class CommonConfigs {
         builder.pop();
 
         CONFIG = builder.build();
+        CONFIG.forceLoad();
     }
 
     public static void init() {

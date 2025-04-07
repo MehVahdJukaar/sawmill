@@ -1,19 +1,17 @@
 package net.mehvahdjukaar.sawmill;
 
-import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SingleItemRecipe;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 
 public class WoodcuttingRecipe extends SingleItemRecipe {
@@ -22,7 +20,11 @@ public class WoodcuttingRecipe extends SingleItemRecipe {
     public WoodcuttingRecipe(String group, Ingredient ingredient, ItemStack itemStack, int inputCount) {
         super(SawmillMod.WOODCUTTING_RECIPE.get(), SawmillMod.WOODCUTTING_RECIPE_SERIALIZER.get(),
                 group, ingredient, itemStack);
+        if (inputCount > 64) {
+            throw new IllegalArgumentException("Input count for wood cutting recipe is too high: " + inputCount + ". Ingredient: " + ingredient + ", Result: " + itemStack);
+        }
         this.inputCount = inputCount;
+
     }
 
     public int getInputCount() {

@@ -102,18 +102,24 @@ dependencies {
 
     implementation 'org.jetbrains:annotations:22.0.0'
 
-    modImplementation("net.mehvahdjukaar:moonlight-neoforge:${moonlight_version}")
+//    modImplementation("net.mehvahdjukaar:moonlight-neoforge:${moonlight_version}")
 
+    modImplementation("curse.maven:selene-499980:6324921")
+    modImplementation("curse.maven:ars-nouveau-401955:6333245")
     modCompileOnly("curse.maven:repurposed-structures-368293:4823487")
     modCompileOnly("curse.maven:framedblocks-441647:5143589")
+    modImplementation("curse.maven:curios-309927:6342656")
+    modImplementation("curse.maven:geckolib-388172:6304958")
 //    modCompileOnly("cy.jdkdigital.productivelib:productivelib-1.20.1-0.0.4")
 //    modCompileOnly("cy.jdkdigital.productivetrees:productivetrees-1.20.1-0.2.2")
 
+    modImplementation("curse.maven:emi-580555:6205506")
+
     //modImplementation("curse.maven:emi-580555:5704405")
-    modRuntimeOnly "dev.latvian.mods:kubejs-neoforge:2101.7.1-build.181"
-    modRuntimeOnly "dev.latvian.mods:rhino:2101.2.5-build.54"
-    forgeRuntimeLibrary "dev.latvian.apps:tiny-java-server:1.0.0-build.6"
-    modImplementation("curse.maven:jei-238222:5846880")
+   // modRuntimeOnly "dev.latvian.mods:kubejs-neoforge:2101.7.1-build.181"
+  //  modRuntimeOnly "dev.latvian.mods:rhino:2101.2.5-build.54"
+   // forgeRuntimeLibrary "dev.latvian.apps:tiny-java-server:1.0.0-build.6"
+    modCompileOnly("curse.maven:jei-238222:5846880")
 
 
 }

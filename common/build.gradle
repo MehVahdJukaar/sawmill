@@ -4,7 +4,7 @@ architectury {
     }
 }
 loom {
-    accessWidenerPath = file("src/main/resources/sawmill.accesswidener")
+    accessWidenerPath = file("src/main/resources/${mod_id}.accesswidener")
 }
 
 dependencies {
@@ -14,7 +14,7 @@ dependencies {
 
     modImplementation ("net.mehvahdjukaar:moonlight:${moonlight_version}")
 
-    modImplementation("curse.maven:emi-580555:5872512")
+    modImplementation("curse.maven:emi-580555:6205505")
     modCompileOnly("curse.maven:jei-238222:5846880")
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777"
 
