@@ -18,6 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -81,15 +82,15 @@ public final class CarpenterTrades {
 
         public static final MapCodec<WoodToItemListing> CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
-                       Codec.BOOL.optionalFieldOf("buys", true).forGetter(WoodToItemListing::buys),
+                        Codec.BOOL.optionalFieldOf("buys", true).forGetter(WoodToItemListing::buys),
                         Codec.STRING.fieldOf("wood_block").forGetter(WoodToItemListing::childKey),
                         ExtraCodecs.POSITIVE_INT.fieldOf("wood_block_amount").forGetter(WoodToItemListing::woodPrice),
                         ItemCost.CODEC.fieldOf("emeralds").forGetter(WoodToItemListing::emeralds),
-                        ExtraCodecs.POSITIVE_INT.optionalFieldOf( "max_trades", 16).forGetter(WoodToItemListing::maxTrades),
-                        ExtraCodecs.POSITIVE_INT.optionalFieldOf( "xp").forGetter(w -> Optional.of(w.xp)),
-                        ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf( "price_multiplier", 0.05f).forGetter(WoodToItemListing::priceMult),
-                        Codec.intRange(1, 5).optionalFieldOf( "level", 1).forGetter(WoodToItemListing::level),
-                        Codec.BOOL.optionalFieldOf( "type_dependant", false).forGetter(WoodToItemListing::typeDependant)
+                        ExtraCodecs.POSITIVE_INT.optionalFieldOf("max_trades", 16).forGetter(WoodToItemListing::maxTrades),
+                        ExtraCodecs.POSITIVE_INT.optionalFieldOf("xp").forGetter(w -> Optional.of(w.xp)),
+                        ExtraCodecs.POSITIVE_FLOAT.optionalFieldOf("price_multiplier", 0.05f).forGetter(WoodToItemListing::priceMult),
+                        Codec.intRange(1, 5).optionalFieldOf("level", 1).forGetter(WoodToItemListing::level),
+                        Codec.BOOL.optionalFieldOf("type_dependant", false).forGetter(WoodToItemListing::typeDependant)
                 ).apply(i, WoodToItemListing::createDefault));
 
 
@@ -124,13 +125,13 @@ public final class CarpenterTrades {
                     type = types.get(random.nextInt(types.size()));
                 }
                 types.remove(type);
-                Item w = type.getItemOfThis(childKey);
+                Block w = type.getBlockOfThis(childKey);
                 if (w != null) {
                     ItemCost wood = new ItemCost(w, woodPrice);
                     ItemCost emerald = emeralds;
                     if (wood.itemStack().isEmpty()) {
                         //if this gets triggered something REALLY bad happened...
-                        throw new AssertionError("Wood item is empty. How? Key:" + childKey + ", Wood Type:" + type + ", ItemStack: " + wood + ", Item: " + w + ", Block: " + type.getBlockOfThis(childKey));
+                        throw new AssertionError("Wood block had an empty item. How? Key:" + childKey + ", Wood Type:" + type + ", ItemStack: " + wood + ", Item: " + w + ", Block: " + type.getBlockOfThis(childKey));
                     }
                     if (buys) {
                         return new MerchantOffer(wood, Optional.empty(), emerald.itemStack(), maxTrades, xp, priceMult);

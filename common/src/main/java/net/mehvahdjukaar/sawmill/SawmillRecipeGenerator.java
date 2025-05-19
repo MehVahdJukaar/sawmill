@@ -204,7 +204,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
             }
             ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
             if (inputCount > 64) {
-                SawmillMod.LOGGER.error("Sawmill tried to generate a recipe with too high input count: {}. Ingredient: {}, Result: {},ID: {}", inputCount, input, result, res);
+                SawmillMod.LOGGER.warn("Sawmill tried to generate a recipe with too high input count: {}. Ingredient: {}, Result: {},ID: {}", inputCount, input, result, res);
             } else {
                 WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
                 sawmillRecipes.add(new RecipeHolder<>(res, recipe));
