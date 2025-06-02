@@ -43,11 +43,13 @@ public class RecipeManagerMixin {
     public void interceptRecipe(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager,
                                 ProfilerFiller profiler, CallbackInfo ci,
                                 @Local Recipe<?> recipe,
+                                @Local ResourceLocation loc,
                                 @Local ImmutableMap.Builder<ResourceLocation, Recipe<?>> b,
                                 @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
         if (parsed.get() == null) {
             parsed.set(new ArrayList<>());
         }
-        parsed.get().add(recipe);
+        if (recipe != null) parsed.get().add(recipe);
+        else throw new IllegalStateException("Found null recipe with ID" + loc);
     }
 }

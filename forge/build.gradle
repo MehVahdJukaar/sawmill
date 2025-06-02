@@ -134,6 +134,8 @@ dependencies {
    // modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")
     modImplementation("curse.maven:jei-238222:5846810")
     modImplementation("curse.maven:repurposed-structures-368293:4823487")
+    modImplementation("curse.maven:farmers-delight-398521:6154802")
+    modImplementation("curse.maven:my-nethers-delight-1003673:6529919")
     //modImplementation("curse.maven:selene-499980:5093417")
     //modImplementation("curse.maven:framedblocks-441647:5143589")
     modImplementation("net.mehvahdjukaar:moonlight-forge:${moonlight_version}")

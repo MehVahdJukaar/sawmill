@@ -13,6 +13,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,6 +25,9 @@ import java.util.Map;
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
 
+
+    @Shadow
+    private Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes;
 
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
             at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;",
@@ -43,11 +47,13 @@ public class RecipeManagerMixin {
     public void interceptRecipe(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager,
                                 ProfilerFiller profiler, CallbackInfo ci,
                                 @Local Recipe<?> recipe,
+                                @Local ResourceLocation loc,
                                 @Local ImmutableMap.Builder<ResourceLocation, Recipe<?>> b,
                                 @Share("parsed") LocalRef<List<Recipe<?>>> parsed) {
         if (parsed.get() == null) {
             parsed.set(new ArrayList<>());
         }
-        parsed.get().add(recipe);
+        if (recipe != null) parsed.get().add(recipe);
+        else throw new IllegalStateException("Found null recipe with ID" + loc);
     }
 }
