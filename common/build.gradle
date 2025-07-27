@@ -14,15 +14,12 @@ dependencies {
 
     modImplementation ("net.mehvahdjukaar:moonlight:${moonlight_version}")
 
-    modImplementation("curse.maven:emi-580555:6205505")
+    modImplementation("curse.maven:emi-580555:6420930")
     modCompileOnly("curse.maven:jei-238222:5846880")
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777"
 
     //modCompileOnly("curse.maven:kubejs-238086:5580858")
     modCompileOnly("curse.maven:rhino-416294:5589424")
-
-    modRuntimeOnly("org.violetmoon.quark:Quark-4.0-beta-426")
-    modRuntimeOnly("org.violetmoon.zeta:Zeta-1.0-beta-1")
 }
 
 publishing {

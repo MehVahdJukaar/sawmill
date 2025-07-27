@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynServerResourcesGenerator;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicDataPack;
+import net.mehvahdjukaar.moonlight.api.resources.pack.ResourceGenTask;
 import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
@@ -17,7 +18,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,15 +63,16 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         return SawmillMod.LOGGER;
     }
 
-    @Override
-    public boolean dependsOnLoadedPacks() {
-        return true;
-    }
+    private final List<RecipeHolder<?>> recipesToSave = new ArrayList<>();
 
     //UNUSED. implement if mixin in recipe manager causes issues
+
+
     @Override
-    public void regenerateDynamicAssets(ResourceManager resourceManager) {
-        //gather and parse all recipes. then call process
+    public void regenerateDynamicAssets(Consumer<ResourceGenTask> executor) {
+        super.regenerateDynamicAssets(executor);
+        executor.accept((m, s) -> recipesToSave.forEach(s::addRecipe));
+        recipesToSave.clear();
     }
 
     public static void process(Collection<RecipeHolder<?>> recipes,
@@ -158,9 +160,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         SawmillMod.clearTagHacks();
 
         if (CommonConfigs.SAVE_RECIPES.get()) {
-            for (var r : sawmillRecipes) {
-                INSTANCE.dynamicPack.addRecipe(r);
-            }
+            INSTANCE.recipesToSave.addAll(sawmillRecipes);
         }
 
         if (!CommonConfigs.DYNAMIC_RECIPES.get()) return List.of();
