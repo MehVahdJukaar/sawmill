@@ -1,1 +1,1 @@
-mod will no longer add recipes with more than 64 input count. Seems ipossible but some mods actually add items that are made up of more than 64 planks (like WAAAY more)
+- rewrote recipe sorting to be much simpler and faster

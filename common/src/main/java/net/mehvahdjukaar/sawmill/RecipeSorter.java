@@ -1,20 +1,13 @@
 package net.mehvahdjukaar.sawmill;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
-import net.mehvahdjukaar.moonlight.api.trades.ItemListingManager;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +20,7 @@ import java.util.*;
 public class RecipeSorter {
 
     private static final List<Item> ITEM_ORDER = new ArrayList<>();
-    private static final List<Item> UNSORTED = new ArrayList<>();
+    private static final Set<Item> UNSORTED = new HashSet<>();
 
 
     //called from server side by recipe stuff.
@@ -50,23 +43,17 @@ public class RecipeSorter {
             // this is NOT a client only method. Calling on server thread is valid.
             CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, reg);
         }
-        Map<CreativeModeTab, List<Item>> tabContent = new HashMap<>();
-
         for (var t : CreativeModeTabs.tabs()) {
-            List<Pair<Item, Integer>> weights = new ArrayList<>();
-            var list = tabContent.computeIfAbsent(t,
-                    creativeModeTabs -> t.getDisplayItems().stream().map(ItemStack::getItem).toList());
-            var iterator = UNSORTED.iterator();
-            while (iterator.hasNext()) {
-                var i = iterator.next();
-                int index = list.indexOf(i);
-                if (index != -1) {
-                    weights.add(Pair.of(i, index));
-                    iterator.remove();
+            List<Item> found = new ArrayList<>();
+            var list = t.getDisplayItems().stream().map(ItemStack::getItem).toList();
+            for (Item tabItem : list) {
+                if (UNSORTED.contains(tabItem)) {
+                    // if the item is in the tab, we can use its index to sort it
+                    found.add(tabItem);
+                    UNSORTED.remove(tabItem);
                 }
             }
-            weights.sort(Comparator.comparingInt(Pair::getSecond));
-            ITEM_ORDER.addAll(weights.stream().map(Pair::getFirst).toList());
+            ITEM_ORDER.addAll(found);
         }
 
         UNSORTED.clear();
