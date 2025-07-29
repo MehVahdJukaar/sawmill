@@ -1,1 +1,1 @@
-- rewrote recipe sorting to be much simpler and faster
+fixed recipe saving config being broken

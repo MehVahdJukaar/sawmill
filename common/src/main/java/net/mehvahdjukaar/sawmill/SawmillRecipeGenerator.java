@@ -63,16 +63,13 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         return SawmillMod.LOGGER;
     }
 
-    private final List<RecipeHolder<?>> recipesToSave = new ArrayList<>();
-
     //UNUSED. implement if mixin in recipe manager causes issues
 
 
     @Override
     public void regenerateDynamicAssets(Consumer<ResourceGenTask> executor) {
         super.regenerateDynamicAssets(executor);
-        executor.accept((m, s) -> recipesToSave.forEach(s::addRecipe));
-        recipesToSave.clear();
+
     }
 
     public static void process(Collection<RecipeHolder<?>> recipes,
@@ -160,7 +157,8 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         SawmillMod.clearTagHacks();
 
         if (CommonConfigs.SAVE_RECIPES.get()) {
-            INSTANCE.recipesToSave.addAll(sawmillRecipes);
+            //todo: add proper thing here
+            sawmillRecipes.forEach(INSTANCE.dynamicPack::addRecipe);
         }
 
         if (!CommonConfigs.DYNAMIC_RECIPES.get()) return List.of();

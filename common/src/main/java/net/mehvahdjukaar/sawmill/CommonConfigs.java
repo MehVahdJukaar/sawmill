@@ -37,7 +37,7 @@ public class CommonConfigs {
                         "Could cause issue in the case when, for whatever reason, creative other would differ from server to client." +
                         "Additionally Neoforge has a bug where this stuff won't work on servers. Use Forge instead!")
                 .define("sort_recipes", true);
-        SAVE_RECIPES = builder.comment("Save sawmill recipes to disk. Enable this if you are the author of a modpack and want to disable dynamic recipe generation. To do so just turn of that config, turn this one on and after booting up the game just copy the generated recipes in the generated folder in your own datapack, then turn off this config")
+        SAVE_RECIPES = builder.comment("Save sawmill recipes to disk in /debug folder. Enable this if you are the author of a modpack and want to disable dynamic recipe generation. To do so just turn of that config, turn this one on and after booting up the game just copy the generated recipes in the generated folder in your own datapack, then turn off this config")
                 .define("save_recipes", false);
         DYNAMIC_RECIPES = builder.comment("Generates Sawmill recipes dynamically. Remove this if you plan to add all of them manually instead. Can speed up boot time slightly")
                 .define("dynamic_recipes", true);
