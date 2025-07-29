@@ -2,8 +2,6 @@ package net.mehvahdjukaar.sawmill;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
-import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -44,6 +42,7 @@ public class RecipeSorter {
             CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, reg);
         }
         for (var t : CreativeModeTabs.tabs()) {
+            if (UNSORTED.isEmpty()) break;
             List<Item> found = new ArrayList<>();
             var list = t.getDisplayItems().stream().map(ItemStack::getItem).toList();
             for (Item tabItem : list) {
