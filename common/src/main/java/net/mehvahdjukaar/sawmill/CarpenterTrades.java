@@ -16,9 +16,9 @@ import net.minecraft.world.entity.npc.VillagerDataHolder;
 import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -125,16 +125,14 @@ public final class CarpenterTrades {
                     type = types.get(random.nextInt(types.size()));
                 }
                 types.remove(type);
-                Block woodBlock = type.getBlockOfThis(childKey);
-                if (woodBlock != null) {
-                    ItemCost woodItem = new ItemCost(woodBlock, woodPrice);
-                    if (!woodItem.itemStack().isEmpty()) {
-                        ItemCost emerald = emeralds;
-                        if (buys) {
-                            return new MerchantOffer(woodItem, Optional.empty(), emerald.itemStack(), maxTrades, xp, priceMult);
-                        } else {
-                            return new MerchantOffer(emerald, Optional.empty(), woodItem.itemStack(), maxTrades, xp, priceMult);
-                        }
+                Item woodItem = type.getItemOfThis(childKey);
+                if (woodItem != null && woodItem != Items.AIR) {
+                    ItemCost itemCost = new ItemCost(woodItem, woodPrice);
+                    ItemCost emerald = emeralds;
+                    if (buys) {
+                        return new MerchantOffer(itemCost, Optional.empty(), emerald.itemStack(), maxTrades, xp, priceMult);
+                    } else {
+                        return new MerchantOffer(emerald, Optional.empty(), itemCost.itemStack(), maxTrades, xp, priceMult);
                     }
                 }
             }
