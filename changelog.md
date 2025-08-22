@@ -1,1 +1,1 @@
-fixed recipe saving config being broken
+fixed a rare crash with trades

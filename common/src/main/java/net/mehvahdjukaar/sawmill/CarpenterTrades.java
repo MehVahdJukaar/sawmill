@@ -125,18 +125,16 @@ public final class CarpenterTrades {
                     type = types.get(random.nextInt(types.size()));
                 }
                 types.remove(type);
-                Block w = type.getBlockOfThis(childKey);
-                if (w != null) {
-                    ItemCost wood = new ItemCost(w, woodPrice);
-                    ItemCost emerald = emeralds;
-                    if (wood.itemStack().isEmpty()) {
-                        //if this gets triggered something REALLY bad happened...
-                        throw new AssertionError("Wood block had an empty item. How? Key:" + childKey + ", Wood Type:" + type + ", ItemStack: " + wood + ", Item: " + w + ", Block: " + type.getBlockOfThis(childKey));
-                    }
-                    if (buys) {
-                        return new MerchantOffer(wood, Optional.empty(), emerald.itemStack(), maxTrades, xp, priceMult);
-                    } else {
-                        return new MerchantOffer(emerald, Optional.empty(), wood.itemStack(), maxTrades, xp, priceMult);
+                Block woodBlock = type.getBlockOfThis(childKey);
+                if (woodBlock != null) {
+                    ItemCost woodItem = new ItemCost(woodBlock, woodPrice);
+                    if (!woodItem.itemStack().isEmpty()) {
+                        ItemCost emerald = emeralds;
+                        if (buys) {
+                            return new MerchantOffer(woodItem, Optional.empty(), emerald.itemStack(), maxTrades, xp, priceMult);
+                        } else {
+                            return new MerchantOffer(emerald, Optional.empty(), woodItem.itemStack(), maxTrades, xp, priceMult);
+                        }
                     }
                 }
             }
