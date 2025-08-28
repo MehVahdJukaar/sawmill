@@ -4,11 +4,11 @@
   "price_multiplier": 0.2,
   "price": {
     "id": "minecraft:diamond_axe",
-    "Count": 1
+    "count": 1
   },
   "offer": {
     "id": "minecraft:emerald",
-    "Count": 4
+    "count": 4
   },
   "level": 4
 }

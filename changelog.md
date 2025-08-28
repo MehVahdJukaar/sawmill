@@ -1,1 +1,1 @@
-fixed a rare crash with trades
+fixed tades having incorrect count due to 1.21 update

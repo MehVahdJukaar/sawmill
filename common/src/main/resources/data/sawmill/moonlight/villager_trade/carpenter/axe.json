@@ -4,11 +4,11 @@
   "price_multiplier": 0.2,
   "price": {
     "id": "minecraft:iron_axe",
-    "Count": 1
+    "count": 1
   },
   "offer": {
     "id": "minecraft:emerald",
-    "Count": 2
+    "count": 2
   },
   "level": 3
 }

@@ -6,7 +6,7 @@
   "wood_block_amount": 12,
   "emeralds": {
     "id": "minecraft:emerald",
-    "Count": 1
+    "count": 1
   },
   "level": 3,
   "type_dependant": true

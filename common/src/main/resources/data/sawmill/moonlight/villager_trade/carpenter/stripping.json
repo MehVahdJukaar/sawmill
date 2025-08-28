@@ -4,7 +4,7 @@
   "amount": 4,
   "price": {
     "id": "minecraft:emerald",
-    "Count": 1
+    "count": 1
   },
   "level": 3
 }

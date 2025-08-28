@@ -3,11 +3,11 @@
   "max_trades": 16,
   "price": {
     "id": "minecraft:emerald",
-    "Count": 1
+    "count": 1
   },
   "offer": {
     "id": "minecraft:torch",
-    "Count": 24
+    "count": 24
   },
   "level": 1
 }
