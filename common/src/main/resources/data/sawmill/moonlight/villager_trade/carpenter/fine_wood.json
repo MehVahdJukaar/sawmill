@@ -1,8 +1,8 @@
 {
   "fabric:load_conditions": [
     {
-        "condition": "fabric:mod_loaded",
-        "modid": "supplementaries"
+      "condition": "fabric:mod_loaded",
+      "modid": "supplementaries"
     }
   ],
   "neoforge:conditions": [
@@ -13,13 +13,14 @@
   ],
   "type": "simple",
   "max_trades": 12,
+  "price_multiplier": 0.2,
   "price": {
     "id": "minecraft:emerald",
     "count": 1
   },
   "offer": {
-    "id": "supplementaries:hat_stand",
-    "count": 1
+    "id": "supplementaries:fine_wood",
+    "count": 2
   },
   "level": 4
 }
