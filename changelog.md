@@ -1,1 +1,1 @@
-- rewrote recipe sorting to be much simpler and faster
+added max depth for recipe gen

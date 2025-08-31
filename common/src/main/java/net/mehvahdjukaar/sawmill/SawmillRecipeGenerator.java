@@ -296,7 +296,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
         //magic
         for (var item : craftableItems) {
 
-            getPrimitiveCostRecursive(item, itemsToRecipe, itemToPrimitiveCost, new HashSet<>());
+            getPrimitiveCostRecursive(item, itemsToRecipe, itemToPrimitiveCost, new HashSet<>(), 0);
         }
         itemToPrimitiveCost.values().removeIf(Objects::isNull);
         return itemToPrimitiveCost;
@@ -399,9 +399,16 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
     @Nullable
     public static Map<WoodType, LogCost> getPrimitiveCostRecursive(Item itemToUncraft, Multimap<Item, Recipe<?>> allRecipes,
-                                                                   Map<Item, Map<WoodType, LogCost>> cache, Set<Recipe<?>> visitedRecipes) {
+                                                                   Map<Item, Map<WoodType, LogCost>> cache,
+                                                                   Set<Recipe<?>> visitedRecipes, int depth) {
+        // Stop expanding once we reach the limit; treat as "no cost found" for this path.
+
         var cached = cache.get(itemToUncraft);
         if (cached != null) return cached;
+        if (depth >= 15) {
+            SawmillMod.LOGGER.warn("Max depth exceeded for recipe that crafts {}. Giving up", itemToUncraft);
+            return null;
+        }
         //try to uncraft looping through all its recipes
         List<Map<WoodType, LogCost>> possibleCosts = new ArrayList<>();
         Collection<Recipe<?>> possibleRecipes = allRecipes.get(itemToUncraft);
@@ -421,7 +428,8 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
                 Map<WoodType, LogCost> ingredientPossibleCosts = new HashMap<>();
                 //get log cost for each item in the ingredient
                 for (ItemStack ing : getIngItems(ingredient)) {
-                    Map<WoodType, LogCost> itemCost = getPrimitiveCostRecursive(ing.getItem(), allRecipes, cache, visitedRecipes);
+
+                    Map<WoodType, LogCost> itemCost = getPrimitiveCostRecursive(ing.getItem(), allRecipes, cache, visitedRecipes, depth++);
                     if (itemCost != null) {
                         itemCost.forEach((woodType, logCost) -> {
                             ingredientPossibleCosts.merge(woodType, logCost, LogCost::min);
@@ -480,7 +488,7 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
     }
 
 
-    private record LogCost(WoodType type, Double cost) {
+    public record LogCost(WoodType type, Double cost) {
         static LogCost of(WoodType type, Double amount) {
             return new LogCost(type, amount);
         }
