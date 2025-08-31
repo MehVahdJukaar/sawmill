@@ -1,1 +1,1 @@
-added max depth for recipe gen
+removed a log line
