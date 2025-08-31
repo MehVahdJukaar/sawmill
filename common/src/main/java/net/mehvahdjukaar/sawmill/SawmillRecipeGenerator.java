@@ -405,8 +405,8 @@ public class SawmillRecipeGenerator extends DynServerResourcesGenerator {
 
         var cached = cache.get(itemToUncraft);
         if (cached != null) return cached;
-        if (depth >= 15) {
-            SawmillMod.LOGGER.warn("Max depth exceeded for recipe that crafts {}. Giving up", itemToUncraft);
+        if (depth >= 10) {
+            //if its not made out of pure wood by now it probably never will be
             return null;
         }
         //try to uncraft looping through all its recipes
