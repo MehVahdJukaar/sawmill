@@ -1,1 +1,1 @@
-removed a log line
+- updated to use new dynamic asset cache in new moonlight lib

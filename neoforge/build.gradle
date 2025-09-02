@@ -102,9 +102,9 @@ dependencies {
 
     implementation 'org.jetbrains:annotations:22.0.0'
 
-//    modImplementation("net.mehvahdjukaar:moonlight-neoforge:${moonlight_version}")
+    modImplementation("net.mehvahdjukaar:moonlight-neoforge:${moonlight_version}")
 
-    modImplementation("curse.maven:selene-499980:6324921")
+    //modImplementation("curse.maven:selene-499980:6324921")
     modImplementation("curse.maven:ars-nouveau-401955:6333245")
     modCompileOnly("curse.maven:repurposed-structures-368293:4823487")
     modCompileOnly("curse.maven:framedblocks-441647:5143589")

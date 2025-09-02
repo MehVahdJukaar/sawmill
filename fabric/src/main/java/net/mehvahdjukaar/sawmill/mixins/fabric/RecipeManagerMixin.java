@@ -38,7 +38,8 @@ public class RecipeManagerMixin {
             byNameCopy.put(r.id(), r);
             byTypeCopy.put(r.value().getType(), r);
         });
-        SawmillRecipeGenerator.process(this.byName.values(), byNameCopy, byTypeCopy);
+        SawmillRecipeGenerator.INSTANCE.process(this.byName.values(), byNameCopy, byTypeCopy,
+                resourceManager.listPacks().toList());
         this.byName = byNameCopy.build();
         this.byType = byTypeCopy.build();
     }

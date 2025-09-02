@@ -17,6 +17,7 @@ public class CommonConfigs {
     public static final Supplier<Boolean> PLANKS_ONLY_ONE;
     public static final Supplier<Boolean> WIDE_GUI;
     public static final Supplier<Boolean> SAVE_RECIPES;
+    public static final Supplier<Boolean> HAS_CACHE;
     public static final Supplier<Boolean> DYNAMIC_RECIPES;
     public static final Supplier<List<String>> MOD_BLACKLIST;
     public static final Supplier<Map<String, Double>> SPECIAL_COSTS;
@@ -41,6 +42,8 @@ public class CommonConfigs {
                 .define("save_recipes", false);
         DYNAMIC_RECIPES = builder.comment("Generates Sawmill recipes dynamically. Remove this if you plan to add all of them manually instead. Can speed up boot time slightly")
                 .define("dynamic_recipes", true);
+        HAS_CACHE = builder.comment("Caches sawmill recipes in a file to speed up load times. Disable if you are having issues with recipe generation. Cache is rebuilt when mods change or datapack change")
+                .define("has_cache", true);
         ALLOW_NON_BLOCKS = builder.comment("Allow crafting non-block items")
                 .define("allow_non_blocks", true);
         ALLOW_NON_VARIANTS = builder.comment("Allows crafting non wood variant items (crafting table for example)")
