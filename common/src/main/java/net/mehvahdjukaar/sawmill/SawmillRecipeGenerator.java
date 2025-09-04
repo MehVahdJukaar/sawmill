@@ -45,21 +45,15 @@ import java.util.stream.Collectors;
 public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     public static final SawmillRecipeGenerator INSTANCE = new SawmillRecipeGenerator();
-    private boolean needsRegeneration;
+    private boolean sawmillNeedsRegen;
 
     protected SawmillRecipeGenerator() {
         super(SawmillMod.res("sawmill_recipes"),
-                CommonConfigs.HAS_CACHE.get() ? PackGenerationStrategy.CACHED : PackGenerationStrategy.REGEN_ON_EVERY_RELOAD
-        );
+                CommonConfigs.GEN_MODE.get().getStrategy());
     }
 
     public static void init() {
         RegHelper.registerDynamicResourceProvider(INSTANCE);
-    }
-
-    @Override
-    protected boolean generateDebugResources() {
-        return CommonConfigs.SAVE_RECIPES.get();
     }
 
     @Override
@@ -71,55 +65,58 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     @Override
     public void regenerateDynamicAssets(Consumer<ResourceGenTask> executor) {
-
     }
 
     @Override
     public void reload(ResourceManager manager, IProgressTracker reporter) {
     }
 
-    //TODO:improve and uniform
-    @Override
-    public void prepare(Collection<PackResources> selectedPacks) {
-        if (this.generationStrategy.needsRegeneration(this.packResources, selectedPacks)) {
-            this.packResources.clearAllResources();
-            this.needsRegeneration = true;
-            this.generationStrategy.beforeRegenerate(this.packResources, selectedPacks);
-        } else {
-            this.needsRegeneration = false;
-        }
-    }
-
     private void saveRecipesToPack(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
-        boolean save = CommonConfigs.SAVE_RECIPES.get() || CommonConfigs.HAS_CACHE.get();
-        if (!save) return;
+
         ResourceSink sink = new ResourceSink("dummy", "dummy");
         for (var r : sawmillRecipes) {
             sink.addRecipe(r);
         }
         ResourceSink.acceptSinks(this.packResources, List.of(sink));
+
+        this.packResources.commitChanges(this.getExecutorService());
     }
 
     public void process(Collection<RecipeHolder<?>> recipes,
                         com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
-                        ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType,
-                        Collection<PackResources> loadedDataPacks) {
+                        ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType) {
 
-        List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = process(recipes, loadedDataPacks);
+        List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = process(recipes);
 
         for (var r : sawmillRecipes) {
-            byName.put(r.id(), r);
-            byType.put(r.value().getType(), r);
+            try {
+                byName.put(r.id(), r);
+                byType.put(r.value().getType(), r);
+            }catch (Exception e){
+                throw new RuntimeException("Failed to add sawmill recipe "+r.id(),e);
+            }
         }
     }
 
-    public List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes,
-                                                         Collection<PackResources> loadedDataPacks) {
-        if (!CommonConfigs.DYNAMIC_RECIPES.get() && !CommonConfigs.SAVE_RECIPES.get()) return List.of();
-        if(this.needsRegeneration){
-            this.needsRegeneration = false;
+    @Override
+    public void prepare() {
+        this.sawmillNeedsRegen = this.generationStrategy.needsRegeneration(this.getPackType()) && this.packResources.clearAllResources();
+    }
+
+    public List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes) {
+        if(this.sawmillNeedsRegen){
+            this.sawmillNeedsRegen = false;
+
         }else {
             SawmillMod.LOGGER.info("Skipping Sawmill recipe generation as packs didn't change");
+            //sort recipes anyways
+            List<RecipeHolder<WoodcuttingRecipe>> existing = new ArrayList<>();
+            for (var r : recipes){
+                if(r.value() instanceof WoodcuttingRecipe){
+                    existing.add((RecipeHolder<WoodcuttingRecipe>) r);
+                }
+            }
+            RecipeSorter.accept(existing);
             return List.of();
         }
 
@@ -193,8 +190,6 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         SawmillMod.clearTagHacks();
 
         this.saveRecipesToPack(sawmillRecipes);
-
-        if (!CommonConfigs.DYNAMIC_RECIPES.get()) return List.of();
 
         RecipeSorter.accept(sawmillRecipes);
         return sawmillRecipes;

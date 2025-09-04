@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigBuilder;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigType;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ModConfigHolder;
+import net.mehvahdjukaar.moonlight.api.resources.pack.PackGenerationStrategy;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +17,7 @@ public class CommonConfigs {
     public static final Supplier<Boolean> ALLOW_NON_VARIANTS;
     public static final Supplier<Boolean> PLANKS_ONLY_ONE;
     public static final Supplier<Boolean> WIDE_GUI;
-    public static final Supplier<Boolean> SAVE_RECIPES;
-    public static final Supplier<Boolean> HAS_CACHE;
-    public static final Supplier<Boolean> DYNAMIC_RECIPES;
+    public static final Supplier<GenMode> GEN_MODE;
     public static final Supplier<List<String>> MOD_BLACKLIST;
     public static final Supplier<Map<String, Double>> SPECIAL_COSTS;
     public static final Supplier<SearchMode> SEARCH_MODE;
@@ -38,12 +37,14 @@ public class CommonConfigs {
                         "Could cause issue in the case when, for whatever reason, creative other would differ from server to client." +
                         "Additionally Neoforge has a bug where this stuff won't work on servers. Use Forge instead!")
                 .define("sort_recipes", true);
-        SAVE_RECIPES = builder.comment("Save sawmill recipes to disk in /debug folder. Enable this if you are the author of a modpack and want to disable dynamic recipe generation. To do so just turn of that config, turn this one on and after booting up the game just copy the generated recipes in the generated folder in your own datapack, then turn off this config")
-                .define("save_recipes", false);
-        DYNAMIC_RECIPES = builder.comment("Generates Sawmill recipes dynamically. Remove this if you plan to add all of them manually instead. Can speed up boot time slightly")
-                .define("dynamic_recipes", true);
-        HAS_CACHE = builder.comment("Caches sawmill recipes in a file to speed up load times. Disable if you are having issues with recipe generation. Cache is rebuilt when mods change or datapack change")
-                .define("has_cache", true);
+        GEN_MODE = builder.comment("""
+                        \nHow dynamic assets are generated. If cached the cache will regenerate once any mod or pack changes
+                        - NEVER: This mod will never attempt to generate the cache folder. The assets will be put in memory
+                        - CACHED: create a CACHE folder via .minecraft/dynamic-resource-pack-cache
+                        - CACHED_ZIPPED: create a ZIP folder via .minecraft/dynamic-resource-pack-cache
+                        - ALWAYS: Will always generate the assets & will be stored in memory. There will be no cache folder""")
+                .define("dynamic_assets_generation_mode", GenMode.CACHED_ZIPPED);
+
         ALLOW_NON_BLOCKS = builder.comment("Allow crafting non-block items")
                 .define("allow_non_blocks", true);
         ALLOW_NON_VARIANTS = builder.comment("Allows crafting non wood variant items (crafting table for example)")
@@ -93,5 +94,18 @@ public class CommonConfigs {
 
     public enum SearchMode {
         OFF, ON, AUTOMATIC, DYNAMIC
+    }
+
+    public enum GenMode {
+        NEVER, CACHED, CACHED_ZIPPED, ALWAYS;
+
+        public PackGenerationStrategy getStrategy() {
+            return switch (this) {
+                case NEVER -> PackGenerationStrategy.NO_OP;
+                case CACHED -> PackGenerationStrategy.CACHED;
+                case CACHED_ZIPPED -> PackGenerationStrategy.CACHED_ZIPPED;
+                case ALWAYS -> PackGenerationStrategy.REGEN_ON_EVERY_RELOAD;
+            };
+        }
     }
 }

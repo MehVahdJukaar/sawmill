@@ -1,1 +1,2 @@
-- updated to use new dynamic asset cache in new moonlight lib
+-fixed an issue with resource cache and added new config for it
+-fixed cache making recipes not be sorted

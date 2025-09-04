@@ -132,7 +132,8 @@ public class SawmillMod {
     }
 
     public static void setTagManagerResults(List<TagManager.LoadResult<?>> results) {
-        if (!CommonConfigs.SAVE_RECIPES.get() && !CommonConfigs.DYNAMIC_RECIPES.get()) return;
+        //TODO: optimize by not doing this if we don't need tags
+       // if (!CommonConfigs.SAVE_RECIPES.get() && !CommonConfigs.DYNAMIC_RECIPES.get()) return;
         //actually here we are already on main thread so this isn't even needed.....
         synchronized (lock) {
             tags.clear();
@@ -157,7 +158,6 @@ public class SawmillMod {
         }
         SawmillMod.LOGGER.info("Intercepted tag results");
     }
-
 
     public static void waitForTags() {
         // wait for tags to be ready so we don't initialize some recipes with unfinished tags or some shit
