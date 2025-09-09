@@ -43,7 +43,7 @@ public class CommonConfigs {
                         - CACHED: create a CACHE folder via .minecraft/dynamic-resource-pack-cache
                         - CACHED_ZIPPED: create a ZIP folder via .minecraft/dynamic-resource-pack-cache
                         - ALWAYS: Will always generate the assets & will be stored in memory. There will be no cache folder""")
-                .define("dynamic_assets_generation_mode", GenMode.CACHED_ZIPPED);
+                .define("recipe_generation_mode", GenMode.CACHED);
 
         ALLOW_NON_BLOCKS = builder.comment("Allow crafting non-block items")
                 .define("allow_non_blocks", true);

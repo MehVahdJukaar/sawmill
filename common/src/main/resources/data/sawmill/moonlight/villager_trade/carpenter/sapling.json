@@ -1,5 +1,5 @@
 {
-  "type": "sawmill:wood_item_to_emerald",
+  "type": "sawmill:random_wood_item_to_emerald",
   "buys": true,
   "max_trades": 16,
   "wood_block": "sapling",
@@ -8,5 +8,6 @@
     "id": "minecraft:emerald",
     "count": 1
   },
-  "level": 3
+  "level": 3,
+  "wood_blacklist": []
 }

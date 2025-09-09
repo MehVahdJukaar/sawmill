@@ -1,2 +1,1 @@
--fixed an issue with resource cache and added new config for it
--fixed cache making recipes not be sorted
+- addedmore parameters to the recipes allowing to blacklist woods and select which wood per biome

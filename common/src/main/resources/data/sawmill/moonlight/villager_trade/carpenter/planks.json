@@ -9,5 +9,40 @@
     "count": 1
   },
   "level": 3,
-  "type_dependant": true
+  "biome_woods": {
+    "minecraft:plains": [
+      "oak",
+      "birch"
+    ],
+    "minecraft:jungle": [
+      "jungle",
+      "bamboo"
+    ],
+    "minecraft:snowy_plains": [
+      "minecraft:spruce"
+    ],
+    "minecraft:taiga": [
+      "spruce"
+    ],
+    "minecraft:dark_forest": [
+      "dark_oak"
+    ],
+    "minecraft:desert": [
+      "cactus",
+      {
+        "fallback": "jungle"
+      }
+    ],
+    "minecraft:swamp": [
+      "mangrove",
+      "cypress",
+      "willow"
+    ],
+    "minecraft:beach": [
+      "palm",
+      {
+        "fallback": "jungle"
+      }
+    ]
+  }
 }
