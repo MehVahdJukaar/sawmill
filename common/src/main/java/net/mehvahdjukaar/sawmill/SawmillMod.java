@@ -149,8 +149,8 @@ public class SawmillMod {
             }
             for (var r : results) {
                 if (r.key() == Registries.RECIPE_TYPE) {
-                    whitelist.addAll(r.tags().get(res("whitelist"))
-                            .stream().map(holder -> (Holder<RecipeType<?>>) holder).toList());
+                    Collection<? extends Holder<?>> whitelistTag = r.tags().get(res("whitelist"));
+                    whitelist.addAll(whitelistTag.stream().map(holder -> (Holder<RecipeType<?>>) holder).toList());
                     break;
                 }
             }

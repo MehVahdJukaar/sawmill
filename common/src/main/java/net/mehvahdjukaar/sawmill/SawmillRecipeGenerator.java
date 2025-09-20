@@ -41,10 +41,14 @@ import java.util.stream.Collectors;
 public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     public static final SawmillRecipeGenerator INSTANCE = new SawmillRecipeGenerator();
-    private boolean sawmillNeedsRegen;
+    private boolean willRegenThisReload = false;
 
     protected SawmillRecipeGenerator() {
         super(SawmillMod.res("sawmill_recipes"), CommonConfigs.GEN_MODE.get().getStrategy());
+    }
+
+    public boolean willGeneratingRecipesThisReload() {
+        return this.willRegenThisReload;
     }
 
     public static void init() {
@@ -60,7 +64,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     @Override
     public void regenerateDynamicAssets(Consumer<ResourceGenTask> executor) {
-        this.sawmillNeedsRegen = true;
+        this.willRegenThisReload = true;
     }
 
     private void saveRecipesToPack(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
@@ -91,8 +95,8 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     }
 
     public List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes) {
-        if (this.sawmillNeedsRegen) {
-            this.sawmillNeedsRegen = false;
+        if (this.willRegenThisReload) {
+            this.willRegenThisReload = false;
 
         } else {
             SawmillMod.LOGGER.info("Skipping Sawmill recipe generation as packs didn't change");
