@@ -4,10 +4,8 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import net.mehvahdjukaar.moonlight.api.misc.IProgressTracker;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicServerResourceProvider;
-import net.mehvahdjukaar.moonlight.api.resources.pack.PackGenerationStrategy;
 import net.mehvahdjukaar.moonlight.api.resources.pack.ResourceGenTask;
 import net.mehvahdjukaar.moonlight.api.resources.pack.ResourceSink;
 import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
@@ -20,8 +18,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -48,8 +44,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     private boolean sawmillNeedsRegen;
 
     protected SawmillRecipeGenerator() {
-        super(SawmillMod.res("sawmill_recipes"),
-                CommonConfigs.GEN_MODE.get().getStrategy());
+        super(SawmillMod.res("sawmill_recipes"), CommonConfigs.GEN_MODE.get().getStrategy());
     }
 
     public static void init() {
@@ -65,10 +60,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     @Override
     public void regenerateDynamicAssets(Consumer<ResourceGenTask> executor) {
-    }
-
-    @Override
-    public void reload(ResourceManager manager, IProgressTracker reporter) {
+        this.sawmillNeedsRegen = true;
     }
 
     private void saveRecipesToPack(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
@@ -79,7 +71,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         }
         ResourceSink.acceptSinks(this.packResources, List.of(sink));
 
-        this.packResources.commitChanges(this.getExecutorService());
+        this.packResources.commitChanges();
     }
 
     public void process(Collection<RecipeHolder<?>> recipes,
@@ -92,27 +84,22 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
             try {
                 byName.put(r.id(), r);
                 byType.put(r.value().getType(), r);
-            }catch (Exception e){
-                throw new RuntimeException("Failed to add sawmill recipe "+r.id(),e);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to add sawmill recipe " + r.id(), e);
             }
         }
     }
 
-    @Override
-    public void prepare() {
-        this.sawmillNeedsRegen = this.generationStrategy.needsRegeneration(this.getPackType()) && this.packResources.clearAllResources();
-    }
-
     public List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes) {
-        if(this.sawmillNeedsRegen){
+        if (this.sawmillNeedsRegen) {
             this.sawmillNeedsRegen = false;
 
-        }else {
+        } else {
             SawmillMod.LOGGER.info("Skipping Sawmill recipe generation as packs didn't change");
             //sort recipes anyways
             List<RecipeHolder<WoodcuttingRecipe>> existing = new ArrayList<>();
-            for (var r : recipes){
-                if(r.value() instanceof WoodcuttingRecipe){
+            for (var r : recipes) {
+                if (r.value() instanceof WoodcuttingRecipe) {
                     existing.add((RecipeHolder<WoodcuttingRecipe>) r);
                 }
             }
@@ -254,7 +241,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         double discountedOutput = (1 / cost);
         double considerDiscountThreshold = 0.25;
         //this used to be floor. might be more forgiving like this but also more op
-        outputCount += Math.round(preciseOutputCount % 1 > considerDiscountThreshold ?
+        outputCount += (int) Math.round(preciseOutputCount % 1 > considerDiscountThreshold ?
                 (preciseOutputCount + discountedOutput) / 2f : preciseOutputCount);
 
         if (outputCount > maxOutputCount) {

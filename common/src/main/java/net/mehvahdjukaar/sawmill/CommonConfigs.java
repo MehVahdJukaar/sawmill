@@ -4,8 +4,18 @@ import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigBuilder;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ConfigType;
 import net.mehvahdjukaar.moonlight.api.platform.configs.ModConfigHolder;
+import net.mehvahdjukaar.moonlight.api.resources.pack.CachePathPackResources;
+import net.mehvahdjukaar.moonlight.api.resources.pack.GlobalCachedStrategy;
+import net.mehvahdjukaar.moonlight.api.resources.pack.IEditablePackResources;
 import net.mehvahdjukaar.moonlight.api.resources.pack.PackGenerationStrategy;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.IoSupplier;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
