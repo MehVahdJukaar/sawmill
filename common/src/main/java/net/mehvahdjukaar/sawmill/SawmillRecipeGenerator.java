@@ -64,11 +64,15 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     @Override
     public void regenerateDynamicAssets(Consumer<ResourceGenTask> executor) {
+        executor.accept((a, b) -> {
+            SawmillMod.LOGGER.info("Scheduling Sawmill recipe generation");
+            //so log shuts up about no tasks
+        });
         this.willRegenThisReload = true;
     }
 
     private void saveRecipesToPack(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
-
+        SawmillMod.LOGGER.info("Saving {} Sawmill Recipes to resource pack", sawmillRecipes.size());
         ResourceSink sink = new ResourceSink("dummy", "dummy");
         for (var r : sawmillRecipes) {
             sink.addRecipe(r);
@@ -82,6 +86,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                         com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
                         ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType) {
 
+        SawmillMod.LOGGER.info("Processing Sawmill Recipes into Recipe Manager");
         List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = process(recipes);
 
         for (var r : sawmillRecipes) {
@@ -170,13 +175,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
 
         long millis = stopwatch.elapsed().toMillis();
-        SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds", millis);
-        if (millis > 2000) {
-            SawmillMod.LOGGER.warn("Generating Sawmill recipes took a long time. Consider disabling dynamic recipes in the configs and adding them statically via datapack. You can turn on save_recipe configs to help you with that");
-        }
-        if (millis > 7000) {
-            SawmillMod.LOGGER.error("You might really want to consider above advice...");
-        }
+        SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds (cac mode {})", millis, this.generationStrategy);
 
         SawmillMod.clearTagHacks();
 
@@ -221,7 +220,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
             }
             ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
             if (inputCount > 64) {
-                SawmillMod.LOGGER.warn("Sawmill tried to generate a recipe with too high input count: {}. Ingredient: {}, Result: {},ID: {}", inputCount, input, result, res);
+                //SawmillMod.LOGGER.info("Sawmill tried to generate a recipe with too high input count: {}. ID: {}", inputCount, res);
             } else {
                 WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
                 sawmillRecipes.add(new RecipeHolder<>(res, recipe));

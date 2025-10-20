@@ -1,6 +1,8 @@
 package net.mehvahdjukaar.sawmill;
 
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.mehvahdjukaar.moonlight.api.fluids.SoftFluid;
+import net.mehvahdjukaar.moonlight.api.fluids.SoftFluidStack;
 import net.mehvahdjukaar.moonlight.api.platform.network.Message;
 import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
 import net.minecraft.network.FriendlyByteBuf;
