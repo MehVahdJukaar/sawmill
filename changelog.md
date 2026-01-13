@@ -1,3 +1,1 @@
-- fixed saved sawmill recipes not getting read on second reload
-- if having further issues remember to try changing the generation mode in the configs
-- when sawmill recipes are loaded through cache, tag results are not intercepted anymore, possible minor speedup
+- added more logs and removed some others for debug purposes
