@@ -1,5 +1,6 @@
 package net.mehvahdjukaar.sawmill;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -7,6 +8,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.structure.pools.LegacySinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -14,6 +16,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 // Thanks to TelepathicGrunt
 public class VillageStructureModifier {
@@ -24,7 +28,7 @@ public class VillageStructureModifier {
 
     private static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry,
                                           ResourceLocation poolRL,
-                                          String nbtPieceRL,
+                                          ResourceLocation nbtPieceRL,
                                           Holder<StructureProcessorList> processors,
                                           int weight) {
 
@@ -33,7 +37,7 @@ public class VillageStructureModifier {
             return;
         }
 
-        SinglePoolElement piece = SinglePoolElement.legacy(nbtPieceRL, processors).apply(StructureTemplatePool.Projection.RIGID);
+        SinglePoolElement piece = SinglePoolElement.legacy(nbtPieceRL.toString(), processors).apply(StructureTemplatePool.Projection.RIGID);
 
         for (int i = 0; i < weight; i++) {
             pool.templates.add(piece);
@@ -51,56 +55,79 @@ public class VillageStructureModifier {
         Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "plains", "sawmill:plains_small", true, 2);
+                ResourceLocation.withDefaultNamespace("plains"),
+                SawmillMod.res("plains_small"), true, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "plains", "sawmill:plains_medium", true, 2);
+                ResourceLocation.withDefaultNamespace("plains"),
+                SawmillMod.res("plains_medium"), true, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "snowy", "sawmill:snowy_small", false, 2);
+                ResourceLocation.withDefaultNamespace("snowy"),
+                SawmillMod.res("snowy_small"), false, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "snowy", "sawmill:snowy_medium", false, 2);
+                ResourceLocation.withDefaultNamespace("snowy"),
+                SawmillMod.res("snowy_medium"), false, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "savanna", "sawmill:savanna_small", false, 2);
+                ResourceLocation.withDefaultNamespace("savanna"),
+                SawmillMod.res("savanna_small"), false, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "savanna", "sawmill:savanna_big", false, 2);
+                ResourceLocation.withDefaultNamespace("savanna"),
+                SawmillMod.res("savanna_big"), false, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "taiga", "sawmill:taiga_small", true, 1);
+                ResourceLocation.withDefaultNamespace("taiga"),
+                SawmillMod.res("taiga_small"), true, 1);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "taiga", "sawmill:taiga_big", true, 2);
+                ResourceLocation.withDefaultNamespace("taiga"),
+                SawmillMod.res("taiga_big"), true, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "taiga", "sawmill:taiga_medium", true, 2);
+                ResourceLocation.withDefaultNamespace("taiga"),
+                SawmillMod.res("taiga_medium"), true, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "desert", "sawmill:desert_big", false, 2);
+                ResourceLocation.withDefaultNamespace("desert"),
+                SawmillMod.res("desert_big"), false, 2);
 
         addVillageHouse(templatePoolRegistry, processorListRegistry,
-                "desert", "sawmill:desert_small", false, 2);
+                ResourceLocation.withDefaultNamespace("desert"),
+                SawmillMod.res("desert_small"), false, 2);
+
+
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                ResourceLocation.fromNamespaceAndPath("atmospheric", "shrubland"),
+                SawmillMod.res("atmospheric/shrubland_small"), false, 2);
+
+        addVillageHouse(templatePoolRegistry, processorListRegistry,
+                ResourceLocation.fromNamespaceAndPath("atmospheric","shrubland"),
+                SawmillMod.res( "atmospheric/shrubland_medium"), false, 2);
     }
 
     private static void addVillageHouse(Registry<StructureTemplatePool> templatePoolRegistry,
                                         Registry<StructureProcessorList> processorListRegistry,
-                                        String villageName, String pieceName,
+                                        ResourceLocation villageRes, ResourceLocation pieceName,
                                         boolean mossy, int weight) {
 
         Holder<StructureProcessorList> normalProcessor =
                 mossy ? processorListRegistry.getHolderOrThrow(MOSSY_PROCESSOR_LIST_KEY) :
                         processorListRegistry.getHolderOrThrow(EMPTY_PROCESSOR_LIST_KEY);
 
+        String modId = villageRes.getNamespace();
+        String villageName = villageRes.getPath();
+
         Holder<StructureProcessorList> zombieProcessor = processorListRegistry.getHolderOrThrow(ResourceKey.create(
-                Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace("zombie_" + villageName)
+                Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath(modId, "zombie_" + villageName)
         ));
 
-        addBuildingToPool(templatePoolRegistry, ResourceLocation.withDefaultNamespace("village/" + villageName + "/houses"),
+        addBuildingToPool(templatePoolRegistry, ResourceLocation.fromNamespaceAndPath(modId, "village/" + villageName + "/houses"),
                 pieceName, normalProcessor, weight);
 
-        addBuildingToPool(templatePoolRegistry, ResourceLocation.withDefaultNamespace("village/" + villageName + "/zombie/houses"),
+        addBuildingToPool(templatePoolRegistry, ResourceLocation.fromNamespaceAndPath(modId, "village/" + villageName + "/zombie/houses"),
                 pieceName, zombieProcessor, weight);
     }
 

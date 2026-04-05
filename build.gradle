@@ -133,7 +133,7 @@ allprojects {
             url = 'https://maven.ladysnake.org/releases'
         }
         maven {
-            url = 'https://maven.neoforged.net'
+            url = 'https://maven.neoforged.net/releases'
         }
 
         maven {
