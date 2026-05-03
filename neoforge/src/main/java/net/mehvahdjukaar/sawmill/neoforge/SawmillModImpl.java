@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 public class SawmillModImpl {
 
     public SawmillModImpl(IEventBus bus) {
-        RegHelperImpl.startRegisteringFor(bus);
         SawmillMod.init();
         NeoForge.EVENT_BUS.register(this);
     }
