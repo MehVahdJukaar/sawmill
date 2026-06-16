@@ -1,6 +1,5 @@
-
 modLoader = "javafml"
-loaderVersion = "${loader_version_range}"
+loaderVersion = "*"
 
 license = "${mod_license}"
 issueTrackerURL = "${mod_github}/issues"
@@ -13,7 +12,7 @@ config = "${mod_id}-common.mixins.json"
 
 
 [[mods]]
-    modId = "sawmill"
+    modId = "${mod_id}"
     version = "${mod_version}"
     displayName = "${mod_name}"
     logoFile = "icon.png"
@@ -21,27 +20,27 @@ config = "${mod_id}-common.mixins.json"
     credits = "${mod_credits}"
     description = '''${mod_description}'''
     modUrl = "${mod_homepage}"
-    itemIcon = "minecraft:brush" #catalogue icon
-    #enumExtensions="META-INF/enumextensions.json"
+    itemIcon = "minecraft:brush"
 
 [[dependencies.${mod_id}]]
     modId = "neoforge"
-    mandatory = true
-    versionRange = "${neo_version_range}"
+    type = "required"
+    versionRange = "*"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.${mod_id}]]
     modId = "minecraft"
-    mandatory = true
-    versionRange = "[${minecraft_min_version},${minecraft_max_version})"
+    type = "required"
+    versionRange = "[${minecraft_version}]"
     ordering = "NONE"
     side = "BOTH"
 
 
-[[dependencies.sawmill]]
+[[dependencies.${mod_id}]]
     modId = "moonlight"
-    mandatory = true
-    versionRange = "*"
+    type = "required"
+    referralUrl = "https://www.curseforge.com/minecraft/mc-mods/selene"
+    versionRange = "[${moonlight_min_version},)"
     ordering = "NONE"
     side = "BOTH"

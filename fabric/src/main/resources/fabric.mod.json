@@ -13,6 +13,7 @@
   },
   "license": "${mod_license}",
   "icon": "icon.png",
+  "accessWidener": "sawmill.accesswidener",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -37,7 +38,7 @@
   ],
   "depends": {
     "fabric": "*",
-    "minecraft": ">=${minecraft_min_version} <${minecraft_max_version}",
-    "moonlight": "*"
+    "minecraft": "=${minecraft_version}",
+    "moonlight": ">=${moonlight_min_version}"
   }
 }
