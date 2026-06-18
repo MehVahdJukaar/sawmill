@@ -1,6 +1,5 @@
-package net.mehvahdjukaar.sawmill.neoforge;
+package net.mehvahdjukaar.sawmill.platform;
 
-import net.mehvahdjukaar.moonlight.api.platform.neoforge.RegHelperImpl;
 import net.mehvahdjukaar.sawmill.RecipeSorter;
 import net.mehvahdjukaar.sawmill.SawmillClient;
 import net.mehvahdjukaar.sawmill.SawmillMod;

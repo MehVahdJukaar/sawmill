@@ -174,12 +174,12 @@ public class SawmillMod {
         }
     }
 
-    @ExpectPlatform
+    @PlatformImpl
     public static boolean isVanillaIngredient(Ingredient ing) {
         throw new AssertionError();
     }
 
-    @ExpectPlatform
+    @PlatformImpl
     public static Object getCustomIngredient(Ingredient ing) {
         throw new AssertionError();
     }

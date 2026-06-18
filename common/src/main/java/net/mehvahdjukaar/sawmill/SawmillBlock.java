@@ -1,7 +1,9 @@
 package net.mehvahdjukaar.sawmill;
 
 import net.mehvahdjukaar.moonlight.api.block.WaterBlock;
+import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -98,7 +100,12 @@ public class SawmillBlock extends WaterBlock {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         } else {
-            player.openMenu(state.getMenuProvider(level, pos));
+            MenuProvider menuProvider = state.getMenuProvider(level, pos);
+            if (menuProvider != null && player instanceof ServerPlayer serverPlayer) {
+                // must use moonlight helper since the menu type is registered as an extended/synced
+                // menu (RegHelper.registerMenuType), vanilla openMenu would crash on fabric
+                PlatHelper.openCustomMenu(serverPlayer, menuProvider, buf -> {});
+            }
             //player.awardStat(Stats.INTERACT_WITH_STONECUTTER);
             return InteractionResult.CONSUME;
         }

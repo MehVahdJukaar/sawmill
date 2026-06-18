@@ -397,27 +397,35 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     private static ItemStack[] getIngItems(Ingredient ing) {
         List<ItemStack> stacks = new ArrayList<>();
         boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
-        if (!isVanilla && SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
-            ItemStack[] innerConverted = getIngItems(bts.getInner());
-            stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
-        }
-
         if (!isVanilla) {
+            if (SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
+                // Moonlight's swap ingredient: resolve the inner ingredient (which routes its
+                // tags through our intercepted tag map) and then convert the block types.
+                ItemStack[] innerConverted = getIngItems(bts.getInner());
+                stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
+            } else {
+                // Any other custom ingredient: NeoForge difference/compound/intersection/
+                // data-component, Fabric customs, or third party types we can't decode
+                // structurally. Best-effort via the generic getItems() instead of giving up
+                // and returning nothing (which downstream reads as "impossible" and drops the
+                // recipe). This decodes all item-based customs; tag-wrapping customs can't
+                // resolve here (tags aren't bound yet during recipe gen) and degrade to empty
+                // rather than breaking.
+                stacks.addAll(List.of(ing.getItems()));
+                // getItems() caches into itemStacks, but that result is unreliable at this
+                // stage, so clear it so the live game recomputes it correctly later.
+                ing.itemStacks = null;
+            }
             return stacks.toArray(ItemStack[]::new);
         }
         boolean isTag = false;
-        if (isVanilla) {
-            for (var v : ing.values) {
-                if (v instanceof Ingredient.TagValue tv) {
-                    isTag = true;
-                    var tag = tv.tag;
-                    stacks.addAll(SawmillMod.getTagElements(tag));
-                }
+        for (var v : ing.values) {
+            if (v instanceof Ingredient.TagValue tv) {
+                isTag = true;
+                stacks.addAll(SawmillMod.getTagElements(tv.tag()));
             }
-
         }
 
-        //TODO: add support for forge custom ingredients with tags
         if (!isTag) {
             // very, very bad
             stacks.addAll(List.of(ing.getItems()));

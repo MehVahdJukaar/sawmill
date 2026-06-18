@@ -1,31 +1,20 @@
-import org.apache.commons.io.output.ByteArrayOutputStream
-import org.gradle.internal.extensions.core.serviceOf
-import java.nio.charset.Charset
-
 plugins {
     id("com.possible-triangle.core")
     id("com.possible-triangle.common") apply false
     id("com.possible-triangle.fabric") apply false
     id("com.possible-triangle.neoforge") apply false
-    id("net.mehvahdjukaar.candlelight") version "1.1.6" apply false
-    id("dev.mixinmcp.decompile") version "0.9.0" apply false
+    id("net.mehvahdjukaar.candlelight") version "1.2.1" apply false
+    id("dev.mixinmcp.decompile") version "1.0.6" apply false
 }
 
 mod {
-    val mod_description: String by extra
-    val mod_credits: String by extra
-    val mod_license: String by extra
-    val mod_homepage: String by extra
-    val mod_github: String by extra
-    val mod_authors: String by extra
-    val moonlight_min_version: String by extra
-    additional.add("mod_description", provider { mod_description })
-    additional.add("mod_credits", provider { mod_credits })
-    additional.add("mod_license", provider { mod_license })
-    additional.add("mod_homepage", provider { mod_homepage })
-    additional.add("mod_authors", provider { mod_authors })
-    additional.add("mod_github", provider { mod_github })
-    additional.add("moonlight_min_version", provider { moonlight_min_version })
+    additional.add("mod_description")
+    additional.add("mod_credits")
+    additional.add("mod_license")
+    additional.add("mod_homepage")
+    additional.add("mod_authors")
+    additional.add("mod_github")
+    additional.add("moonlight_min_version")
 }
 
 
@@ -37,7 +26,7 @@ subprojects {
     apply(plugin = "maven-publish")
 
     dependencies {
-        compileOnly("net.mehvahdjukaar:candlelight:1.1.6")
+        compileOnly("net.mehvahdjukaar:candlelight:1.2.1")
     }
 
 
@@ -114,40 +103,3 @@ subprojects {
     }
 }
 
-
-
-tasks.register("buildAndPublishAll") {
-    group = "build"
-    description = "Runs clean, build, publish for all projects"
-
-    dependsOn(subprojects.map { it.tasks.named("clean") })
-    dependsOn(subprojects.map { it.tasks.named("build") })
-    dependsOn(subprojects.map { it.tasks.named("upload") })
-
-    finalizedBy("gitTag")
-}
-
-tasks.register("gitTag") {
-    group = "build"
-    doLast {
-        val execOps = serviceOf<ExecOperations>() // Fetches the service
-        val tag = project.version.toString()
-        val stdout = ByteArrayOutputStream()
-
-        execOps.exec {
-            commandLine("git", "tag", "-l", tag)
-            standardOutput = stdout
-        }
-
-        if (!stdout.toString(Charset.defaultCharset()).trim().isEmpty()) {
-            logger.warn("Git tag '${tag}' already exists")
-        } else {
-            execOps.exec {
-                commandLine("git", "tag", "-a", tag, "-m", "Release $tag")
-            }
-            execOps.exec {
-                commandLine("git", "push", "origin", tag)
-            }
-        }
-    }
-}

@@ -1,10 +1,8 @@
-package net.mehvahdjukaar.sawmill.fabric;
+package net.mehvahdjukaar.sawmill.platform;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.recipe.v1.ingredient.FabricIngredient;
-import net.fabricmc.fabric.impl.recipe.ingredient.CustomIngredientImpl;
 import net.mehvahdjukaar.sawmill.RecipeSorter;
 import net.mehvahdjukaar.sawmill.SawmillClient;
 import net.mehvahdjukaar.sawmill.SawmillMod;
