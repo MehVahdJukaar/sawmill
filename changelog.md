@@ -1,1 +1,1 @@
-- added more logs and removed some others for debug purposes
+- improved handling of tags in recipe gen
