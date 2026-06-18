@@ -19,7 +19,7 @@ public class TagManagerHackMixin {
     @Shadow
     private List<TagManager.LoadResult<?>> results;
 
-    @Inject(method = "method_40098", at = @At(value = "TAIL"))
+    @Inject(method = {"method_40098", "lambda$reload$2" }, at = @At(value = "TAIL"))
     private void joinHack(List<CompletableFuture<TagManager.LoadResult<?>>> list, Void void_, CallbackInfo ci) {
         if (!SawmillRecipeGenerator.INSTANCE.willGeneratingRecipesThisReload()) return;
         synchronized (this) { //i don't even know anymore. People keep reporting issues and i have no clue where that is

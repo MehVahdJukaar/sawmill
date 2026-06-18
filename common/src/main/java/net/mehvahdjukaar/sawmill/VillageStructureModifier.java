@@ -120,15 +120,18 @@ public class VillageStructureModifier {
         String modId = villageRes.getNamespace();
         String villageName = villageRes.getPath();
 
-        Holder<StructureProcessorList> zombieProcessor = processorListRegistry.getHolderOrThrow(ResourceKey.create(
-                Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath(modId, "zombie_" + villageName)
-        ));
-
         addBuildingToPool(templatePoolRegistry, ResourceLocation.fromNamespaceAndPath(modId, "village/" + villageName + "/houses"),
                 pieceName, normalProcessor, weight);
 
-        addBuildingToPool(templatePoolRegistry, ResourceLocation.fromNamespaceAndPath(modId, "village/" + villageName + "/zombie/houses"),
-                pieceName, zombieProcessor, weight);
+        // The zombie variant processor list may not exist (e.g. some modded villages don't define one),
+        // so only inject the zombie house if its processor list is actually present.
+        Optional<Holder.Reference<StructureProcessorList>> zombieProcessor = processorListRegistry.getHolder(ResourceKey.create(
+                Registries.PROCESSOR_LIST, ResourceLocation.fromNamespaceAndPath(modId, "zombie_" + villageName)
+        ));
+
+        zombieProcessor.ifPresent(processor -> addBuildingToPool(templatePoolRegistry,
+                ResourceLocation.fromNamespaceAndPath(modId, "village/" + villageName + "/zombie/houses"),
+                pieceName, processor, weight));
     }
 
 
