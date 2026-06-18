@@ -29,4 +29,10 @@ public class SawmillModImpl implements ModInitializer {
         return ing.getCustomIngredient();
     }
 
+    public static java.util.List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
+        // Fabric custom ingredients aren't structurally decomposed: left undecoded (and
+        // never queried) rather than risk poisoning their nested lazy caches.
+        return java.util.List.of();
+    }
+
 }

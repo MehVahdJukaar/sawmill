@@ -1,7 +1,7 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.ImmutableSet;
-import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.mehvahdjukaar.candlelight.api.PlatformImpl;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.mehvahdjukaar.sawmill.trades.CarpenterTrades;
@@ -181,6 +181,17 @@ public class SawmillMod {
 
     @PlatformImpl
     public static Object getCustomIngredient(Ingredient ing) {
+        throw new AssertionError();
+    }
+
+    /**
+     * Decomposes a custom ingredient into the inner vanilla ingredients that make up its
+     * "positive" item sources, so the caller can resolve them safely via getIngItems
+     * (which never poisons tag caches). Returns an empty list for custom ingredient types
+     * we don't know how to decompose - those are left undecoded rather than queried.
+     */
+    @PlatformImpl
+    public static List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
         throw new AssertionError();
     }
 }

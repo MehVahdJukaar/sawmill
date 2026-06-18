@@ -7,6 +7,10 @@ import net.mehvahdjukaar.sawmill.VillageStructureModifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.CompoundIngredient;
+import net.neoforged.neoforge.common.crafting.DifferenceIngredient;
+import net.neoforged.neoforge.common.crafting.ICustomIngredient;
+import net.neoforged.neoforge.common.crafting.IntersectionIngredient;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -56,6 +60,25 @@ public class SawmillModImpl {
 
     public static Object getCustomIngredient(Ingredient ing) {
         return ing.getCustomIngredient();
+    }
+
+    public static java.util.List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
+        ICustomIngredient custom = ing.getCustomIngredient();
+        // Return the inner ingredients only; the caller resolves them safely. We never call
+        // getItems()/test() here, so no nested lazy cache gets poisoned.
+        if (custom instanceof CompoundIngredient compound) {
+            return compound.children();
+        }
+        if (custom instanceof IntersectionIngredient intersection) {
+            // Over-approximate AND as the union of its children (fine for a cost heuristic).
+            return intersection.children();
+        }
+        if (custom instanceof DifferenceIngredient difference) {
+            // base minus subtracted: approximate with base. Including the subtracted items
+            // would only ever make a recipe look cheaper, never break it.
+            return java.util.List.of(difference.base());
+        }
+        return java.util.List.of();
     }
 
 }

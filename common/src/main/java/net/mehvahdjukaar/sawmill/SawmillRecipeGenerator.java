@@ -404,17 +404,18 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                 ItemStack[] innerConverted = getIngItems(bts.getInner());
                 stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
             } else {
-                // Any other custom ingredient: NeoForge difference/compound/intersection/
-                // data-component, Fabric customs, or third party types we can't decode
-                // structurally. Best-effort via the generic getItems() instead of giving up
-                // and returning nothing (which downstream reads as "impossible" and drops the
-                // recipe). This decodes all item-based customs; tag-wrapping customs can't
-                // resolve here (tags aren't bound yet during recipe gen) and degrade to empty
-                // rather than breaking.
-                stacks.addAll(List.of(ing.getItems()));
-                // getItems() caches into itemStacks, but that result is unreliable at this
-                // stage, so clear it so the live game recomputes it correctly later.
-                ing.itemStacks = null;
+                // Other custom ingredients (e.g. NeoForge compound/difference/intersection).
+                // We MUST NOT call getItems()/test() on the wrapper here: that early query
+                // populates the lazy itemStacks caches of its *nested* ingredients with empty
+                // values (tags aren't bound yet during recipe gen) and we can't reach those
+                // nested objects to reset them, which leaves them permanently broken in-game.
+                // Instead decompose into the inner ingredients and resolve each one through
+                // getIngItems, which routes tags through the intercepted map and only ever
+                // touches (and resets) the cache of static-item leaves. Types we can't
+                // decompose return nothing here and are simply left undecoded - never queried.
+                for (Ingredient inner : SawmillMod.decomposeCustomIngredient(ing)) {
+                    stacks.addAll(List.of(getIngItems(inner)));
+                }
             }
             return stacks.toArray(ItemStack[]::new);
         }
