@@ -202,6 +202,12 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     private static void addNewRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
+        // Safety net: an empty ingredient (no items, no tag) would survive the .test() guards above
+        // (empty.test(nonEmptyStack) == false) and then crash at pack-write time, because the recipe
+        // serializes its ingredient with Ingredient.CODEC_NONEMPTY ("Item array cannot be empty").
+        // This happens when a wood type contributes no usable item to its log/plank ingredient; we
+        // log which type at the getOrCreate*Ingredient site, so just drop the recipe quietly here.
+        if (input.isEmpty()) return;
         int maxStackSize = result.components().getOrDefault(DataComponents.MAX_STACK_SIZE, 1);
 
         InputOutputCost resCost = getInputOutputCost(cost, maxStackSize);
@@ -262,7 +268,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     private static Ingredient getOrCreatePlankIngredient(Map<WoodType, Ingredient> cache, WoodType type) {
         return cache.computeIfAbsent(type, t -> {
             var children = getAllChildren(type, "planks", "quark:vertical_planks");
-            return Ingredient.of(children.toArray(Item[]::new));
+            return warnIfEmpty(Ingredient.of(children.toArray(Item[]::new)), type, "plank");
         });
     }
 
@@ -273,8 +279,20 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                 return Ingredient.of(TagKey.create(Registries.ITEM, ResourceLocation.parse("c:logs/archwood")));
             }
             var children = getAllChildren(type, "log", "wood", "stripped_log", "stripped_wood");
-            return Ingredient.of(children.toArray(Item[]::new));
+            return warnIfEmpty(Ingredient.of(children.toArray(Item[]::new)), type, "log");
         });
+    }
+
+    // Ingredient.of() filters out empty/itemless stacks, so a wood type whose log/plank blocks aren't
+    // registered as enumerable children (or have no item form) yields an empty ingredient. That can't be
+    // used as a recipe input and would crash serialization, so it gets dropped in addNewRecipe - but it
+    // means this wood type leaked into the cost tree as a source without a real item, which is worth a heads-up.
+    private static Ingredient warnIfEmpty(Ingredient ingredient, WoodType type, String kind) {
+        if (ingredient.isEmpty()) {
+            SawmillMod.LOGGER.warn("Wood type '{}' resolved no usable {} item; skipping its {} recipes. " +
+                    "It has no enumerable {} child to use as a recipe ingredient.", type.getTypeName(), kind, kind, kind);
+        }
+        return ingredient;
     }
 
     private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<RecipeHolder<?>> recipes, boolean optim) {
