@@ -5,5 +5,6 @@
   "entity.minecraft.villager.carpenter": "大工",
   "subtitles.sawmill.entity.villager.work_carpenter": "大工が作業をする",
   "subtitles.sawmill.ui.sawmill.take_result": "木工台が使用される",
-  "sawmill.category.wood_cutting": "木工"
+  "sawmill.category.wood_cutting": "木工",
+  "tag.recipe_type.sawmill.whitelist": "Whitelist"
 }

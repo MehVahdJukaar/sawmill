@@ -5,5 +5,6 @@
   "entity.minecraft.villager.sawmill.carpenter": "Carpintero",
   "entity.minecraft.villager.carpenter": "Carpintero",
   "subtitles.sawmill.entity.villager.work_carpenter": "Carpintero trabajando",
-  "subtitles.sawmill.ui.sawmill.take_result": "Sierra usandose"
+  "subtitles.sawmill.ui.sawmill.take_result": "Sierra usandose",
+  "tag.recipe_type.sawmill.whitelist": "Whitelist"
 }

@@ -6,9 +6,6 @@
   "subtitles.sawmill.entity.villager.work_carpenter": "木匠：工作",
   "subtitles.sawmill.ui.sawmill.take_result": "锯木机：使用",
   "sawmill.category.wood_cutting": "锯木",
-
-
-
   "sawmill.configuration.general": "通用",
   "sawmill.configuration.sort_recipes": "整理配方",
   "sawmill.configuration.save_recipes": "保存配方",
@@ -22,5 +19,6 @@
   "sawmill.configuration.search_bar_threshold": "搜索栏阈值",
   "sawmill.configuration.special_recipe_costs": "特殊配方消耗",
   "sawmill.configuration.max_discount": "最大材料减免",
-  "sawmill.configuration.repurposed_structures_compat": "结构变体模组兼容"
+  "sawmill.configuration.repurposed_structures_compat": "结构变体模组兼容",
+  "tag.recipe_type.sawmill.whitelist": "Whitelist"
 }

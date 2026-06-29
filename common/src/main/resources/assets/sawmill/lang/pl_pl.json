@@ -5,5 +5,6 @@
   "entity.minecraft.villager.sawmill.carpenter": "Stolarz",
   "entity.minecraft.villager.carpenter": "Stolarz",
   "subtitles.sawmill.entity.villager.work_carpenter": "Stolarz pracuje",
-  "subtitles.sawmill.ui.sawmill.take_result": "Użyto tartaku"
+  "subtitles.sawmill.ui.sawmill.take_result": "Użyto tartaku",
+  "tag.recipe_type.sawmill.whitelist": "Whitelist"
 }
