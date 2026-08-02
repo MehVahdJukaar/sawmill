@@ -10,7 +10,6 @@ import net.mehvahdjukaar.moonlight.api.trades.ModItemListing;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerDataHolder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
@@ -57,19 +56,10 @@ public record RandomWoodToItemListing(boolean buys, String childKey, int woodPri
     @Nullable
     @Override
     public MerchantOffer getOffer(Entity trader, RandomSource random) {
-        WoodType type = null;
         var types = new ArrayList<>(WoodTypeRegistry.INSTANCE.getValues());
-        int tries = 0;
-        while (tries < 50 && !types.isEmpty()) {
-            tries++;
-            if (type == null) {
-                type = types.get(random.nextInt(types.size()));
-            }
-            types.remove(type);
-            if (blacklist.contains(type)) {
-                type = null;
-                continue;
-            }
+        while (!types.isEmpty()) {
+            WoodType type = types.remove(random.nextInt(types.size()));
+            if (blacklist.contains(type)) continue;
             Item woodItem = type.getItemOfThis(childKey);
             if (woodItem != null && woodItem != Items.AIR) {
                 ItemCost itemCost = new ItemCost(woodItem, woodPrice);

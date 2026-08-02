@@ -8,14 +8,12 @@ import net.mehvahdjukaar.moonlight.api.trades.ModItemListing;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerDataHolder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -46,17 +44,10 @@ public record LogStrippingListing(ItemCost price, int amount, int maxTrades, int
         return CODEC;
     }
 
-    private WoodType getTypeSpecificWoodType(Entity trader, RandomSource random) {
-        if (trader instanceof VillagerDataHolder d) {
-            List<WoodType> list = this.biomeWoods.getWoodsForType(d.getVillagerData().getType());
-            return list.get(random.nextInt(list.size()));
-        } else return null;
-    }
-
     @Nullable
     @Override
     public MerchantOffer getOffer(Entity trader, RandomSource random) {
-        WoodType type = getTypeSpecificWoodType(trader, random);
+        WoodType type = biomeWoods.getRandomWood(trader, random);
         if (type == null) return null;
         Item log = type.log.asItem();
         Item stripped = type.getItemOfThis("stripped_log");

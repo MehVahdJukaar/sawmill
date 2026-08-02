@@ -23,7 +23,7 @@ dependencies {
     modCompileOnly("curse.maven:yacl-667299:4574163")
     modCompileOnly("curse.maven:architectury-api-419699:5553799")
 
-    modCompileOnly("curse.maven:modmenu-308702:3920481") {
+    modCompileOnly("com.terraformersmc:modmenu:11.0.3") {
         exclude(module = "fabric-api")
     }
 }
