@@ -49,6 +49,7 @@ public class VillageStructureModifier {
     }
 
     public static void setup(RegistryAccess registryAccess) {
+        if (CommonConfigs.CARPENTER_HOUSE_SPAWN_RATE.get() <= 0) return;
         SawmillMod.LOGGER.info("Injecting Carpenter Village Houses");
 
         Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registries.TEMPLATE_POOL).orElseThrow();
@@ -111,7 +112,10 @@ public class VillageStructureModifier {
     private static void addVillageHouse(Registry<StructureTemplatePool> templatePoolRegistry,
                                         Registry<StructureProcessorList> processorListRegistry,
                                         ResourceLocation villageRes, ResourceLocation pieceName,
-                                        boolean mossy, int weight) {
+                                        boolean mossy, int baseWeight) {
+
+        int weight = (int) Math.round(baseWeight * CommonConfigs.CARPENTER_HOUSE_SPAWN_RATE.get());
+        if (weight <= 0) return;
 
         Holder<StructureProcessorList> normalProcessor =
                 mossy ? processorListRegistry.getHolderOrThrow(MOSSY_PROCESSOR_LIST_KEY) :

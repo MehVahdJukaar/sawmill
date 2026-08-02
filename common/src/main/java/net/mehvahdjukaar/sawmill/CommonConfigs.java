@@ -25,6 +25,7 @@ public class CommonConfigs {
     public static final Supplier<Double> MAX_DISCOUNT;
     public static final Supplier<Boolean> SORT_RECIPES;
     public static final Supplier<Boolean> RS_COMPAT;
+    public static final Supplier<Double> CARPENTER_HOUSE_SPAWN_RATE;
 
     public static final ModConfigHolder CONFIG;
 
@@ -81,6 +82,12 @@ public class CommonConfigs {
         RS_COMPAT = builder.icon("minecraft:bell").affectsDynamicPacks().worldReload()
                 .comment("Enables and disables compat structures for Repurposed Structures mod")
                 .feature("repurposed_structures_compat", true);
+        CARPENTER_HOUSE_SPAWN_RATE = builder.icon("minecraft:bell").worldReload()
+                .comment("Multiplier applied to the spawn weight of carpenter houses inside villages. " +
+                        "Higher values make them more common compared to the other houses of a village. " +
+                        "Set to 0 to stop them from generating altogether. " +
+                        "Does not affect Repurposed Structures villages, use a datapack for those")
+                .define("carpenter_house_spawn_rate", 1d, 0d, 16d);
         builder.pop();
 
         CONFIG = builder.build();

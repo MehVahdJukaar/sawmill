@@ -1,1 +1,2 @@
-- more fixes
+- new config screen
+- some fixes with trades
