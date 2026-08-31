@@ -1,85 +1,47 @@
 package net.mehvahdjukaar.sawmill;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
-import net.mehvahdjukaar.moonlight.api.trades.SimpleItemListing;
-import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RecipeSorter {
 
-    private static final List<Item> ITEM_ORDER = new ArrayList<>();
-    private static final Set<Item> UNSORTED = new HashSet<>();
+    public static List<WoodcuttingEntry> sorted(List<WoodcuttingEntry> entries, RegistryAccess registryAccess) {
+        if (!CommonConfigs.SORT_RECIPES.get()) return entries;
 
+        Set<Item> wanted = new HashSet<>();
+        entries.forEach(e -> wanted.add(e.result().getItem()));
 
-    //called from server side by recipe stuff.
-    public static void accept(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
-        UNSORTED.clear();
-        sawmillRecipes.forEach(r -> UNSORTED.add(r.value().getResultItem(RegistryAccess.EMPTY).getItem()));
+        Map<Item, Integer> orderByItem = buildTabOrder(wanted, registryAccess);
+        List<WoodcuttingEntry> sorted = new ArrayList<>(entries);
+        sorted.sort(Comparator.comparingInt(e -> orderByItem.getOrDefault(e.result().getItem(), -1)));
+        return sorted;
     }
 
-    public static void acceptOrder(IntList list) {
-        UNSORTED.clear();
-        ITEM_ORDER.clear();
-        list.forEach(i -> ITEM_ORDER.add(BuiltInRegistries.ITEM.byId(i)));
-    }
-
-    // don't think we can repopulate off-thread
-    public static void refreshIfNeeded(RegistryAccess reg) {
-        if (UNSORTED.isEmpty()) return;
-        ITEM_ORDER.clear();
+    private static Map<Item, Integer> buildTabOrder(Set<Item> wanted, RegistryAccess registryAccess) {
         if (!CreativeModeTabs.getDefaultTab().hasAnyItems()) {
             // this is NOT a client only method. Calling on server thread is valid.
-            CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, reg);
+            CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, registryAccess);
         }
-        for (var t : CreativeModeTabs.tabs()) {
-            List<Item> found = new ArrayList<>();
-            var list = t.getDisplayItems().stream().map(ItemStack::getItem).toList();
-            for (Item tabItem : list) {
-                if (UNSORTED.contains(tabItem)) {
-                    // if the item is in the tab, we can use its index to sort it
-                    found.add(tabItem);
-                    UNSORTED.remove(tabItem);
+        Map<Item, Integer> order = new HashMap<>();
+        for (var tab : CreativeModeTabs.tabs()) {
+            for (ItemStack stack : tab.getDisplayItems()) {
+                Item item = stack.getItem();
+                if (wanted.remove(item)) {
+                    order.put(item, order.size());
                 }
             }
-            ITEM_ORDER.addAll(found);
         }
-
-        UNSORTED.clear();
-    }
-
-
-    public static void sort(List<RecipeHolder<WoodcuttingRecipe>> recipes, Level level) {
-        if (CommonConfigs.SORT_RECIPES.get()) {
-            //Just runs once if needed. Needs to be the same from server and client
-            refreshIfNeeded(level.registryAccess());
-
-            recipes.sort(Comparator.comparingInt(r ->
-                    ITEM_ORDER.indexOf(r.value().getResultItem(RegistryAccess.EMPTY).getItem())));
-        }
-    }
-
-    public static void sendOrderToClient(@Nullable ServerPlayer player) {
-        refreshIfNeeded(Utils.hackyGetRegistryAccess());
-        IntList list = new IntArrayList();
-        ITEM_ORDER.forEach(i -> list.add(BuiltInRegistries.ITEM.getId(i)));
-        NetworkStuff.SyncRecipeOrder message = new NetworkStuff.SyncRecipeOrder(list);
-        if (player != null) {
-            NetworkHelper.sendToClientPlayer(player, message);
-        } else {
-            NetworkHelper.sendToAllClientPlayers(message);
-        }
+        return order;
     }
 }

@@ -1,3 +1,3 @@
-- new config screen
-- some fixes with trades
-- optional Create Mechanical Saw compat
+- ported to 26.1.2
+- carpenter trades are now datapack villager trades, one generated per wood type
+- EMI plugin temporarily removed, EMI has no 26.1 build yet

@@ -1,13 +1,11 @@
 package net.mehvahdjukaar.sawmill.platform;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.mehvahdjukaar.sawmill.RecipeSorter;
-import net.mehvahdjukaar.sawmill.SawmillClient;
+import net.mehvahdjukaar.sawmill.NetworkStuff;
 import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.VillageStructureModifier;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.mehvahdjukaar.sawmill.WoodcuttingRecipes;
 
 public class SawmillModImpl implements ModInitializer {
 
@@ -15,24 +13,9 @@ public class SawmillModImpl implements ModInitializer {
     public void onInitialize() {
         SawmillMod.init();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> VillageStructureModifier.setup(server.registryAccess()));
-        CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> {
-            if (client) SawmillClient.onTagsUpdated();
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
+            WoodcuttingRecipes.sortIfNeeded(player.level().registryAccess());
+            NetworkStuff.sendRecipesToClient(player);
         });
-        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((p, manager) -> RecipeSorter.sendOrderToClient(p));
     }
-
-    public static boolean isVanillaIngredient(Ingredient ing) {
-        return ing.getCustomIngredient() == null;
-    }
-
-    public static Object getCustomIngredient(Ingredient ing) {
-        return ing.getCustomIngredient();
-    }
-
-    public static java.util.List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
-        // Fabric custom ingredients aren't structurally decomposed: left undecoded (and
-        // never queried) rather than risk poisoning their nested lazy caches.
-        return java.util.List.of();
-    }
-
 }

@@ -7,20 +7,20 @@ neoforge {
     accessWidener(project(":common"))
 }
 
+val mc_version: String by extra
 val moonlight_version: String by extra
+val codecui_version: String by extra
+val jei_version: String by extra
+val rei_version: String by extra
 
 dependencies {
     modImplementation("net.mehvahdjukaar:moonlight-neoforge:${moonlight_version}")
     accessTransformers("net.mehvahdjukaar:moonlight-neoforge:${moonlight_version}")
 
-    // Mirror of common deps
-    modImplementation("curse.maven:emi-580555:6205506")
-    modCompileOnly("curse.maven:jei-238222:5846880")
-    modCompileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777")
-    modCompileOnly("curse.maven:rhino-416294:5589424")
+    modCompileOnly("mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}")
 
-    modCompileOnly("curse.maven:repurposed-structures-368293:4823487")
-    modCompileOnly("curse.maven:framedblocks-441647:5143589")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:${rei_version}")
 }
 
 sourceSets.named("main") {

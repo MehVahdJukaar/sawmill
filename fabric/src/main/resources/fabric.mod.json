@@ -25,15 +25,11 @@
     "rei_client": [
       "net.mehvahdjukaar.sawmill.integration.rei.REIPlugin"
     ],
-    "emi": [
-      "net.mehvahdjukaar.sawmill.integration.emi.EMIPlugin"
-    ],
     "modmenu": [
       "net.mehvahdjukaar.sawmill.integration.fabric.ModMenuCompat"
     ]
   },
   "mixins": [
-    "${mod_id}.mixins.json",
     "${mod_id}-common.mixins.json"
   ],
   "depends": {

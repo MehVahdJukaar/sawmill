@@ -6,16 +6,15 @@ import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
-import mezz.jei.library.util.RecipeUtil;
 import net.mehvahdjukaar.sawmill.SawmillMod;
-import net.mehvahdjukaar.sawmill.WoodcuttingRecipe;
+import net.mehvahdjukaar.sawmill.WoodcuttingEntry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class WoodcuttingCategory extends AbstractRecipeCategory<WoodcuttingRecipe> {
+public class WoodcuttingCategory extends AbstractRecipeCategory<WoodcuttingEntry> {
 
     public WoodcuttingCategory(IGuiHelper guiHelper) {
         super(JEIPlugin.WOODCUTTING_RECIPE_TYPE,
@@ -24,26 +23,26 @@ public class WoodcuttingCategory extends AbstractRecipeCategory<WoodcuttingRecip
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, WoodcuttingRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, WoodcuttingEntry recipe, IFocusGroup focuses) {
         builder.addInputSlot(1, 9)
                 .setStandardSlotBackground()
-                .addIngredients(recipe.getIngredients().get(0));
+                .addIngredients(recipe.input());
         builder.addOutputSlot(61, 9)
                 .setOutputSlotBackground()
-                .addItemStack(RecipeUtil.getResultItem(recipe));
+                .addItemStack(recipe.result());
     }
 
     @Override
-    public void createRecipeExtras(IRecipeExtrasBuilder builder, WoodcuttingRecipe recipe, IFocusGroup focuses) {
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, WoodcuttingEntry recipe, IFocusGroup focuses) {
         super.createRecipeExtras(builder, recipe, focuses);
         builder.addRecipeArrow().setPosition(26, 9);
     }
 
     @Override
-    public void draw(WoodcuttingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
-
-        guiGraphics.renderItemDecorations(Minecraft.getInstance().font,
-                new ItemStack(Items.DIRT, recipe.getInputCount()), 1, 9);
+    public void draw(WoodcuttingEntry recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
+                     double mouseX, double mouseY) {
+        super.draw(recipe, recipeSlotsView, graphics, mouseX, mouseY);
+        graphics.itemDecorations(Minecraft.getInstance().font,
+                new ItemStack(Items.DIRT, recipe.inputCount()), 1, 9);
     }
 }

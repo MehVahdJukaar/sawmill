@@ -7,25 +7,26 @@ fabric {
     accessWidener(project(":common"))
 }
 
+val mc_version: String by extra
 val moonlight_version: String by extra
 val codecui_version: String by extra
+val jei_version: String by extra
+val rei_version: String by extra
+val modmenu_version: String by extra
 
 dependencies {
     modImplementation("net.mehvahdjukaar:moonlight-fabric:${moonlight_version}")
     modRuntimeOnly("net.mehvahdjukaar:codecui-fabric:${codecui_version}")
 
-    // Mirror of common deps
-    modImplementation("curse.maven:emi-580555:6420930")
-    modCompileOnly("curse.maven:jei-238222:5846880")
+    modCompileOnly("mezz.jei:jei-${mc_version}-fabric-api:${jei_version}")
+
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:${rei_version}")
     // neoforge REI build (compileOnly) so common's @REIPluginClient (me.shedaniel.rei.forge.*)
     // resolves when fabric recompiles common sources; never bundled, fabric registers via entrypoint
-    modCompileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:16.0.777")
-    modCompileOnly("curse.maven:rhino-416294:5589424")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}")
 
-    modCompileOnly("curse.maven:yacl-667299:4574163")
-    modCompileOnly("curse.maven:architectury-api-419699:5553799")
-
-    modCompileOnly("com.terraformersmc:modmenu:11.0.3") {
+    modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}") {
         exclude(module = "fabric-api")
     }
 }

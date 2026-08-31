@@ -2,40 +2,56 @@ package net.mehvahdjukaar.sawmill;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
+import net.mehvahdjukaar.moonlight.api.resources.ResType;
 import net.mehvahdjukaar.moonlight.api.resources.pack.DynamicServerResourceProvider;
 import net.mehvahdjukaar.moonlight.api.resources.pack.ResourceGenTask;
 import net.mehvahdjukaar.moonlight.api.resources.pack.ResourceSink;
-import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
 import net.mehvahdjukaar.moonlight.api.set.wood.VanillaWoodTypes;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.mehvahdjukaar.sawmill.integration.CreateCompat;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,10 +65,6 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         super(SawmillMod.res("sawmill_recipes"), CommonConfigs.GEN_MODE.get().getStrategy());
     }
 
-    public boolean willGeneratingRecipesThisReload() {
-        return this.willRegenThisReload;
-    }
-
     public static void init() {
         RegHelper.registerDynamicResourceProvider(INSTANCE);
     }
@@ -61,8 +73,6 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     protected Collection<String> gatherSupportedNamespaces() {
         return List.of("c");
     }
-
-    //UNUSED. implement if mixin in recipe manager causes issues
 
     @Override
     public void regenerateDynamicAssets(Consumer<ResourceGenTask> executor) {
@@ -73,67 +83,61 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         this.willRegenThisReload = true;
     }
 
-    private void saveRecipesToPack(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes) {
+    private void saveRecipesToPack(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, HolderLookup.Provider registries) {
         SawmillMod.LOGGER.info("Saving {} Sawmill Recipes to resource pack", sawmillRecipes.size());
+        RegistryOps<JsonElement> ops = registries.createSerializationContext(JsonOps.INSTANCE);
         ResourceSink sink = new ResourceSink("dummy", "dummy");
         for (var r : sawmillRecipes) {
-            sink.addRecipe(r);
+            JsonElement json = Recipe.CODEC.encodeStart(ops, r.value()).getOrThrow();
+            sink.addJson(r.id().identifier(), json, ResType.RECIPES);
         }
         ResourceSink.acceptSinks(this.packResources, List.of(sink));
 
         this.packResources.commitChanges();
     }
 
-    public void process(Collection<RecipeHolder<?>> recipes,
-                        HolderLookup.Provider registries,
-                        com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
-                        ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType) {
+    public static RecipeMap onRecipesLoaded(RecipeMap loaded, HolderLookup.Provider registries) {
+        List<RecipeHolder<WoodcuttingRecipe>> generated = INSTANCE.process(loaded.values(), registries);
 
-        SawmillMod.LOGGER.info("Processing Sawmill Recipes into Recipe Manager");
-        List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = process(recipes);
+        List<RecipeHolder<WoodcuttingRecipe>> allWoodcutting = new ArrayList<>(generated);
+        allWoodcutting.addAll(loaded.byType(SawmillMod.WOODCUTTING_RECIPE.get()));
 
-        for (var r : sawmillRecipes) {
-            try {
-                byName.put(r.id(), r);
-                byType.put(r.value().getType(), r);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to add sawmill recipe " + r.id(), e);
-            }
+        List<RecipeHolder<?>> extra = new ArrayList<>(generated);
+        extra.addAll(CreateCompat.makeCuttingRecipes(allWoodcutting, registries));
+
+        RecipeMap result = loaded;
+        if (!extra.isEmpty()) {
+            List<RecipeHolder<?>> all = new ArrayList<>(loaded.values());
+            all.addAll(extra);
+            result = RecipeMap.create(all);
         }
 
-        CreateCompat.addCuttingRecipes(recipes, sawmillRecipes, registries, byName, byType);
+        List<WoodcuttingEntry> entries = result.byType(SawmillMod.WOODCUTTING_RECIPE.get()).stream()
+                .map(WoodcuttingEntry::of)
+                .toList();
+        WoodcuttingRecipes.setUnsorted(entries);
+        return result;
     }
 
-    public List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes) {
-        if (this.willRegenThisReload) {
-            this.willRegenThisReload = false;
-
-        } else {
+    public List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes, HolderLookup.Provider registries) {
+        if (!this.willRegenThisReload) {
             SawmillMod.LOGGER.info("Skipping Sawmill recipe generation as packs didn't change");
-            //sort recipes anyways
-            List<RecipeHolder<WoodcuttingRecipe>> existing = new ArrayList<>();
-            for (var r : recipes) {
-                if (r.value() instanceof WoodcuttingRecipe) {
-                    existing.add((RecipeHolder<WoodcuttingRecipe>) r);
-                }
-            }
-            RecipeSorter.accept(existing);
             return List.of();
         }
-
-
-        SawmillMod.waitForTags();
+        this.willRegenThisReload = false;
 
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
-        Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, true);
+
+        Context context = new Context(registries);
+        Map<Item, Map<WoodType, LogCost>> costs = createIngredientList(recipes, context);
         int maxWoods = WoodTypeRegistry.INSTANCE.size();
-        Ingredient anyPlanks = Ingredient.of(ItemTags.PLANKS);
-        Ingredient anyWood = Ingredient.of(ItemTags.LOGS);
+        Ingredient anyPlanks = Ingredient.of(context.itemTag(ItemTags.PLANKS));
+        Ingredient anyWood = Ingredient.of(context.itemTag(ItemTags.LOGS));
 
         List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes = new ArrayList<>();
-        Map<WoodType, Ingredient> logIngredients = new HashMap<>();
-        Map<WoodType, Ingredient> plankIngredients = new HashMap<>();
+        Map<WoodType, Optional<Ingredient>> logIngredients = new HashMap<>();
+        Map<WoodType, Optional<Ingredient>> plankIngredients = new HashMap<>();
         String group = "logs";
         String group2 = "planks";
 
@@ -153,13 +157,13 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                 // IDK if grouping here would be worth it
                 for (var m : logCosts.values()) {
                     WoodType woodType = m.type;
-                    Ingredient logInput = getOrCreateLogIngredient(logIngredients, woodType);
-                    if (!logInput.test(result.getDefaultInstance())) {
-                        //dont add logs to logs
+                    Ingredient logInput = getOrCreateLogIngredient(logIngredients, woodType, context).orElse(null);
+                    //dont add logs to logs
+                    if (logInput != null && !logInput.test(result.getDefaultInstance())) {
                         addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
                     }
-                    Ingredient plankInput = getOrCreatePlankIngredient(plankIngredients, woodType);
-                    if (!plankInput.test(result.getDefaultInstance())) {
+                    Ingredient plankInput = getOrCreatePlankIngredient(plankIngredients, woodType).orElse(null);
+                    if (plankInput != null && !plankInput.test(result.getDefaultInstance())) {
                         addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, getPlanksCost(woodType, m), true);
                     }
                 }
@@ -178,15 +182,11 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
             addLogRecipe(sawmillRecipes, type, counter++, "stripped_log", "stripped_wood");
         }
 
-
         long millis = stopwatch.elapsed().toMillis();
-        SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds (cac mode {})", millis, this.generationStrategy);
+        SawmillMod.LOGGER.info("Generated Sawmill recipes in {} milliseconds (cache mode {})", millis, this.generationStrategy);
 
-        SawmillMod.clearTagHacks();
+        this.saveRecipesToPack(sawmillRecipes, registries);
 
-        this.saveRecipesToPack(sawmillRecipes);
-
-        RecipeSorter.accept(sawmillRecipes);
         return sawmillRecipes;
     }
 
@@ -207,35 +207,17 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     private static void addNewRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
-        // Safety net: an empty ingredient (no items, no tag) would survive the .test() guards above
-        // (empty.test(nonEmptyStack) == false) and then crash at pack-write time, because the recipe
-        // serializes its ingredient with Ingredient.CODEC_NONEMPTY ("Item array cannot be empty").
-        // This happens when a wood type contributes no usable item to its log/plank ingredient; we
-        // log which type at the getOrCreate*Ingredient site, so just drop the recipe quietly here.
-        if (input.isEmpty()) return;
-        int maxStackSize = result.components().getOrDefault(DataComponents.MAX_STACK_SIZE, 1);
+        int maxStackSize = result.getDefaultMaxStackSize();
 
         InputOutputCost resCost = getInputOutputCost(cost, maxStackSize);
         int inputCount = resCost.inputCount();
         int outputCount = resCost.outputCount();
         if (only1on1 && inputCount != 1 && CommonConfigs.PLANKS_ONLY_ONE.get()) return;
-        if (outputCount > 0) {
-
-            // we know that we are going to add cost with 1 too,
-            // so we check what cost with that would be to match it if needed
-            if (!only1on1 && false) {
-                var costWith1 = getInputOutputCost(cost / 4, maxStackSize);
-                if (costWith1.inputCount == 1 && costWith1.outputCount / cost > outputCount) {
-                    outputCount = (int) (costWith1.outputCount / cost);
-                }
-            }
-            ResourceLocation res = SawmillMod.res(itemId + "_" + counter);
-            if (inputCount > 64) {
-                //SawmillMod.LOGGER.info("Sawmill tried to generate a recipe with too high input count: {}. ID: {}", inputCount, res);
-            } else {
-                WoodcuttingRecipe recipe = new WoodcuttingRecipe(group, input, new ItemStack(result, outputCount), inputCount);
-                sawmillRecipes.add(new RecipeHolder<>(res, recipe));
-            }
+        if (outputCount > 0 && inputCount <= 64) {
+            ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, SawmillMod.res(itemId + "_" + counter));
+            WoodcuttingRecipe recipe = new WoodcuttingRecipe(new Recipe.CommonInfo(true), input,
+                    new ItemStackTemplate(result, outputCount), inputCount);
+            sawmillRecipes.add(new RecipeHolder<>(key, recipe));
         }
     }
 
@@ -269,30 +251,32 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     private record InputOutputCost(int inputCount, int outputCount) {
     }
 
-
-    private static Ingredient getOrCreatePlankIngredient(Map<WoodType, Ingredient> cache, WoodType type) {
+    private static Optional<Ingredient> getOrCreatePlankIngredient(Map<WoodType, Optional<Ingredient>> cache, WoodType type) {
         return cache.computeIfAbsent(type, t -> {
             var children = getAllChildren(type, "planks", "quark:vertical_planks");
-            return warnIfEmpty(Ingredient.of(children.toArray(Item[]::new)), type, "plank");
+            return warnIfEmpty(ingredientOf(children), type, "plank");
         });
     }
 
-    private static Ingredient getOrCreateLogIngredient(Map<WoodType, Ingredient> cache, WoodType type) {
+    private static Optional<Ingredient> getOrCreateLogIngredient(Map<WoodType, Optional<Ingredient>> cache, WoodType type,
+                                                                 Context context) {
         return cache.computeIfAbsent(type, t -> {
             // I hate this wood type very much
             if (t.getTypeName().equals("archwood")) {
-                return Ingredient.of(TagKey.create(Registries.ITEM, ResourceLocation.parse("c:logs/archwood")));
+                HolderSet<Item> tag = context.itemTagOrNull(
+                        TagKey.create(Registries.ITEM, Identifier.parse("c:logs/archwood")));
+                if (tag != null) return Optional.of(Ingredient.of(tag));
             }
             var children = getAllChildren(type, "log", "wood", "stripped_log", "stripped_wood");
-            return warnIfEmpty(Ingredient.of(children.toArray(Item[]::new)), type, "log");
+            return warnIfEmpty(ingredientOf(children), type, "log");
         });
     }
 
-    // Ingredient.of() filters out empty/itemless stacks, so a wood type whose log/plank blocks aren't
-    // registered as enumerable children (or have no item form) yields an empty ingredient. That can't be
-    // used as a recipe input and would crash serialization, so it gets dropped in addNewRecipe - but it
-    // means this wood type leaked into the cost tree as a source without a real item, which is worth a heads-up.
-    private static Ingredient warnIfEmpty(Ingredient ingredient, WoodType type, String kind) {
+    private static Optional<Ingredient> ingredientOf(List<Item> items) {
+        return items.isEmpty() ? Optional.empty() : Optional.of(Ingredient.of(items.toArray(Item[]::new)));
+    }
+
+    private static Optional<Ingredient> warnIfEmpty(Optional<Ingredient> ingredient, WoodType type, String kind) {
         if (ingredient.isEmpty()) {
             SawmillMod.LOGGER.warn("Wood type '{}' resolved no usable {} item; skipping its {} recipes. " +
                     "It has no enumerable {} child to use as a recipe ingredient.", type.getTypeName(), kind, kind, kind);
@@ -300,7 +284,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         return ingredient;
     }
 
-    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<RecipeHolder<?>> recipes, boolean optim) {
+    private static Map<Item, Map<WoodType, LogCost>> createIngredientList(Collection<RecipeHolder<?>> recipes, Context context) {
         Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost = new HashMap<>();
         //primitive costs
         for (var type : WoodTypeRegistry.INSTANCE) {
@@ -319,39 +303,36 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         Set<Item> craftableItems = new HashSet<>();
         boolean allowNonBlocks = CommonConfigs.ALLOW_NON_BLOCKS.get();
         for (var recipe : recipes) {
-            if (SawmillMod.isWhitelisted(recipe)) {
-                try {
-                    Recipe<?> value = recipe.value();
-                    Item i = value.getResultItem(RegistryAccess.EMPTY).getItem();
+            if (!context.isWhitelisted(recipe)) continue;
+            try {
+                Recipe<?> value = recipe.value();
+                ItemStack resultStack = context.resultOf(value);
+                if (resultStack.isEmpty()) continue;
+                Item i = resultStack.getItem();
 
-                    if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
-                    if (!value.getIngredients().isEmpty()) {
-                        craftableItems.add(i);
-                        validRecipes.add(value);
-                    } else {
-                        //oh oh
-                        int aa = 1;
-                    }
-                } catch (Exception ignored) {
+                if (!allowNonBlocks && !(i instanceof BlockItem)) continue;
+                if (!value.placementInfo().ingredients().isEmpty()) {
+                    craftableItems.add(i);
+                    validRecipes.add(value);
                 }
+            } catch (Exception ignored) {
             }
         }
 
         //remove all the ones we dont need for sure
-        if (optim) removeUnNeded(itemToPrimitiveCost, validRecipes, craftableItems);
+        removeUnNeeded(itemToPrimitiveCost, validRecipes, craftableItems);
 
         craftableItems.clear();
         Multimap<Item, Recipe<?>> itemsToRecipe = HashMultimap.create();
         for (var r : validRecipes) {
-            Item res = r.getResultItem(RegistryAccess.EMPTY).getItem();
+            Item res = context.resultOf(r).getItem();
             itemsToRecipe.put(res, r);
             craftableItems.add(res);
         }
 
-
         //magic
         for (var item : craftableItems) {
-            getPrimitiveCostRecursive(item, itemsToRecipe, itemToPrimitiveCost, new HashSet<>(), 0);
+            getPrimitiveCostRecursive(item, itemsToRecipe, itemToPrimitiveCost, new HashSet<>(), 0, context);
         }
         itemToPrimitiveCost.values().removeIf(Objects::isNull);
         return itemToPrimitiveCost;
@@ -359,108 +340,59 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     private static void addHardcodedCosts(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost) {
         Map<String, Double> specialCosts = new HashMap<>(CommonConfigs.SPECIAL_COSTS.get());
-        var iter = specialCosts.entrySet().iterator();
-        while (iter.hasNext()) {
-            var c = iter.next();
+        for (var c : specialCosts.entrySet()) {
             String id = c.getKey();
             double costInLogs = c.getValue() / 4d;
             boolean hasWood = false;
             for (var type : WoodTypeRegistry.INSTANCE) {
                 Item woodItem = type.getItemOfThis(id);
                 if (woodItem != null) {
-                    Map<WoodType, LogCost> stairsCostInLog = Map.of(type, LogCost.of(type, costInLogs));
-                    itemToPrimitiveCost.put(woodItem, stairsCostInLog);
+                    itemToPrimitiveCost.put(woodItem, Map.of(type, LogCost.of(type, costInLogs)));
                     hasWood = true;
                 }
             }
             if (!hasWood) {
-                var opt = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(id));
+                var opt = BuiltInRegistries.ITEM.getOptional(Identifier.parse(id));
                 if (opt.isPresent()) {
                     var cost = WoodTypeRegistry.INSTANCE.getValues().stream().collect(Collectors.toMap(Function.identity(),
                             type -> LogCost.of(type, costInLogs)));
                     itemToPrimitiveCost.put(opt.get(), cost);
                 }
             }
-            iter.remove();
         }
     }
 
-    private static void removeUnNeded(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost, Set<Recipe<?>> validRecipes, Set<Item> craftableItems) {
+    private static void removeUnNeeded(Map<Item, Map<WoodType, LogCost>> itemToPrimitiveCost, Set<Recipe<?>> validRecipes,
+                                       Set<Item> craftableItems) {
         Iterator<Recipe<?>> iterator = validRecipes.iterator();
         outer:
         while (iterator.hasNext()) {
             Recipe<?> recipe = iterator.next();
 
-            for (var ing : recipe.getIngredients()) {
+            for (var ing : recipe.placementInfo().ingredients()) {
                 //don't consider air
-                if (!ing.isEmpty()) {
-                    // it all alternatives of an ingredient contain a primitive we remove
-                    boolean atLeastOneCorrect = false;
+                if (ing.isEmpty()) continue;
+                // it all alternatives of an ingredient contain a primitive we remove
+                boolean atLeastOneCorrect = false;
 
-                    for (var alternative : getIngItems(ing)) {
-                        Item a = alternative.getItem();
+                for (var alternative : ing.items().toList()) {
+                    Item a = alternative.value();
 
-                        // if we don't have a recipe for this it means it's a primitive. if it's not whitelisted we remove
-                        if (itemToPrimitiveCost.containsKey(a) || craftableItems.contains(a)) {
-                            // it is not primitive or its primitive of the right type.
-                            atLeastOneCorrect = true;
-                        }
+                    // if we don't have a recipe for this it means it's a primitive. if it's not whitelisted we remove
+                    if (itemToPrimitiveCost.containsKey(a) || craftableItems.contains(a)) {
+                        // it is not primitive or its primitive of the right type.
+                        atLeastOneCorrect = true;
+                        break;
                     }
-                    //if an entire ing group is made up of invalid primitives then entire recipe is invalid
-                    if (!atLeastOneCorrect) {
-                        iterator.remove();
-                        continue outer;
-                    }
+                }
+                //if an entire ing group is made up of invalid primitives then entire recipe is invalid
+                if (!atLeastOneCorrect) {
+                    iterator.remove();
+                    continue outer;
                 }
             }
         }
     }
-
-    @NotNull
-    private static ItemStack[] getIngItems(Ingredient ing) {
-        List<ItemStack> stacks = new ArrayList<>();
-        boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
-        if (!isVanilla) {
-            if (SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
-                // Moonlight's swap ingredient: resolve the inner ingredient (which routes its
-                // tags through our intercepted tag map) and then convert the block types.
-                ItemStack[] innerConverted = getIngItems(bts.getInner());
-                stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
-            } else {
-                // Other custom ingredients (e.g. NeoForge compound/difference/intersection).
-                // We MUST NOT call getItems()/test() on the wrapper here: that early query
-                // populates the lazy itemStacks caches of its *nested* ingredients with empty
-                // values (tags aren't bound yet during recipe gen) and we can't reach those
-                // nested objects to reset them, which leaves them permanently broken in-game.
-                // Instead decompose into the inner ingredients and resolve each one through
-                // getIngItems, which routes tags through the intercepted map and only ever
-                // touches (and resets) the cache of static-item leaves. Types we can't
-                // decompose return nothing here and are simply left undecoded - never queried.
-                for (Ingredient inner : SawmillMod.decomposeCustomIngredient(ing)) {
-                    stacks.addAll(List.of(getIngItems(inner)));
-                }
-            }
-            return stacks.toArray(ItemStack[]::new);
-        }
-        boolean isTag = false;
-        for (var v : ing.values) {
-            if (v instanceof Ingredient.TagValue tv) {
-                isTag = true;
-                stacks.addAll(SawmillMod.getTagElements(tv.tag()));
-            }
-        }
-
-        if (!isTag) {
-            // very, very bad
-            stacks.addAll(List.of(ing.getItems()));
-            // get item is unsafe to call here. we must reset it
-            // this is still not enough for compount ingredients...
-            ing.itemStacks = null;
-        }
-
-        return stacks.toArray(ItemStack[]::new);
-    }
-
 
     private static List<Item> getAllChildren(WoodType type, String... keys) {
         List<Item> children = new ArrayList<>();
@@ -476,11 +408,10 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     @Nullable
     public static Map<WoodType, LogCost> getPrimitiveCostRecursive(Item itemToUncraft, Multimap<Item, Recipe<?>> allRecipes,
                                                                    Map<Item, Map<WoodType, LogCost>> cache,
-                                                                   Set<Recipe<?>> visitedRecipes, int depth) {
-        // Stop expanding once we reach the limit; treat as "no cost found" for this path.
-
+                                                                   Set<Recipe<?>> visitedRecipes, int depth, Context context) {
         var cached = cache.get(itemToUncraft);
         if (cached != null) return cached;
+        // Stop expanding once we reach the limit; treat as "no cost found" for this path.
         if (depth >= 10) {
             //if its not made out of pure wood by now it probably never will be
             return null;
@@ -491,25 +422,20 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
         outer:
         for (var recipe : possibleRecipes) {
-            if (visitedRecipes.contains(recipe)) {
-                continue;
-            }
-            visitedRecipes.add(recipe);
+            if (!visitedRecipes.add(recipe)) continue;
+
             Map<WoodType, LogCost> recipeCostPerWood = new HashMap<>();
-            for (var ingredient : recipe.getIngredients()) {
-                if (ingredient.isEmpty()) {
-                    continue;
-                }
+            for (var ingredient : recipe.placementInfo().ingredients()) {
+                if (ingredient.isEmpty()) continue;
+
                 //This is an EITHER. Each entry are equivalent to create this specific ingredient
                 Map<WoodType, LogCost> ingredientPossibleCosts = new HashMap<>();
                 //get log cost for each item in the ingredient
-                for (ItemStack ing : getIngItems(ingredient)) {
-
-                    Map<WoodType, LogCost> itemCost = getPrimitiveCostRecursive(ing.getItem(), allRecipes, cache, visitedRecipes, depth++);
+                for (Holder<Item> ing : ingredient.items().toList()) {
+                    Map<WoodType, LogCost> itemCost = getPrimitiveCostRecursive(ing.value(), allRecipes, cache,
+                            visitedRecipes, depth + 1, context);
                     if (itemCost != null) {
-                        itemCost.forEach((woodType, logCost) -> {
-                            ingredientPossibleCosts.merge(woodType, logCost, LogCost::min);
-                        });
+                        itemCost.forEach((woodType, logCost) -> ingredientPossibleCosts.merge(woodType, logCost, LogCost::min));
                     }
                 }
                 //this ingredient had no log cost for any of its items. this means its invalid.
@@ -528,13 +454,12 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                         continue outer;
                     }
                     //merge
-                    recipeCostPerWood.forEach((key, val) ->
-                            recipeCostPerWood.merge(key, ingredientPossibleCosts.get(key), LogCost::sum)
-                    );
+                    recipeCostPerWood.replaceAll((key, val) -> val.sum(ingredientPossibleCosts.get(key)));
                 }
             }
 
-            int outputCount = recipe.getResultItem(RegistryAccess.EMPTY).getCount();
+            int outputCount = context.resultOf(recipe).getCount();
+            if (outputCount <= 0) continue;
             recipeCostPerWood.replaceAll((woodType, logCost) -> logCost.divide(outputCount));
             possibleCosts.add(recipeCostPerWood);
         }
@@ -551,18 +476,11 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     public static Map<WoodType, LogCost> chooseMinCost(List<Map<WoodType, LogCost>> possibleRecipeCosts) {
         Map<WoodType, LogCost> result = new HashMap<>();
-
         for (Map<WoodType, LogCost> map : possibleRecipeCosts) {
-            for (Map.Entry<WoodType, LogCost> entry : map.entrySet()) {
-                WoodType key = entry.getKey();
-                LogCost value = entry.getValue();
-
-                result.merge(key, value, LogCost::min);
-            }
+            map.forEach((key, value) -> result.merge(key, value, LogCost::min));
         }
         return result;
     }
-
 
     public record LogCost(WoodType type, Double cost) {
         static LogCost of(WoodType type, Double amount) {
@@ -582,4 +500,43 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         }
     }
 
+    public static class Context {
+        private final HolderLookup.Provider registries;
+        private final ContextMap displayContext;
+        private final Set<RecipeType<?>> whitelist;
+        private final Map<Recipe<?>, ItemStack> resultCache = new HashMap<>();
+
+        public Context(HolderLookup.Provider registries) {
+            this.registries = registries;
+            this.displayContext = new ContextMap.Builder()
+                    .withParameter(SlotDisplayContext.REGISTRIES, registries)
+                    .create(SlotDisplayContext.CONTEXT);
+            this.whitelist = registries.lookupOrThrow(Registries.RECIPE_TYPE)
+                    .get(SawmillMod.RECIPE_WHITELIST)
+                    .map(set -> set.stream().map(Holder::value).collect(Collectors.<RecipeType<?>>toSet()))
+                    .orElseGet(Set::of);
+        }
+
+        public HolderSet<Item> itemTag(TagKey<Item> tag) {
+            return registries.lookupOrThrow(Registries.ITEM).getOrThrow(tag);
+        }
+
+        @Nullable
+        public HolderSet<Item> itemTagOrNull(TagKey<Item> tag) {
+            return registries.lookupOrThrow(Registries.ITEM).get(tag).orElse(null);
+        }
+
+        public boolean isWhitelisted(RecipeHolder<?> recipe) {
+            if (!whitelist.contains(recipe.value().getType())) return false;
+            return !CommonConfigs.MOD_BLACKLIST.get().contains(recipe.id().identifier().getNamespace());
+        }
+
+        public ItemStack resultOf(Recipe<?> recipe) {
+            return resultCache.computeIfAbsent(recipe, r -> {
+                var displays = r.display();
+                if (displays.isEmpty()) return ItemStack.EMPTY;
+                return displays.getFirst().result().resolveForFirstStack(displayContext);
+            });
+        }
+    }
 }

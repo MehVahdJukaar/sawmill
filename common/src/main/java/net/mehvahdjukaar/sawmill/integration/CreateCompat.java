@@ -1,7 +1,5 @@
 package net.mehvahdjukaar.sawmill.integration;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,57 +12,45 @@ import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.WoodcuttingRecipe;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class CreateCompat {
 
-    private static final ResourceLocation CUTTING = ResourceLocation.fromNamespaceAndPath("create", "cutting");
+    private static final Identifier CUTTING = Identifier.fromNamespaceAndPath("create", "cutting");
     private static final int PROCESSING_TIME = 50;
     private static final int MAX_OUTPUT_COUNT = 99;
 
-    public static void addCuttingRecipes(Collection<RecipeHolder<?>> allRecipes,
-                                         List<RecipeHolder<WoodcuttingRecipe>> generated,
-                                         HolderLookup.Provider registries,
-                                         ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
-                                         ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType) {
-        if (!CommonConfigs.CREATE_SAW_COMPAT.get() || !PlatHelper.isModLoaded("create")) return;
+    public static List<RecipeHolder<?>> makeCuttingRecipes(List<RecipeHolder<WoodcuttingRecipe>> woodcutting,
+                                                           HolderLookup.Provider registries) {
+        if (!CommonConfigs.CREATE_SAW_COMPAT.get() || !PlatHelper.isModLoaded("create")) return List.of();
 
-        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.get(CUTTING);
+        RecipeSerializer<?> serializer = BuiltInRegistries.RECIPE_SERIALIZER.getValue(CUTTING);
         if (serializer == null) {
             SawmillMod.LOGGER.warn("Create is installed but has no {} serializer. Skipping mechanical saw compat", CUTTING);
-            return;
+            return List.of();
         }
         Codec<Recipe<?>> codec = recipeCodec(serializer);
         DynamicOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, registries);
 
-        // when the pack cache is fresh nothing gets generated, recipes come in already loaded instead
-        List<RecipeHolder<WoodcuttingRecipe>> woodcutting = new ArrayList<>(generated);
-        for (var r : allRecipes) {
-            if (r.value() instanceof WoodcuttingRecipe w) {
-                woodcutting.add(new RecipeHolder<>(r.id(), w));
-            }
-        }
-
-        int added = 0;
+        List<RecipeHolder<?>> added = new ArrayList<>();
         for (var holder : woodcutting) {
             WoodcuttingRecipe recipe = holder.value();
             if (recipe.getInputCount() != 1) continue;
-            ItemStack result = recipe.getResultItem(registries);
+            ItemStack result = recipe.resultTemplate().create();
             if (result.isEmpty() || result.getCount() > MAX_OUTPUT_COUNT) continue;
 
-            Ingredient input = recipe.getIngredients().getFirst();
-            JsonElement inputJson = Ingredient.CODEC_NONEMPTY.encodeStart(ops, input).result().orElse(null);
+            JsonElement inputJson = Ingredient.CODEC.encodeStart(ops, recipe.input()).result().orElse(null);
             if (inputJson == null) continue;
 
             JsonObject json = new JsonObject();
@@ -75,16 +61,16 @@ public class CreateCompat {
             Recipe<?> cutting = codec.parse(ops, json).result().orElse(null);
             if (cutting == null) {
                 SawmillMod.LOGGER.warn("Create didn't accept cutting recipe json {}. Skipping mechanical saw compat", json);
-                return;
+                return List.of();
             }
 
-            ResourceLocation id = SawmillMod.res("create_cutting/" + holder.id().getNamespace() + "/" + holder.id().getPath());
-            RecipeHolder<Recipe<?>> cuttingHolder = new RecipeHolder<>(id, cutting);
-            byName.put(id, cuttingHolder);
-            byType.put(cutting.getType(), cuttingHolder);
-            added++;
+            Identifier sourceId = holder.id().identifier();
+            ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE,
+                    SawmillMod.res("create_cutting/" + sourceId.getNamespace() + "/" + sourceId.getPath()));
+            added.add(new RecipeHolder<>(key, cutting));
         }
-        SawmillMod.LOGGER.info("Added {} Create cutting recipes for the Mechanical Saw", added);
+        SawmillMod.LOGGER.info("Added {} Create cutting recipes for the Mechanical Saw", added.size());
+        return added;
     }
 
     private static JsonObject encodeOutput(ItemStack stack) {

@@ -1,33 +1,32 @@
 package net.mehvahdjukaar.sawmill;
 
 import com.google.common.collect.ImmutableSet;
-import net.mehvahdjukaar.candlelight.api.PlatformImpl;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.mehvahdjukaar.sawmill.trades.CarpenterTrades;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
-import net.minecraft.tags.TagManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.trading.TradeSet;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.HashSet;
 import java.util.function.Supplier;
 
 public class SawmillMod {
@@ -35,10 +34,13 @@ public class SawmillMod {
 
     public static final Logger LOGGER = LogManager.getLogger("Sawmill");
 
-    private static final boolean RS_ON = PlatHelper.isModLoaded("repurposed_structures");
-
     public static final Supplier<Block> SAWMILL_BLOCK = RegHelper.registerBlockWithItem(
-            res("sawmill"), SawmillBlock::new);
+            res("sawmill"), SawmillBlock::new, BlockBehaviour.Properties.of()
+                    .destroyTime(2.5f)
+                    .explosionResistance(2.5f)
+                    .sound(SoundType.WOOD)
+                    .mapColor(MapColor.WOOD)
+                    .instrument(NoteBlockInstrument.BASS));
 
     public static final Supplier<MenuType<SawmillMenu>> SAWMILL_MENU = RegHelper.registerMenuType(
             res("sawmill"), SawmillMenu::new);
@@ -48,7 +50,7 @@ public class SawmillMod {
     public static final Supplier<SoundEvent> CARPENTER_WORK = RegHelper.registerSound(res("entity.villager.work_carpenter"));
 
     public static final Supplier<RecipeSerializer<WoodcuttingRecipe>> WOODCUTTING_RECIPE_SERIALIZER = RegHelper.registerRecipeSerializer(
-            res("woodcutting"), WoodcuttingRecipe.Serializer::new);
+            res("woodcutting"), () -> new RecipeSerializer<>(WoodcuttingRecipe.MAP_CODEC, WoodcuttingRecipe.STREAM_CODEC));
 
     public static final Supplier<RecipeType<WoodcuttingRecipe>> WOODCUTTING_RECIPE = RegHelper.registerRecipeType(
             res("woodcutting"));
@@ -59,28 +61,24 @@ public class SawmillMod {
     public static final Supplier<PoiType> CARPENTER_POI = RegHelper.registerPOI(res("carpenter"),
             () -> new PoiType(new HashSet<>(SAWMILL_BLOCK.get().getStateDefinition().getPossibleStates()), 1, 1));
 
-    public static final Supplier<VillagerProfession> CARPENTER = registerVillager(
-            "carpenter", CARPENTER_POI_KEY, CARPENTER_WORK);
+    public static final Supplier<VillagerProfession> CARPENTER = RegHelper.registerVillagerProfession(
+            res("carpenter"),
+            holder -> holder.is(CARPENTER_POI_KEY), holder -> holder.is(CARPENTER_POI_KEY),
+            ImmutableSet.of(), ImmutableSet.of(),
+            CARPENTER_WORK, CarpenterTrades.tradeSetsByLevel());
 
     public static final TagKey<Item> BLACKLIST = TagKey.create(Registries.ITEM, res("blacklist"));
 
-    private static Supplier<VillagerProfession> registerVillager(String name, ResourceKey<PoiType> jobSite, Supplier<SoundEvent> workSound) {
-        return RegHelper.register(res(name), () -> new VillagerProfession(name,
-                        (holder) -> holder.is(jobSite),
-                        (holder) -> holder.is(jobSite),
-                        ImmutableSet.of(), ImmutableSet.of(), workSound.get()),
-                Registries.VILLAGER_PROFESSION);
-    }
+    public static final TagKey<RecipeType<?>> RECIPE_WHITELIST = TagKey.create(Registries.RECIPE_TYPE, res("whitelist"));
 
     public static void init() {
         if (PlatHelper.getPhysicalSide().isClient()) {
             SawmillClient.init();
         }
         NetworkStuff.init();
-        CarpenterTrades.init();
         CommonConfigs.init();
-        RegHelper.registerSimpleRecipeCondition(res("flag"), ignored -> {
-            if (ignored.equals("rs_compat")) return CommonConfigs.RS_COMPAT.get();
+        RegHelper.registerSimpleRecipeCondition(res("flag"), flag -> {
+            if (flag.equals("rs_compat")) return CommonConfigs.RS_COMPAT.get();
             return false;
         });
         RegHelper.addItemsToTabsRegistration(event ->
@@ -89,109 +87,14 @@ public class SawmillMod {
                         SAWMILL_BLOCK.get().asItem()));
 
         SawmillRecipeGenerator.init();
+        CarpenterTrades.init();
     }
 
-    public static ResourceLocation res(String name) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+    public static Identifier res(String name) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, name);
     }
 
-    // Hacky tag stuff below here. way more complex than it needs to be because prople reported some issue with recipes breaking or something
-    // I have no idea where those come from so i just made it as complex as possible to avoid any possible issues
-
-    private static final Object lock = new Object();
-    private static boolean receivedTags = false;
-    private static final Map<ResourceLocation, Collection<Holder<?>>> tags = new HashMap<>();
-    private static final Map<TagKey<Item>, List<ItemStack>> cachedTags = new HashMap<>();
-    private static final Map<RecipeType<?>, Boolean> cachedWhitelist = new HashMap<>();
-    private static final List<Holder<RecipeType<?>>> whitelist = new ArrayList<>();
-
-    public static Collection<ItemStack> getTagElements(TagKey<Item> tag) {
-        return cachedTags.computeIfAbsent(tag, t -> {
-            var tagList = tags.get(t.location());
-            if (tagList == null) {
-                return List.of();
-            }
-            return tagList.stream().map(h -> ((Item) h.value()).getDefaultInstance())
-                    .toList();
-        });
-    }
-
-    public static void clearTagHacks() {
-        whitelist.clear();
-        cachedTags.clear();
-        cachedWhitelist.clear();
-        receivedTags = false;
-    }
-
-    public static boolean isWhitelisted(RecipeHolder<?> recipe) {
-        boolean ret = cachedWhitelist.computeIfAbsent(recipe.value().getType(),
-                recipeType -> whitelist.stream().anyMatch(h -> h.value() == recipeType));
-        if (ret) {
-            if (CommonConfigs.MOD_BLACKLIST.get().contains(recipe.id().getNamespace())) return false;
-        }
-        return ret;
-    }
-
-    public static void setTagManagerResults(List<TagManager.LoadResult<?>> results) {
-        //TODO: optimize by not doing this if we don't need tags
-       // if (!CommonConfigs.SAVE_RECIPES.get() && !CommonConfigs.DYNAMIC_RECIPES.get()) return;
-        //actually here we are already on main thread so this isn't even needed.....
-        synchronized (lock) {
-            tags.clear();
-            for (var r : results) {
-                if (r.key() == Registries.ITEM) {
-                    for (var e : r.tags().entrySet()) {
-                        tags.computeIfAbsent(e.getKey(), y -> new ArrayList<>())
-                                .addAll(e.getValue());
-                    }
-                    break;
-                }
-            }
-            for (var r : results) {
-                if (r.key() == Registries.RECIPE_TYPE) {
-                    Collection<? extends Holder<?>> whitelistTag = r.tags().get(res("whitelist"));
-                    whitelist.addAll(whitelistTag.stream().map(holder -> (Holder<RecipeType<?>>) holder).toList());
-                    break;
-                }
-            }
-            receivedTags = true;
-            lock.notifyAll();
-        }
-        SawmillMod.LOGGER.info("Intercepted tag results");
-    }
-
-    public static void waitForTags() {
-        // wait for tags to be ready so we don't initialize some recipes with unfinished tags or some shit
-        synchronized (lock) {
-            if (!receivedTags) {
-                try {
-                    SawmillMod.LOGGER.info("Waiting for tags");
-                    lock.wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Sawmill error:", e);
-                }
-            }
-        }
-    }
-
-    @PlatformImpl
-    public static boolean isVanillaIngredient(Ingredient ing) {
-        throw new AssertionError();
-    }
-
-    @PlatformImpl
-    public static Object getCustomIngredient(Ingredient ing) {
-        throw new AssertionError();
-    }
-
-    /**
-     * Decomposes a custom ingredient into the inner vanilla ingredients that make up its
-     * "positive" item sources, so the caller can resolve them safely via getIngItems
-     * (which never poisons tag caches). Returns an empty list for custom ingredient types
-     * we don't know how to decompose - those are left undecoded rather than queried.
-     */
-    @PlatformImpl
-    public static List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
-        throw new AssertionError();
+    public static ResourceKey<TradeSet> tradeSet(String path) {
+        return ResourceKey.create(Registries.TRADE_SET, res(path));
     }
 }
