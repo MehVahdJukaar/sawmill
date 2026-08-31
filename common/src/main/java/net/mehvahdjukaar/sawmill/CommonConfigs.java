@@ -25,6 +25,7 @@ public class CommonConfigs {
     public static final Supplier<Double> MAX_DISCOUNT;
     public static final Supplier<Boolean> SORT_RECIPES;
     public static final Supplier<Boolean> RS_COMPAT;
+    public static final Supplier<Boolean> CREATE_SAW_COMPAT;
     public static final Supplier<Double> CARPENTER_HOUSE_SPAWN_RATE;
 
     public static final ModConfigHolder CONFIG;
@@ -82,6 +83,9 @@ public class CommonConfigs {
         RS_COMPAT = builder.icon("minecraft:bell").affectsDynamicPacks().worldReload()
                 .comment("Enables and disables compat structures for Repurposed Structures mod")
                 .feature("repurposed_structures_compat", true);
+        CREATE_SAW_COMPAT = builder.icon("minecraft:stonecutter").worldReload()
+                .comment("Copies sawmill recipes to Create's Mechanical Saw. Off by default: the saw picks a random matching recipe, so a log could come out as any sawmill output")
+                .feature("create_saw_compat", false);
         CARPENTER_HOUSE_SPAWN_RATE = builder.icon("minecraft:bell").worldReload()
                 .comment("Multiplier applied to the spawn weight of carpenter houses inside villages. " +
                         "Higher values make them more common compared to the other houses of a village. " +

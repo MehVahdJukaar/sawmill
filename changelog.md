@@ -1,2 +1,3 @@
 - new config screen
 - some fixes with trades
+- optional Create Mechanical Saw compat

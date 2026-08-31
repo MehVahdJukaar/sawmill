@@ -5,12 +5,14 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import net.mehvahdjukaar.sawmill.SawmillRecipeGenerator;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,6 +29,10 @@ public class RecipeManagerMixin {
     @Shadow
     private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
 
+    @Shadow
+    @Final
+    private HolderLookup.Provider registries;
+
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
             at = @At(value = "INVOKE_ASSIGN",
                     target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;",
@@ -38,7 +44,7 @@ public class RecipeManagerMixin {
             byNameCopy.put(r.id(), r);
             byTypeCopy.put(r.value().getType(), r);
         });
-        SawmillRecipeGenerator.INSTANCE.process(this.byName.values(), byNameCopy, byTypeCopy);
+        SawmillRecipeGenerator.INSTANCE.process(this.byName.values(), this.registries, byNameCopy, byTypeCopy);
         this.byName = byNameCopy.build();
         this.byType = byTypeCopy.build();
     }

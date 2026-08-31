@@ -13,6 +13,8 @@ import net.mehvahdjukaar.moonlight.api.set.wood.VanillaWoodTypes;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodType;
 import net.mehvahdjukaar.moonlight.api.set.wood.WoodTypeRegistry;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
+import net.mehvahdjukaar.sawmill.integration.CreateCompat;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -83,6 +85,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     }
 
     public void process(Collection<RecipeHolder<?>> recipes,
+                        HolderLookup.Provider registries,
                         com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
                         ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType) {
 
@@ -97,6 +100,8 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                 throw new RuntimeException("Failed to add sawmill recipe " + r.id(), e);
             }
         }
+
+        CreateCompat.addCuttingRecipes(recipes, sawmillRecipes, registries, byName, byType);
     }
 
     public List<RecipeHolder<WoodcuttingRecipe>> process(Collection<RecipeHolder<?>> recipes) {
