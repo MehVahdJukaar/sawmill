@@ -21,6 +21,6 @@ public class REIPlugin implements REIClientPlugin {
 
     @Override
     public void registerDisplays(DisplayRegistry registry) {
-        WoodcuttingRecipes.all().forEach(e -> registry.add(new WoodcuttingDisplay(e)));
+        WoodcuttingRecipes.onClient().forEach(e -> registry.add(new WoodcuttingDisplay(e)));
     }
 }

@@ -36,7 +36,7 @@ public class JEIPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         if (REI) return;
-        registration.addRecipes(WOODCUTTING_RECIPE_TYPE, WoodcuttingRecipes.all());
+        registration.addRecipes(WOODCUTTING_RECIPE_TYPE, WoodcuttingRecipes.onClient());
     }
 
     @Override

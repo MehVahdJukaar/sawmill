@@ -1,8 +1,7 @@
 {
   "container.sawmill.sawmill": "Sega",
   "block.sawmill.sawmill": "Sega",
-  "entity.minecraft.villager.sawmill.carpenter": "Falegname",
-  "entity.minecraft.villager.carpenter": "Falegname",
+  "entity.sawmill.villager.carpenter": "Falegname",
   "subtitles.sawmill.entity.villager.work_carpenter": "Falegname lavora",
   "subtitles.sawmill.ui.sawmill.take_result": "Sega usata",
   "sawmill.category.wood_cutting": "Taglio del legno",

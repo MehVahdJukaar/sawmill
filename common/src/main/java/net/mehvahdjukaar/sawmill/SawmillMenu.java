@@ -160,7 +160,7 @@ public class SawmillMenu extends AbstractContainerMenu {
 
         List<WoodcuttingEntry> matching = List.of();
         if (!stack.isEmpty()) {
-            matching = WoodcuttingRecipes.selectByInput(stack).stream()
+            matching = WoodcuttingRecipes.selectByInput(this.level, stack).stream()
                     .filter(e -> !e.result().is(SawmillMod.BLACKLIST))
                     .limit(MAX_RECIPES)
                     .toList();
@@ -234,7 +234,7 @@ public class SawmillMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemStack2, 2, 38, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (WoodcuttingRecipes.acceptsInput(itemStack2)) {
+            } else if (WoodcuttingRecipes.acceptsInput(this.level, itemStack2)) {
                 if (!this.moveItemStackTo(itemStack2, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }

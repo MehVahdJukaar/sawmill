@@ -24,7 +24,7 @@ public class NetworkStuff {
     }
 
     public static void sendRecipesToClient(@Nullable ServerPlayer player) {
-        List<WoodcuttingEntry> all = WoodcuttingRecipes.all();
+        List<WoodcuttingEntry> all = WoodcuttingRecipes.onServer();
         boolean first = true;
         for (int from = 0; from < all.size() || first; from += CHUNK_SIZE) {
             List<WoodcuttingEntry> chunk = all.subList(from, Math.min(from + CHUNK_SIZE, all.size()));
@@ -62,9 +62,9 @@ public class NetworkStuff {
         @Override
         public void handle(Context context) {
             if (replace) {
-                WoodcuttingRecipes.set(entries);
+                WoodcuttingRecipes.setClient(entries);
             } else {
-                WoodcuttingRecipes.append(entries);
+                WoodcuttingRecipes.appendClient(entries);
             }
         }
 

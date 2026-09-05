@@ -10,6 +10,6 @@ public class SawmillClient {
     }
 
     public static boolean hasManyRecipes() {
-        return WoodcuttingRecipes.all().size() > CommonConfigs.SEARCH_BAR_THRESHOLD.get();
+        return WoodcuttingRecipes.onClient().size() > CommonConfigs.SEARCH_BAR_THRESHOLD.get();
     }
 }
