@@ -25,6 +25,9 @@
     "rei_client": [
       "net.mehvahdjukaar.sawmill.integration.rei.REIPlugin"
     ],
+    "rrv_client": [
+      "net.mehvahdjukaar.sawmill.integration.rrv.RRVPlugin"
+    ],
     "modmenu": [
       "net.mehvahdjukaar.sawmill.integration.fabric.ModMenuCompat"
     ]

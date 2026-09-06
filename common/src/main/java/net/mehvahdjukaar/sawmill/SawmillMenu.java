@@ -181,8 +181,7 @@ public class SawmillMenu extends AbstractContainerMenu {
         if (this.isValidRecipeIndex(this.selectedRecipeIndex.get())) {
             WoodcuttingEntry selected = this.recipes.get(this.selectedRecipeIndex.get());
             this.lastSelectedRecipe = selected;
-            var holder = selected.recipe().orElse(null);
-            if (holder != null) {
+            if (selected instanceof WoodcuttingEntry.ServerSide(var holder)) {
                 ItemStack result = holder.value().assemble(new SingleRecipeInput(this.container.getItem(0)));
                 if (result.isItemEnabled(this.level.enabledFeatures())) {
                     this.resultContainer.setRecipeUsed(holder);

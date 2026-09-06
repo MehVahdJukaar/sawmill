@@ -97,5 +97,17 @@ upload {
         maven { url = uri("https://raw.githubusercontent.com/Fuzss/modresources/main/maven") } // Fuzss' Mod Resources
         maven { url = uri("https://maven.jamieswhiteshirt.com/libs-release") } // Jamie's Mods
         maven { url = uri("https://maven.ryanhcode.dev/releases") }
+
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "Cassian's Maven"
+                    url = uri("https://maven.cassian.cc")
+                }
+            }
+            filter {
+                includeGroupAndSubgroups("cc.cassian")
+            }
+        }
     }
 }

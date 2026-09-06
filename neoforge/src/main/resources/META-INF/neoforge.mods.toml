@@ -19,6 +19,7 @@ config = "${mod_id}-common.mixins.json"
     description = '''${mod_description}'''
     modUrl = "${mod_homepage}"
     itemIcon = "minecraft:brush"
+    rrv_client = "net.mehvahdjukaar.sawmill.integration.rrv.RRVPlugin"
 
 [[dependencies.${mod_id}]]
     modId = "neoforge"

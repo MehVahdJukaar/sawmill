@@ -12,6 +12,7 @@ val moonlight_version: String by extra
 val codecui_version: String by extra
 val jei_version: String by extra
 val rei_version: String by extra
+val rrv_version: String by extra
 val modmenu_version: String by extra
 
 dependencies {
@@ -23,6 +24,8 @@ dependencies {
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:${rei_version}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}")
+
+    modImplementation("cc.cassian.rrv:reliable-recipe-viewer-fabric:${rrv_version}+${mc_version}")
 
     modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}") {
         exclude(module = "fabric-api")
