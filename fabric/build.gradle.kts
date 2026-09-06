@@ -22,8 +22,6 @@ dependencies {
 
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:${rei_version}")
-    // neoforge REI build (compileOnly) so common's @REIPluginClient (me.shedaniel.rei.forge.*)
-    // resolves when fabric recompiles common sources; never bundled, fabric registers via entrypoint
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}")
 
     modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}") {
