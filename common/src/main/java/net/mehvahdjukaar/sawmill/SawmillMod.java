@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import net.mehvahdjukaar.candlelight.api.PlatformImpl;
 import net.mehvahdjukaar.moonlight.api.platform.PlatHelper;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
+import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
 import net.mehvahdjukaar.sawmill.trades.CarpenterTrades;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -114,6 +115,29 @@ public class SawmillMod {
             return tagList.stream().map(h -> ((Item) h.value()).getDefaultInstance())
                     .toList();
         });
+    }
+
+    //resolves tags through the intercepted ones since registry tags arent bound yet at this point
+    public static List<ItemStack> getIngItems(Ingredient ing) {
+        List<ItemStack> stacks = new ArrayList<>();
+        if (!isVanillaIngredient(ing)) {
+            if (getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
+                stacks.addAll(bts.convertItems(getIngItems(bts.getInner())));
+            } else {
+                //We MUST NOT call getItems()/test() on the wrapper here:
+                //it caches empty nested ingredients since tags arent bound yet. decompose instead
+                for (Ingredient inner : decomposeCustomIngredient(ing)) {
+                    stacks.addAll(getIngItems(inner));
+                }
+            }
+            return stacks;
+        }
+        for (var v : ing.values) {
+            if (v instanceof Ingredient.TagValue tv) stacks.addAll(getTagElements(tv.tag()));
+            else stacks.addAll(v.getItems());
+        }
+
+        return stacks;
     }
 
     public static void clearTagHacks() {

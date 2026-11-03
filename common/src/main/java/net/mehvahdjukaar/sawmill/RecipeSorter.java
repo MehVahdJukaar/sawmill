@@ -2,8 +2,9 @@ package net.mehvahdjukaar.sawmill;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
-import net.mehvahdjukaar.moonlight.api.trades.SimpleItemListing;
 import net.mehvahdjukaar.moonlight.api.util.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,7 +21,7 @@ import java.util.*;
 
 public class RecipeSorter {
 
-    private static final List<Item> ITEM_ORDER = new ArrayList<>();
+    private static final Object2IntMap<Item> ITEM_ORDER = new Object2IntLinkedOpenHashMap<>();
     private static final Set<Item> UNSORTED = new HashSet<>();
 
 
@@ -33,7 +34,7 @@ public class RecipeSorter {
     public static void acceptOrder(IntList list) {
         UNSORTED.clear();
         ITEM_ORDER.clear();
-        list.forEach(i -> ITEM_ORDER.add(BuiltInRegistries.ITEM.byId(i)));
+        list.forEach(i -> ITEM_ORDER.put(BuiltInRegistries.ITEM.byId(i), ITEM_ORDER.size()));
     }
 
     // don't think we can repopulate off-thread
@@ -45,16 +46,11 @@ public class RecipeSorter {
             CreativeModeTabs.tryRebuildTabContents(FeatureFlags.VANILLA_SET, false, reg);
         }
         for (var t : CreativeModeTabs.tabs()) {
-            List<Item> found = new ArrayList<>();
-            var list = t.getDisplayItems().stream().map(ItemStack::getItem).toList();
-            for (Item tabItem : list) {
-                if (UNSORTED.contains(tabItem)) {
-                    // if the item is in the tab, we can use its index to sort it
-                    found.add(tabItem);
-                    UNSORTED.remove(tabItem);
-                }
+            for (ItemStack stack : t.getDisplayItems()) {
+                Item tabItem = stack.getItem();
+                // if the item is in the tab, we can use its index to sort it
+                if (UNSORTED.remove(tabItem)) ITEM_ORDER.put(tabItem, ITEM_ORDER.size());
             }
-            ITEM_ORDER.addAll(found);
         }
 
         UNSORTED.clear();
@@ -66,15 +62,16 @@ public class RecipeSorter {
             //Just runs once if needed. Needs to be the same from server and client
             refreshIfNeeded(level.registryAccess());
 
+            //stuff in no creative tab goes last
             recipes.sort(Comparator.comparingInt(r ->
-                    ITEM_ORDER.indexOf(r.value().getResultItem(RegistryAccess.EMPTY).getItem())));
+                    ITEM_ORDER.getOrDefault(r.value().getResultItem(RegistryAccess.EMPTY).getItem(), Integer.MAX_VALUE)));
         }
     }
 
     public static void sendOrderToClient(@Nullable ServerPlayer player) {
         refreshIfNeeded(Utils.hackyGetRegistryAccess());
         IntList list = new IntArrayList();
-        ITEM_ORDER.forEach(i -> list.add(BuiltInRegistries.ITEM.getId(i)));
+        ITEM_ORDER.keySet().forEach(i -> list.add(BuiltInRegistries.ITEM.getId(i)));
         NetworkStuff.SyncRecipeOrder message = new NetworkStuff.SyncRecipeOrder(list);
         if (player != null) {
             NetworkHelper.sendToClientPlayer(player, message);
