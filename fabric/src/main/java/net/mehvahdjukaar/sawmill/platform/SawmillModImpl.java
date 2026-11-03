@@ -9,6 +9,8 @@ import net.mehvahdjukaar.sawmill.SawmillMod;
 import net.mehvahdjukaar.sawmill.VillageStructureModifier;
 import net.minecraft.world.item.crafting.Ingredient;
 
+import java.util.List;
+
 public class SawmillModImpl implements ModInitializer {
 
     @Override
@@ -29,10 +31,8 @@ public class SawmillModImpl implements ModInitializer {
         return ing.getCustomIngredient();
     }
 
-    public static java.util.List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
-        // Fabric custom ingredients aren't structurally decomposed: left undecoded (and
-        // never queried) rather than risk poisoning their nested lazy caches.
-        return java.util.List.of();
+    public static List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
+        return List.of();
     }
 
 }

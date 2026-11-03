@@ -31,10 +31,6 @@ public final class BiomeToWoodList {
     private final Map<ResourceKey<Biome>, List<WoodType>> byBiome = new HashMap<>();
     private final Map<VillagerType, List<WoodType>> byVillagerType = new HashMap<>();
 
-    /**
-     * Picks one of the woods assigned to the biome the trader is currently in,
-     * falling back to the ones of its villager type and then to oak.
-     */
     @Nullable
     public WoodType getRandomWood(Entity trader, RandomSource random) {
         if (!(trader instanceof VillagerDataHolder villager)) return null;
@@ -70,9 +66,7 @@ public final class BiomeToWoodList {
 
             this.byBiome.put(biome, woods);
 
-            // byBiome() falls back to PLAINS for every biome it doesn't know about, so only the plains biome
-            // itself may define what a plains villager sells. Otherwise a beach or dark forest entry would
-            // hijack all the villagers coming from ordinary biomes
+            //byBiome() falls back to PLAINS for every biome it doesn't know about
             VillagerType type = VillagerType.byBiome(e.getKey());
             if (type != VillagerType.PLAINS || biome == Biomes.PLAINS) {
                 List<WoodType> forType = this.byVillagerType.computeIfAbsent(type, t -> new ArrayList<>());

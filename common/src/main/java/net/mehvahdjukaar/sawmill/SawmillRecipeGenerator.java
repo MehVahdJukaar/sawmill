@@ -2,6 +2,7 @@ package net.mehvahdjukaar.sawmill;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
@@ -86,7 +87,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     public void process(Collection<RecipeHolder<?>> recipes,
                         HolderLookup.Provider registries,
-                        com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
+                        ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byName,
                         ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType) {
 
         SawmillMod.LOGGER.info("Processing Sawmill Recipes into Recipe Manager");
@@ -154,12 +155,12 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                 for (var m : logCosts.values()) {
                     WoodType woodType = m.type;
                     Ingredient logInput = getOrCreateLogIngredient(logIngredients, woodType);
-                    if (!logInput.test(result.getDefaultInstance())) {
+                    if (!containsItem(logInput, result)) {
                         //dont add logs to logs
                         addNewRecipe(sawmillRecipes, logInput, group, result, itemId, counter++, m.cost, false);
                     }
                     Ingredient plankInput = getOrCreatePlankIngredient(plankIngredients, woodType);
-                    if (!plankInput.test(result.getDefaultInstance())) {
+                    if (!containsItem(plankInput, result)) {
                         addNewRecipe(sawmillRecipes, plankInput, group2, result, itemId, counter++, getPlanksCost(woodType, m), true);
                     }
                 }
@@ -207,12 +208,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     private static void addNewRecipe(List<RecipeHolder<WoodcuttingRecipe>> sawmillRecipes, Ingredient input, String group,
                                      Item result, String itemId, int counter, double cost, boolean only1on1) {
-        // Safety net: an empty ingredient (no items, no tag) would survive the .test() guards above
-        // (empty.test(nonEmptyStack) == false) and then crash at pack-write time, because the recipe
-        // serializes its ingredient with Ingredient.CODEC_NONEMPTY ("Item array cannot be empty").
-        // This happens when a wood type contributes no usable item to its log/plank ingredient; we
-        // log which type at the getOrCreate*Ingredient site, so just drop the recipe quietly here.
-        if (input.isEmpty()) return;
+        if (input.isEmpty()) return; //empty ingredient crashes codec when serializing
         int maxStackSize = result.components().getOrDefault(DataComponents.MAX_STACK_SIZE, 1);
 
         InputOutputCost resCost = getInputOutputCost(cost, maxStackSize);
@@ -221,8 +217,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         if (only1on1 && inputCount != 1 && CommonConfigs.PLANKS_ONLY_ONE.get()) return;
         if (outputCount > 0) {
 
-            // we know that we are going to add cost with 1 too,
-            // so we check what cost with that would be to match it if needed
+            //we know that we are going to add cost with 1 too so we check what cost with that would be to match it if needed
             if (!only1on1 && false) {
                 var costWith1 = getInputOutputCost(cost / 4, maxStackSize);
                 if (costWith1.inputCount == 1 && costWith1.outputCount / cost > outputCount) {
@@ -288,14 +283,9 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         });
     }
 
-    // Ingredient.of() filters out empty/itemless stacks, so a wood type whose log/plank blocks aren't
-    // registered as enumerable children (or have no item form) yields an empty ingredient. That can't be
-    // used as a recipe input and would crash serialization, so it gets dropped in addNewRecipe - but it
-    // means this wood type leaked into the cost tree as a source without a real item, which is worth a heads-up.
     private static Ingredient warnIfEmpty(Ingredient ingredient, WoodType type, String kind) {
         if (ingredient.isEmpty()) {
-            SawmillMod.LOGGER.warn("Wood type '{}' resolved no usable {} item; skipping its {} recipes. " +
-                    "It has no enumerable {} child to use as a recipe ingredient.", type.getTypeName(), kind, kind, kind);
+            SawmillMod.LOGGER.warn("Wood type {} has no {} items, skipping its {} recipes", type.getTypeName(), kind, kind);
         }
         return ingredient;
     }
@@ -416,26 +406,25 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
         }
     }
 
+    //cant use Ingredient.test here. on tag ingredients (archwood) it would cache an empty item list since tags aren t bound yet
+    private static boolean containsItem(Ingredient ing, Item item) {
+        for (var stack : getIngItems(ing)) {
+            if (stack.is(item)) return true;
+        }
+        return false;
+    }
+
     @NotNull
     private static ItemStack[] getIngItems(Ingredient ing) {
         List<ItemStack> stacks = new ArrayList<>();
         boolean isVanilla = SawmillMod.isVanillaIngredient(ing);
         if (!isVanilla) {
             if (SawmillMod.getCustomIngredient(ing) instanceof BlockTypeSwapIngredient<?> bts) {
-                // Moonlight's swap ingredient: resolve the inner ingredient (which routes its
-                // tags through our intercepted tag map) and then convert the block types.
-                ItemStack[] innerConverted = getIngItems(bts.getInner());
-                stacks.addAll(bts.convertItems(Arrays.stream(innerConverted).toList()));
+                ItemStack[] innerItems = getIngItems(bts.getInner());
+                stacks.addAll(bts.convertItems(Arrays.stream(innerItems).toList()));
             } else {
-                // Other custom ingredients (e.g. NeoForge compound/difference/intersection).
-                // We MUST NOT call getItems()/test() on the wrapper here: that early query
-                // populates the lazy itemStacks caches of its *nested* ingredients with empty
-                // values (tags aren't bound yet during recipe gen) and we can't reach those
-                // nested objects to reset them, which leaves them permanently broken in-game.
-                // Instead decompose into the inner ingredients and resolve each one through
-                // getIngItems, which routes tags through the intercepted map and only ever
-                // touches (and resets) the cache of static-item leaves. Types we can't
-                // decompose return nothing here and are simply left undecoded - never queried.
+                //We MUST NOT call getItems()/test() on the wrapper here:
+                //it caches empty nested ingredients since tags arent bound yet. decompose instead
                 for (Ingredient inner : SawmillMod.decomposeCustomIngredient(ing)) {
                     stacks.addAll(List.of(getIngItems(inner)));
                 }
@@ -477,8 +466,6 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     public static Map<WoodType, LogCost> getPrimitiveCostRecursive(Item itemToUncraft, Multimap<Item, Recipe<?>> allRecipes,
                                                                    Map<Item, Map<WoodType, LogCost>> cache,
                                                                    Set<Recipe<?>> visitedRecipes, int depth) {
-        // Stop expanding once we reach the limit; treat as "no cost found" for this path.
-
         var cached = cache.get(itemToUncraft);
         if (cached != null) return cached;
         if (depth >= 10) {
@@ -505,7 +492,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
                 //get log cost for each item in the ingredient
                 for (ItemStack ing : getIngItems(ingredient)) {
 
-                    Map<WoodType, LogCost> itemCost = getPrimitiveCostRecursive(ing.getItem(), allRecipes, cache, visitedRecipes, depth++);
+                    Map<WoodType, LogCost> itemCost = getPrimitiveCostRecursive(ing.getItem(), allRecipes, cache, visitedRecipes, depth + 1);
                     if (itemCost != null) {
                         itemCost.forEach((woodType, logCost) -> {
                             ingredientPossibleCosts.merge(woodType, logCost, LogCost::min);
@@ -564,8 +551,8 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
     }
 
 
-    public record LogCost(WoodType type, Double cost) {
-        static LogCost of(WoodType type, Double amount) {
+    private record LogCost(WoodType type, Double cost) {
+       private static LogCost of(WoodType type, Double amount) {
             return new LogCost(type, amount);
         }
 

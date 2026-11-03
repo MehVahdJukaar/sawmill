@@ -184,12 +184,6 @@ public class SawmillMod {
         throw new AssertionError();
     }
 
-    /**
-     * Decomposes a custom ingredient into the inner vanilla ingredients that make up its
-     * "positive" item sources, so the caller can resolve them safely via getIngItems
-     * (which never poisons tag caches). Returns an empty list for custom ingredient types
-     * we don't know how to decompose - those are left undecoded rather than queried.
-     */
     @PlatformImpl
     public static List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
         throw new AssertionError();

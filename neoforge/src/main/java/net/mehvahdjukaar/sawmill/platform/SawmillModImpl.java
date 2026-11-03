@@ -19,6 +19,7 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -62,23 +63,18 @@ public class SawmillModImpl {
         return ing.getCustomIngredient();
     }
 
-    public static java.util.List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
+    public static List<Ingredient> decomposeCustomIngredient(Ingredient ing) {
         ICustomIngredient custom = ing.getCustomIngredient();
-        // Return the inner ingredients only; the caller resolves them safely. We never call
-        // getItems()/test() here, so no nested lazy cache gets poisoned.
         if (custom instanceof CompoundIngredient compound) {
             return compound.children();
         }
         if (custom instanceof IntersectionIngredient intersection) {
-            // Over-approximate AND as the union of its children (fine for a cost heuristic).
             return intersection.children();
         }
         if (custom instanceof DifferenceIngredient difference) {
-            // base minus subtracted: approximate with base. Including the subtracted items
-            // would only ever make a recipe look cheaper, never break it.
-            return java.util.List.of(difference.base());
+            return List.of(difference.base());
         }
-        return java.util.List.of();
+        return List.of();
     }
 
 }
