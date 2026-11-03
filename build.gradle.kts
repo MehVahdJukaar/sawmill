@@ -1,5 +1,4 @@
 import com.sun.beans.introspect.PropertyInfo
-import org.gradle.internal.build.ExecutionResult.forEach
 
 plugins {
     id("com.possible-triangle.core")
@@ -46,12 +45,12 @@ subprojects {
         }
         curseforge {
             dependencies {
-                PropertyInfo.Name.required("selene")
+                required("selene")
             }
         }
         modrinth {
             dependencies {
-                PropertyInfo.Name.required("moonlight")
+                required("moonlight")
             }
         }
 
