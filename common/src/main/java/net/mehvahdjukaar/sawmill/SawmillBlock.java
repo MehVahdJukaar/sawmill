@@ -90,8 +90,7 @@ public class SawmillBlock extends WaterBlock {
         }
         MenuProvider menuProvider = state.getMenuProvider(level, pos);
         if (menuProvider != null && player instanceof ServerPlayer serverPlayer) {
-            // must use moonlight helper since the menu type is registered as an extended/synced
-            // menu (RegHelper.registerMenuType), vanilla openMenu would crash on fabric
+            //vanilla openMenu crashes on fabric with extended menu types
             PlatHelper.openCustomMenu(serverPlayer, menuProvider, buf -> {
             });
         }

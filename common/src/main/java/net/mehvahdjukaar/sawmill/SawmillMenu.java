@@ -70,18 +70,14 @@ public class SawmillMenu extends AbstractContainerMenu {
             public void onTake(Player player, ItemStack stack) {
                 stack.onCraftedBy(player, stack.getCount());
                 resultContainer.awardUsedRecipes(player, List.of(inputSlot.getItem()));
-                // guard against a desynced/stale selection (index can be -1) so we don't crash with IndexOutOfBounds.
-                // This should be impossible (a filled result slot always implies a valid selection), so if it ever
-                // trips, log it: it means the result-slot/index invariant got broken by some interleaving and we
-                // want to know about it instead of silently swallowing it.
+                //shouldnt happen but index can be -1 if selection desyncs
                 if (isValidRecipeIndex(selectedRecipeIndex.get())) {
                     ItemStack itemStack = inputSlot.remove(recipes.get(selectedRecipeIndex.get()).inputCount());
                     if (!itemStack.isEmpty()) {
                         setupResultSlot();
                     }
                 } else {
-                    SawmillMod.LOGGER.warn("Took a sawmill result with no valid recipe selected (index={}, recipes={}). " +
-                                    "This indicates a result-slot/selection desync; skipping input consumption.",
+                    SawmillMod.LOGGER.warn("Took sawmill result with no recipe selected (index={}, recipes={})",
                             selectedRecipeIndex.get(), recipes.size());
                 }
 

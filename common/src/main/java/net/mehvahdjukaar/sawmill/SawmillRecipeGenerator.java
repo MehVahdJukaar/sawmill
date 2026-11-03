@@ -278,8 +278,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
     private static Optional<Ingredient> warnIfEmpty(Optional<Ingredient> ingredient, WoodType type, String kind) {
         if (ingredient.isEmpty()) {
-            SawmillMod.LOGGER.warn("Wood type '{}' resolved no usable {} item; skipping its {} recipes. " +
-                    "It has no enumerable {} child to use as a recipe ingredient.", type.getTypeName(), kind, kind, kind);
+            SawmillMod.LOGGER.warn("Wood type {} has no {} items, skipping its {} recipes", type.getTypeName(), kind, kind);
         }
         return ingredient;
     }
