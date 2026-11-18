@@ -21,6 +21,13 @@ dependencies {
 
     modCompileOnly("curse.maven:repurposed-structures-368293:4823487")
     modCompileOnly("curse.maven:framedblocks-441647:5143589")
+
+    // issue 127 repro
+    modRuntimeOnly(":natures-spirit:2.3.2-1.21.1")
+    modRuntimeOnly(":lithostitched:1.8.1-neoforge-21.1")
+    modRuntimeOnly(":biomes-o-plenty:21.1.0.14")
+    modRuntimeOnly(":glitchcore:2.1.0.2")
+    modRuntimeOnly(":terrablender:4.1.0.8")
 }
 
 sourceSets.named("main") {

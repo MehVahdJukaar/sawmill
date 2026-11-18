@@ -7,6 +7,7 @@ import net.mehvahdjukaar.moonlight.api.platform.RegHelper;
 import net.mehvahdjukaar.moonlight.api.resources.recipe.BlockTypeSwapIngredient;
 import net.mehvahdjukaar.sawmill.trades.CarpenterTrades;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -196,6 +197,15 @@ public class SawmillMod {
                 }
             }
         }
+    }
+
+    //this could be veery baad...
+    //vanilla binds these only after all reload listeners ran.
+    // we read every recipe result before that and some mods resolve tags on first call (IE hammer dusts) so they would stay empty until the next reload
+    public static void bindItemTagsEarly() {
+        Map<TagKey<Item>, List<Holder<Item>>> itemTags = new HashMap<>();
+        tags.forEach((id, holders) -> itemTags.put(TagKey.create(Registries.ITEM, id), (List) List.copyOf(holders)));
+        BuiltInRegistries.ITEM.bindTags(itemTags);
     }
 
     @PlatformImpl

@@ -109,6 +109,7 @@ public class SawmillRecipeGenerator extends DynamicServerResourceProvider {
 
 
         SawmillMod.waitForTags();
+        SawmillMod.bindItemTagsEarly();
 
         SawmillMod.LOGGER.info("Generating Sawmill Recipes");
         Stopwatch stopwatch = Stopwatch.createStarted();
