@@ -87,7 +87,7 @@ public class CarpenterTrades extends DynamicServerResourceProvider {
         sells(sink, levelTags, wood, "chest_boat", 4, wood.getItemOfThis("chest_boat"), 1);
         sells(sink, levelTags, wood, "hanging_sign", 5, wood.getItemOfThis("hanging_sign"), 1);
 
-        if (log != null && strippedLog != null) {
+        if (log != null && log != Items.AIR && strippedLog != null && strippedLog != Items.AIR) {
             JsonObject trade = trade(itemJson(log, 4), itemJson(strippedLog, 4), SELL_XP[2]);
             trade.add("additional_wants", itemJson(Items.EMERALD, 1));
             add(sink, levelTags, wood, "stripping", 3, trade);

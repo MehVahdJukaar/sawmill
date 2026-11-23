@@ -1,1 +1,1 @@
-- more fixeds to recipe gen
+- fixed a couple of github issues 
