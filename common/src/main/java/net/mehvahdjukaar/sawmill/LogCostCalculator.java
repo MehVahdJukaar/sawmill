@@ -19,9 +19,11 @@ import java.util.*;
 public class LogCostCalculator {
 
     private final Map<Item, Map<WoodType, Double>> costs = new HashMap<>();
+    private final Map<Item, Map<WoodType, Double>> incompleteCosts = new HashMap<>();
     private final Multimap<Item, Recipe<?>> recipesByResult = HashMultimap.create();
     private final Set<Item> inProgress = new HashSet<>();
-    private int cuts = 0;
+    //how many time current item gave up (loop or too deep)
+    private int giveUps = 0;
 
     public static Map<Item, Map<WoodType, Double>> calculate(Collection<RecipeHolder<?>> recipes) {
         LogCostCalculator calc = new LogCostCalculator();
@@ -112,6 +114,7 @@ public class LogCostCalculator {
     private void uncraftAll() {
         //magic
         for (var item : recipesByResult.keySet()) {
+            incompleteCosts.clear();
             Map<WoodType, Double> cost = uncraft(item, 0);
 
             if (!cost.isEmpty()) costs.put(item, cost);
@@ -123,12 +126,17 @@ public class LogCostCalculator {
     private Map<WoodType, Double> uncraft(Item item, int depth) {
         var cached = costs.get(item);
         if (cached != null) return cached;
+        var incomplete = incompleteCosts.get(item);
+        if (incomplete != null) {
+            giveUps++;
+            return incomplete;
+        }
         //if its not made out of pure wood by now it probably never will be
         if (depth >= 10 || !inProgress.add(item)) {
-            cuts++;
+            giveUps++;
             return Map.of();
         }
-        int cutsBefore = cuts;
+        int giveUpsBefore = giveUps;
         Map<WoodType, Double> best = new HashMap<>();
 
         //try to uncraft looping through all its recipes
@@ -165,7 +173,8 @@ public class LogCostCalculator {
         }
         inProgress.remove(item);
         // something below got cut by a cycle or the depth limit so this is only good for this path. dont remember it
-        if (cuts == cutsBefore) costs.put(item, best);
+        if (giveUps == giveUpsBefore) costs.put(item, best);
+        else incompleteCosts.put(item, best);
         return best;
     }
 

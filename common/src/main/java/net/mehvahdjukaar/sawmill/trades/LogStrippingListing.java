@@ -10,6 +10,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +52,7 @@ public record LogStrippingListing(ItemCost price, int amount, int maxTrades, int
         if (type == null) return null;
         Item log = type.log.asItem();
         Item stripped = type.getItemOfThis("stripped_log");
-        if (stripped != null) {
+        if (log != Items.AIR && stripped != null && stripped != Items.AIR) {
             return new MerchantOffer(new ItemCost(log, amount), Optional.of(price), new ItemStack(stripped, amount), maxTrades, xp, priceMult);
         }
         return null;
