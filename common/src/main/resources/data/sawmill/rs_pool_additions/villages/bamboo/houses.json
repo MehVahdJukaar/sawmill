@@ -5,6 +5,12 @@
       "flag": "rs_compat"
     }
   ],
+  "neoforge:conditions": [
+    {
+      "type": "sawmill:flag",
+      "flag": "rs_compat"
+    }
+  ],
   "target_pool": "repurposed_structures:villages/bamboo/houses",
   "fallback": "minecraft:empty",
   "elements": [
