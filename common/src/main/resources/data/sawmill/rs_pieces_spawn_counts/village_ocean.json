@@ -5,6 +5,12 @@
       "flag": "rs_compat"
     }
   ],
+  "neoforge:conditions": [
+    {
+      "type": "sawmill:flag",
+      "flag": "rs_compat"
+    }
+  ],
   "target_structure": "repurposed_structures:village_ocean",
   "pieces_spawn_counts": [
     {
